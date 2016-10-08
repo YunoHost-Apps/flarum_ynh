@@ -44,6 +44,15 @@
                 "default": "/flarum"
             },
             {
+                "name": "title",
+                "ask": {
+                    "en": "Choose a title for your forum",
+                    "fr": "Choisissez un titre pour votre forum"
+                },
+                "example": "My forum",
+                "default": ""
+            },
+            {
                 "name": "admin",
                 "type": "user",
                 "ask": {
