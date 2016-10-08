@@ -33,65 +33,70 @@ ynh_app_setting_set "$app" is_public "$is_public"
 sudo yunohost app checkurl "${domain}${path}" -a "$app" \
     || ynh_die "Path not available: ${domain}${path}"
 
+tmp=/tmp/flaruminstall
+sudo rm -rf $tmp
+sudo mkdir -p $tmp
+sudo chown -R www-data:www-data $tmp
+sudo chmod -R 755 $tmp
 
 ### composer ###
-# Install or update composer (https://getcomposer.org)
-composerinstall=/tmp/composer-install
-if [ -d "$composerinstall" ]; then
-  sudo rm -rf $composerinstall
+if ! type "composer" > /dev/null; then
+  # Install composer (https://getcomposer.org)
+  EXPECTED_SIGNATURE=$(wget https://composer.github.io/installer.sig -O - -q)
+  sudo su - www-data -s /bin/bash -c "php -r \"copy('https://getcomposer.org/installer', '$tmp/composer-setup.php');\""
+  ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$tmp/composer-setup.php');")
+  if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
+  then
+      sudo mkdir /var/www/.composer
+      sudo chown -R www-data:www-data /var/www/.composer
+      sudo chmod -R 755 /var/www/.composer
+      sudo su - www-data -s /bin/bash -c "php $tmp/composer-setup.php --install-dir=$tmp --filename=composer"
+      sudo mv $tmp/composer /usr/local/bin
+      sudo chown root:root /usr/local/bin/composer
+      RESULT=$?
+  else
+      >&2 echo 'ERROR: Invalid installer signature'
+      RESULT=1
+  fi
+  if [ $RESULT != 0 ]
+  then
+    sudo rm -rf $final_path
+    exit $RESULT
+  fi
 fi
-sudo mkdir $composerinstall
-EXPECTED_SIGNATURE=$(wget https://composer.github.io/installer.sig -O - -q)
-sudo php -r "copy('https://getcomposer.org/installer', '$composerinstall/composer-setup.php');"
-ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$composerinstall/composer-setup.php');")
-if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
-then
-    sudo php "$composerinstall/composer-setup.php" --install-dir=/usr/local/bin
-    RESULT=$?
-    sudo rm "$composerinstall/composer-setup.php"
-else
-    >&2 echo 'ERROR: Invalid installer signature'
-    sudo rm "$composerinstall/composer-setup.php"
-    exit 1
-fi
-if [ $RESULT != 0 ]
-then
-	exit $RESULT
-fi
-sudo rm -rf $composerinstall
-
+  sudo mkdir -p /var/www/.composer
+  sudo chown -R www-data:www-data /var/www/.composer
+  sudo chmod -R 755 /var/www/.composer
 ### composer end ###
 
-sudo mkdir -p $final_path
-sudo chown -R www-data:www-data $final_path
-
 ### Install flarum
-sudo su - www-data -s /bin/bash -c "composer.phar create-project flarum/flarum "$final_path" --stability=beta"
+cwd=$(pwd)
+sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /usr/local/bin/composer create-project flarum/flarum . --stability=beta"
+sudo mkdir $final_path
+sudo mv $tmp/$app $final_path/..
+sudo chown -R www-data:www-data $final_path
+cd $cwd
+sudo rm -rf $tmp
 
-### MySQL (can be removed if not used) ###
-# If your app use a MySQL database you can use these lines to bootstrap
-# a database, an associated user and save the password in app settings.
-#
-# # Generate MySQL password and create database
+### MySQL ###
 dbuser=$app
 dbname=$app
 dbpass=$(ynh_string_random 15)
 ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
-# Install
-
-# Modify Nginx configuration file and copy it to Nginx conf directory
+### Nginx ###
+if [ $path = "/" ]; then
+nginx_conf=../conf/nginx_root.conf
+else
 nginx_conf=../conf/nginx.conf
+fi
 sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
 sed -i "s@YNH_WWW_ALIAS@$app/@g" $nginx_conf
-# If a dedicated php-fpm process is used:
-# Don't forget to modify ../conf/nginx.conf accordingly or your app will not work!
 sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
 sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
 
 ### PHP ###
-# Modify PHP-FPM pool configuration and copy it to the pool directory
 sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
 sed -i "s@YNH_WWW_ALIAS@$app/@g" ../conf/php-fpm.conf
 finalphpconf=/etc/php5/fpm/pool.d/$app.conf
@@ -99,7 +104,6 @@ sudo cp ../conf/php-fpm.conf $finalphpconf
 sudo chown root: $finalphpconf
 sudo chmod 644 $finalphpconf
 sudo service php5-fpm reload
-### PHP end ###
 
 # If app is public, add url to SSOWat conf as skipped_uris
 if [[ $is_public -eq 1 ]]; then
@@ -109,5 +113,7 @@ fi
 
 # Reload services
 sudo service nginx reload
+
+# Tell user the MySQL credentials for post-installation
 echo "MySQL database user is " $dbuser
 echo "MySQL database password is " $dbpass

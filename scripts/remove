@@ -10,6 +10,7 @@ source /usr/share/yunohost/helpers
 domain=$(ynh_app_setting_get "$app" domain)
 
 # Remove sources
+sudo rm -rf /tmp/composerinstall
 sudo rm -rf /var/www/$app
 
 # Remove nginx configuration file
