@@ -62,6 +62,15 @@
                 "example": "johndoe"
             },
             {
+                "name": "adminpass",
+                "type": "password",
+                "ask": {
+                    "en": "Put your password",
+                    "fr": "Insérez votre mot de passe"
+                },
+                "example": "******"
+            },
+            {
                 "name": "is_public",
                 "type": "boolean",
                 "ask": {
