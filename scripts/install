@@ -122,7 +122,7 @@ sed -i "s@YNH_WWW_APP@$app@g" ../sources/configuration.yml
 sed -i "s@YNH_DB_PASS@$dbpass@g" ../sources/configuration.yml
 sed -i "s@YNH_ADMIN_USER@$admin@g" ../sources/configuration.yml
 sed -i "s@YNH_ADMIN_PASS@$adminpass@g" ../sources/configuration.yml
-adminemail=ynh_user_get_info $admin mail
+adminemail=$(ynh_user_get_info $admin mail)
 sed -i "s@YNH_ADMIN_EMAIL@$adminemail@g" ../sources/configuration.yml
 sed -i "s@YNH_FORUM_TITLE@$title@g" ../sources/configuration.yml
 sudo cp ../sources/configuration.yml $final_path
