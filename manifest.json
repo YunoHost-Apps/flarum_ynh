@@ -44,22 +44,14 @@
                 "default": "/flarum"
             },
             {
-                "name": "title",
-                "ask": {
-                    "en": "Choose a title for your forum",
-                    "fr": "Choisissez un titre pour votre forum"
-                },
-                "example": "My forum",
-                "default": ""
-            },
-            {
                 "name": "admin",
                 "type": "user",
                 "ask": {
                     "en": "Choose an admin user",
                     "fr": "Choisissez l’administrateur"
                 },
-                "example": "johndoe"
+                "example": "johndoe",
+                "optional": true
             },
             {
                 "name": "adminpass",
@@ -68,7 +60,18 @@
                     "en": "Put your password",
                     "fr": "Insérez votre mot de passe"
                 },
-                "example": "******"
+                "example": "******",
+                "optional": true
+            },
+            {
+                "name": "title",
+                "ask": {
+                    "en": "Choose a title for your forum",
+                    "fr": "Choisissez un titre pour votre forum"
+                },
+                "example": "My forum",
+                "default": "",
+                "optional": true
             },
             {
                 "name": "is_public",

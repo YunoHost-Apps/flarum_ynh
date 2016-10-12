@@ -41,6 +41,11 @@ sudo mkdir -p $tmp
 sudo chown -R www-data:www-data $tmp
 sudo chmod -R 755 $tmp
 
+# Prepare composer and cache directories
+sudo mkdir -p /var/www/.composer/cache
+sudo chown -R www-data:www-data /var/www/.composer
+sudo chmod -R 755 /var/www/.composer
+
 ### composer ###
 if ! type "composer" > /dev/null; then
   # Install composer (https://getcomposer.org)
@@ -49,9 +54,8 @@ if ! type "composer" > /dev/null; then
   ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$tmp/composer-setup.php');")
   if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
   then
-      sudo mkdir /var/www/.composer
-      sudo chown -R www-data:www-data /var/www/.composer
-      sudo chmod -R 755 /var/www/.composer
+      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /var/www/.composer' /etc/php5/fpm/php-fpm.conf || sudo echo 'env[COMPOSER_HOME]= /var/www/.composer' >> /etc/php5/fpm/php-fpm.conf"
+      sudo service php5-fpm reload
       sudo su - www-data -s /bin/bash -c "php $tmp/composer-setup.php --install-dir=$tmp --filename=composer"
       sudo mv $tmp/composer /usr/local/bin
       sudo chown root:root /usr/local/bin/composer
@@ -66,9 +70,6 @@ if ! type "composer" > /dev/null; then
     exit $RESULT
   fi
 fi
-  sudo mkdir -p /var/www/.composer
-  sudo chown -R www-data:www-data /var/www/.composer
-  sudo chmod -R 755 /var/www/.composer
 ### composer end ###
 
 ### Install flarum
@@ -117,9 +118,10 @@ fi
 sudo service nginx reload
 
 ### POST-INSTALL ###
+if [[ -n $adminpass && -n $title ]]; then
 sed -i "s@YNH_APP_DOMAIN@$domain@g" ../sources/configuration.yml
 sed -i "s@/YNH_WWW_PATH@$path@g" ../sources/configuration.yml
-sed -i "s@YNH_WWW_APP@$app@g" ../sources/configuration.ymls
+sed -i "s@YNH_WWW_APP@$app@g" ../sources/configuration.yml
 sed -i "s@YNH_DB_PASS@$dbpass@g" ../sources/configuration.yml
 sed -i "s@YNH_ADMIN_USER@$admin@g" ../sources/configuration.yml
 sed -i "s@YNH_ADMIN_PASS@$adminpass@g" ../sources/configuration.yml
@@ -129,6 +131,7 @@ sed -i "s@YNH_FORUM_TITLE@$title@g" ../sources/configuration.yml
 sudo cp ../sources/configuration.yml $final_path
 #sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 flarum install -f configuration.yml"
 sudo rm $final_path/configuration.yml
+fi
 
 # Tell user the MySQL credentials for post-installation
 echo "MySQL database user is " $dbuser
