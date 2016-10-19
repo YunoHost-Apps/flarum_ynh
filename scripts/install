@@ -129,10 +129,14 @@ adminemail=$(ynh_user_get_info $admin mail)
 sed -i "s%YNH_ADMIN_EMAIL%$adminemail%g" ../sources/configuration.yml
 sed -i "s@YNH_FORUM_TITLE@$title@g" ../sources/configuration.yml
 sudo cp ../sources/configuration.yml $final_path
-#sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 flarum install -f configuration.yml"
+# Workaround, waiting for beta6
+sudo \cp ../sources/Server.php $final_path/vendor/flarum/core/src/Console/Server.php
+sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 flarum install -f configuration.yml"
 sudo rm $final_path/configuration.yml
-fi
 
-# Tell user the MySQL credentials for post-installation
-echo "MySQL database user is " $dbuser
-echo "MySQL database password is " $dbpass
+# Generate and add root token for user creation and deletion
+roottoken=$(ynh_string_random 40)
+rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
+ynh_mysql_execute_as_root "$rootsql" $dbname
+ynh_app_setting_set "$app" root_token "$roottoken"
+fi
