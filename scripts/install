@@ -129,8 +129,6 @@ adminemail=$(ynh_user_get_info $admin mail)
 sed -i "s%YNH_ADMIN_EMAIL%$adminemail%g" ../sources/configuration.yml
 sed -i "s@YNH_FORUM_TITLE@$title@g" ../sources/configuration.yml
 sudo cp ../sources/configuration.yml $final_path
-# Workaround, waiting for beta6
-sudo \cp ../sources/Server.php $final_path/vendor/flarum/core/src/Console/Server.php
 sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 flarum install -f configuration.yml"
 sudo rm $final_path/configuration.yml
 
