@@ -73,7 +73,7 @@
                 "ask": {
                     "en": "Choose a title for your forum",
                     "fr": "Choisissez un titre pour votre forum",
-                    "de": "Wählen ein Titel für eure Internetforum" 
+                    "de": "Wählen einen Titel für eure Internetforum" 
                 },
                 "example": "My forum",
                 "default": "",
