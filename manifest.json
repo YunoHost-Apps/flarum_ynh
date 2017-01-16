@@ -5,7 +5,7 @@
     "description": {
         "en": "Flarum (open-source forum software) package for YunoHost.",
         "fr": "Package Flarum (système de forum libre) pour YunoHost.",
-        "de": "Flarum (Open Source) ist ein Softwarepaket für Yunohost."
+        "de": "Flarum (Open Source) ist ein Programmpaket für Yunohost."
     },
     "url": "http://flarum.org/",
     "license": "MIT",
