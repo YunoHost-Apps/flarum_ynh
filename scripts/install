@@ -76,7 +76,7 @@ fi
 cwd=$(pwd)
 sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /usr/local/bin/composer create-project flarum/flarum . --stability=beta"
 sudo mkdir $final_path
-sudo mv $tmp/$app $final_path/..
+sudo cp  -Rfv $tmp/$app $final_path/
 sudo chown -R www-data:www-data $final_path
 cd $cwd
 sudo rm -rf $tmp
