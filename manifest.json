@@ -61,11 +61,11 @@
                 "name": "adminpass",
                 "type": "password",
                 "ask": {
-                    "en": "Put your password",
-                    "fr": "Insérez votre mot de passe",
-                    "de": "Einfügen eure Passwort"
+                    "en": "Put your password (8 characters minimum)",
+                    "fr": "Insérez votre mot de passe (8 caractères minimum)",
+                    "de": "Einfügen eure Passwort (mindestens 8 Zeichen)"
                 },
-                "example": "******",
+                "example": "********",
                 "optional": true
             },
             {

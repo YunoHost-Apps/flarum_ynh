@@ -22,7 +22,8 @@ admin=$YNH_APP_ARG_ADMIN
 adminpass=$YNH_APP_ARG_ADMINPASS
 title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
-final_path=/var/www/$app
+www_path=/var/www
+final_path=$www_path/$app
 
 # Source YunoHost helpers
 source /usr/share/yunohost/helpers
@@ -75,8 +76,7 @@ fi
 ### Install flarum
 cwd=$(pwd)
 sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /usr/local/bin/composer create-project flarum/flarum . --stability=beta"
-sudo mkdir $final_path
-sudo cp  -Rfv $tmp/$app $final_path/
+sudo cp -Rf $tmp/$app $www_path/
 sudo chown -R www-data:www-data $final_path
 cd $cwd
 sudo rm -rf $tmp
@@ -131,10 +131,4 @@ sed -i "s@YNH_FORUM_TITLE@$title@g" ../sources/configuration.yml
 sudo cp ../sources/configuration.yml $final_path
 sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 flarum install -f configuration.yml"
 sudo rm $final_path/configuration.yml
-
-# Generate and add root token for user creation and deletion
-roottoken=$(ynh_string_random 40)
-rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
-ynh_mysql_execute_as_root "$rootsql" $dbname
-ynh_app_setting_set "$app" root_token "$roottoken"
 fi
