@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+# Retrieve arguments
+username=$1
+app=#APP#
+
+# Source app helpers
+source /usr/share/yunohost/helpers
+
+domain=$(</etc/yunohost/current_host)
+path=$(ynh_app_setting_get $app path)
+
+# Adding trailing slash to path
+len=${#path}-1
+if [ "${path:len}" != "/" ]; then
+  path=$path"/"
+fi
+
+userpass=$(ynh_string_random 16)
+usermail=$(ynh_user_get_info $username 'mail')
+data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'","ssowat_id":"'$username'"}}}'
+curl -k -i \
+     -H "Content-Type: application/json" \
+     -H "Authentication: Token $roottoken" \
+     -X POST -d "$data" \
+     -L https://${domain}${path}api/users
+usersql="UPDATE users SET ssowat_id = '$username' WHERE username = '$username'"
+ynh_mysql_execute_as_root "$usersql" $dbname
