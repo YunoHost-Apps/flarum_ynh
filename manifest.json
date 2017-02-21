@@ -9,7 +9,7 @@
     },
     "url": "http://flarum.org/",
     "license": "MIT",
-    "version": "0.1.0-beta.5",
+    "version": "0.1.0-beta.6",
     "maintainer": {
         "name": "Titus PiJean",
         "email": "tituspijean@outlook.com"
@@ -50,22 +50,11 @@
                 "name": "admin",
                 "type": "user",
                 "ask": {
-                    "en": "Choose an admin user",
+                    "en": "Choose the admin user",
                     "fr": "Choisissez l’administrateur",
                     "de": "Wählen einen Administrator"
                 },
                 "example": "johndoe",
-                "optional": true
-            },
-            {
-                "name": "adminpass",
-                "type": "password",
-                "ask": {
-                    "en": "Put your password (8 characters minimum)",
-                    "fr": "Insérez votre mot de passe (8 caractères minimum)",
-                    "de": "Einfügen eure Passwort (mindestens 8 Zeichen)"
-                },
-                "example": "********",
                 "optional": true
             },
             {
