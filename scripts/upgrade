@@ -47,7 +47,7 @@ finalphpconf=/etc/php5/fpm/pool.d/$app.conf
 sudo cp ../conf/php-fpm.conf $finalphpconf
 sudo chown root: $finalphpconf
 sudo chmod 644 $finalphpconf
-sudo service php5-fpm restart
+sudo service php5-fpm reload
 ### PHP end ###
 
 # If app is public, add url to SSOWat conf as skipped_uris
