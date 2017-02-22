@@ -213,3 +213,5 @@ for username in $(ynh_user_list); do
     ynh_mysql_execute_as_root "$usersql" $dbname
     fi
 done
+
+>&2 echo "Admin : $admin, password : $adminpass. Change it!"
