@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
+# Load extra functions
+source .functions       
+
+# Activate TRAP to stop the script if an error is detected
+TRAP_ON
 
 # This is a multi-instance app, meaning it can be installed several times independently
 # The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -17,7 +20,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path=${YNH_APP_ARG_PATH%/}
+path=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
@@ -27,14 +30,27 @@ final_path=$www_path/$app
 # Source YunoHost helpers$
 source /usr/share/yunohost/helpers
 
+# Check variables are not empty
+CHECK_VAR "$app" "app name not set"
+
+# Check validity of admin user
+CHECK_USER "$admin"
+
+# Check and correct path syntax
+CHECK_PATH
+
+# Check availibility of path and domain
+CHECK_DOMAINPATH
+
 # Save app settings
 ynh_app_setting_set "$app" admin "$admin"
 ynh_app_setting_set "$app" is_public "$is_public"
 ynh_app_setting_set "$app" path "$path"
 
-# Check domain/path availability
-sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-    || ynh_die "Path not available: ${domain}${path}"
+
+# Check final_path availibility. Installation stops if it already exists
+CHECK_FINALPATH
+sudo mkdir "$final_path"
 
 tmp=/tmp/flaruminstall
 sudo rm -rf $tmp
@@ -43,9 +59,9 @@ sudo chown -R www-data:www-data $tmp
 sudo chmod -R 755 $tmp
 
 # Prepare composer and cache directories
-sudo mkdir -p /var/www/.composer/cache
-sudo chown -R www-data:www-data /var/www/.composer
-sudo chmod -R 755 /var/www/.composer
+sudo mkdir -p /opt/flarum_composer/cache
+sudo chown -R www-data:www-data /opt/flarum_composer
+sudo chmod -R 755 /opt/flarum_composer
 
 ### composer ###
 if ! type "composer" > /dev/null; then
@@ -55,7 +71,7 @@ if ! type "composer" > /dev/null; then
   ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$tmp/composer-setup.php');")
   if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
   then
-      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /var/www/.composer' /etc/php5/fpm/php-fpm.conf || sudo echo 'env[COMPOSER_HOME]= /var/www/.composer' >> /etc/php5/fpm/php-fpm.conf"
+      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /opt/flarum_composer' /etc/php5/fpm/php-fpm.conf || sudo echo 'env[COMPOSER_HOME]= /opt/flarum_composer' >> /etc/php5/fpm/php-fpm.conf"
       sudo service php5-fpm reload
       sudo su - www-data -s /bin/bash -c "php $tmp/composer-setup.php --install-dir=$tmp --filename=composer"
       sudo mv $tmp/composer /usr/local/bin
