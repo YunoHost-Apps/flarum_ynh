@@ -43,6 +43,7 @@ else
 fi
 sed -i "s@YNH_WWW_PATH@$path@g" $nginxconf
 sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginxconf
+sed -i "s@YNH_WWW_APP@$final_path@g" $nginxconf
 sudo cp $nginxconf /etc/nginx/conf.d/$domain.d/$app.conf
 
 # If a dedicated php-fpm process is used:
