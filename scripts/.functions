@@ -1,22 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Gist
- @polytan02
- Sign out
- Unwatch 1
-  Star 0
- Fork 6 polytan02/phpmyadmin_ynh
-forked from YunoHost-Apps/phpmyadmin_ynh
- Code  Pull requests 0  Projects 0  Wiki  Pulse  Graphs  Settings
-Branch: master Find file Copy pathphpmyadmin_ynh/scripts/.fonctions
-1a1a940  8 days ago
-@polytan02 polytan02 Update on .fonctions file
-1 contributor
-RawBlameHistory     
-Executable File  228 lines (201 sloc)  8.08 KB
 #!/bin/bash
 
 CHECK_VAR () {	# Vérifie que la variable n'est pas vide.
@@ -244,5 +225,3 @@ REMOVE_SYS_USER () {   # Supprime l'utilisateur système dédié à l'app
     	sudo userdel $app
     fi
 }
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
