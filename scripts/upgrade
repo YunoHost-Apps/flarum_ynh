@@ -14,7 +14,6 @@ domain=$(ynh_app_setting_get "$app" domain)
 path=$(ynh_app_setting_get "$app" path)
 admin=$(ynh_app_setting_get "$app" admin)
 is_public=$(ynh_app_setting_get "$app" is_public)
-language=$(ynh_app_setting_get "$app" language)
 
 # Remove trailing "/" for next commands
 path=${path%/}
@@ -26,7 +25,8 @@ sudo cp -a ../sources/. $src_path
 
 # Set permissions to app files
 # you may need to make some file and/or directory writeable by www-data (nginx user)
-sudo chown -R root: $src_path
+sudo chown -R www-data:www-data $src_path
+sudo chmod -R 755 $src_path 
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 nginx_conf=../conf/nginx.conf
@@ -36,6 +36,7 @@ sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
 #
 sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
 sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+sudo chmod 644 /etc/nginx/conf.d/$domain.d/$app.conf
 
 ### PHP ###
 # If a dedicated php-fpm process is used:
@@ -46,7 +47,7 @@ finalphpconf=/etc/php5/fpm/pool.d/$app.conf
 sudo cp ../conf/php-fpm.conf $finalphpconf
 sudo chown root: $finalphpconf
 sudo chmod 644 $finalphpconf
-sudo service php5-fpm restart
+sudo service php5-fpm reload
 ### PHP end ###
 
 # If app is public, add url to SSOWat conf as skipped_uris
