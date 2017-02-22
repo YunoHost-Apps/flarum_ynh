@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
+# Load extra functions
+source .functions       
+
+# Activate TRAP to stop the script if an error is detected
+TRAP_ON
 
 # This is a multi-instance app, meaning it can be installed several times independently
 # The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -19,21 +22,35 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$YNH_APP_ARG_DOMAIN
 path=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
-adminpass=$YNH_APP_ARG_ADMINPASS
 title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
-final_path=/var/www/$app
+www_path=/var/www
+final_path=$www_path/$app
 
-# Source YunoHost helpers
+# Source YunoHost helpers$
 source /usr/share/yunohost/helpers
+
+# Check variables are not empty
+CHECK_VAR "$app" "app name not set"
+
+# Check validity of admin user
+CHECK_USER "$admin"
+
+# Check and correct path syntax
+CHECK_PATH
+
+# Check availibility of path and domain
+CHECK_DOMAINPATH
 
 # Save app settings
 ynh_app_setting_set "$app" admin "$admin"
 ynh_app_setting_set "$app" is_public "$is_public"
+ynh_app_setting_set "$app" path "$path"
 
-# Check domain/path availability
-sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-    || ynh_die "Path not available: ${domain}${path}"
+
+# Check final_path availibility. Installation stops if it already exists
+CHECK_FINALPATH
+sudo mkdir "$final_path"
 
 tmp=/tmp/flaruminstall
 sudo rm -rf $tmp
@@ -42,9 +59,9 @@ sudo chown -R www-data:www-data $tmp
 sudo chmod -R 755 $tmp
 
 # Prepare composer and cache directories
-sudo mkdir -p /var/www/.composer/cache
-sudo chown -R www-data:www-data /var/www/.composer
-sudo chmod -R 755 /var/www/.composer
+sudo mkdir -p /opt/flarum_composer/cache
+sudo chown -R www-data:www-data /opt/flarum_composer
+sudo chmod -R 755 /opt/flarum_composer
 
 ### composer ###
 if ! type "composer" > /dev/null; then
@@ -54,7 +71,7 @@ if ! type "composer" > /dev/null; then
   ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$tmp/composer-setup.php');")
   if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
   then
-      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /var/www/.composer' /etc/php5/fpm/php-fpm.conf || sudo echo 'env[COMPOSER_HOME]= /var/www/.composer' >> /etc/php5/fpm/php-fpm.conf"
+      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /opt/flarum_composer' /etc/php5/fpm/php-fpm.conf || sudo echo 'env[COMPOSER_HOME]= /opt/flarum_composer' >> /etc/php5/fpm/php-fpm.conf"
       sudo service php5-fpm reload
       sudo su - www-data -s /bin/bash -c "php $tmp/composer-setup.php --install-dir=$tmp --filename=composer"
       sudo mv $tmp/composer /usr/local/bin
@@ -75,8 +92,7 @@ fi
 ### Install flarum
 cwd=$(pwd)
 sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /usr/local/bin/composer create-project flarum/flarum . --stability=beta"
-sudo mkdir $final_path
-sudo mv $tmp/$app $final_path/..
+sudo cp -Rf $tmp/$app $www_path/
 sudo chown -R www-data:www-data $final_path
 cd $cwd
 sudo rm -rf $tmp
@@ -89,15 +105,17 @@ ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 ### Nginx ###
+nginxconf="../conf/nginx.conf"
 if [ $path = "/" ]; then
-nginx_conf=../conf/nginx_root.conf
+    sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
+    sed -i "s@/YNH_WWW_ROOTAPP@@g" ../conf/nginx.conf
 else
-nginx_conf=../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTPATH@$path@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@$app@g" ../conf/nginx.conf
 fi
-sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
-sed -i "s@YNH_WWW_ALIAS@$app/@g" $nginx_conf
-sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
-sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+sed -i "s@YNH_WWW_PATH@$path@g" $nginxconf
+sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginxconf
+sudo cp $nginxconf /etc/nginx/conf.d/$domain.d/$app.conf
 
 ### PHP ###
 sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
@@ -113,12 +131,18 @@ if [[ $is_public -eq 1 ]]; then
   # unprotected_uris allows SSO credentials to be passed anyway.
   ynh_app_setting_set "$app" unprotected_uris "/"
 fi
+  ynh_app_setting_set "$app" skipped_uris "/api"
+  sudo yunohost app ssowatconf
 
 # Reload services
 sudo service nginx reload
 
+# Install the SSOwat auth extension
+sudo su - www-data -s /bin/bash -c "cd $final_path && composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
+
 ### POST-INSTALL ###
-if [[ -n $adminpass && -n $title ]]; then
+if [[ -n $admin && -n $title ]]; then
+adminpass=$(ynh_string_random 8)
 sed -i "s@YNH_APP_DOMAIN@$domain@g" ../sources/configuration.yml
 sed -i "s@/YNH_WWW_PATH@$path@g" ../sources/configuration.yml
 sed -i "s@YNH_WWW_APP@$app@g" ../sources/configuration.yml
@@ -134,7 +158,58 @@ sudo rm $final_path/configuration.yml
 
 # Generate and add root token for user creation and deletion
 roottoken=$(ynh_string_random 40)
+apitablesql="CREATE TABLE IF NOT EXISTS api_keys (api_key TEXT(40) NOT NULL UNIQUE)"
 rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
+ynh_mysql_execute_as_root "$apitablesql" $dbname
 ynh_mysql_execute_as_root "$rootsql" $dbname
 ynh_app_setting_set "$app" root_token "$roottoken"
 fi
+
+# Configure SSOwat auth extension
+ssowatdomain=$(</etc/yunohost/current_host)
+data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'"}'
+rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $roottoken; userId=1" \
+    -X POST -d "$data" \
+    -L https://${domain}${path}/api/settings )
+echo $path
+exit 0
+if [[ $rep != 204 ]]; then
+    echo "SSOwat domain setting failed"
+    exit 1
+fi
+data='{"flarum-ext-auth-ssowat.onlyUse": true}'
+rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $roottoken; userId=1" \
+    -X POST -d "$data" \
+    -L https://${domain}${path}/api/settings )
+if [[ $rep != 204 ]]; then
+    echo "SSOwat auth exclusivity failed"
+    exit 1
+fi
+
+# Enable the selected admin to login with SSOwat
+adminsql="UPDATE users SET ssowat_id = '$admin' WHERE username = '$admin'"
+ynh_mysql_execute_as_root "$adminsql" $dbname
+
+# Create missing users
+for username in $(ynh_user_list); do
+    if [ "$username" == "$admin" ]; then continue; else
+        userpass=$(ynh_string_random 16)
+        usermail=$(ynh_user_get_info $username 'mail')
+        data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'"}}}'
+        rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+                   -H "Content-Type: application/json" \
+                   -H "Authentication: Token $roottoken" \
+                   -X POST -d "$data" \
+                   -L https://${domain}${path}/api/users )
+        if [[ $rep != 201 ]]; then
+            echo "Flarum account creation failed for $username"
+            exit 1
+        fi
+    usersql="UPDATE users SET ssowat_id = '$username' WHERE username = '$username'"
+    ynh_mysql_execute_as_root "$usersql" $dbname
+    fi
+done
