@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
+# Load extra functions
+source .functions       
+
+# Activate TRAP to stop the script if an error is detected
+TRAP_ON
 
 # This is a multi-instance app, meaning it can be installed several times independently
 # The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -17,7 +20,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path=${YNH_APP_ARG_PATH%/}
+path=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
@@ -27,14 +30,27 @@ final_path=$www_path/$app
 # Source YunoHost helpers$
 source /usr/share/yunohost/helpers
 
+# Check variables are not empty
+CHECK_VAR "$app" "app name not set"
+
+# Check validity of admin user
+CHECK_USER "$admin"
+
+# Check and correct path syntax
+CHECK_PATH
+
+# Check availibility of path and domain
+CHECK_DOMAINPATH
+
 # Save app settings
 ynh_app_setting_set "$app" admin "$admin"
 ynh_app_setting_set "$app" is_public "$is_public"
 ynh_app_setting_set "$app" path "$path"
 
-# Check domain/path availability
-sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-    || ynh_die "Path not available: ${domain}${path}"
+
+# Check final_path availibility. Installation stops if it already exists
+CHECK_FINALPATH
+sudo mkdir "$final_path"
 
 tmp=/tmp/flaruminstall
 sudo rm -rf $tmp
@@ -89,7 +105,7 @@ ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 ### Nginx ###
-if [ $path = "" ]; then
+if [ $path = "/" ]; then
 nginx_conf=../conf/nginx_root.conf
 else
 nginx_conf=../conf/nginx.conf
