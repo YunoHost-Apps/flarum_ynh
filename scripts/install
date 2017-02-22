@@ -89,14 +89,16 @@ ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 ### Nginx ###
-if [ $path = "" ]; then
-nginx_conf=../conf/nginx_root.conf
+nginxconf="../conf/nginx.conf"
+if [ $path = "/" ]; then
+    sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
+    sed -i "s@/YNH_WWW_ROOTAPP@@g" ../conf/nginx.conf
 else
-nginx_conf=../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTPATH@$path@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@$app@g" ../conf/nginx.conf
 fi
 sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
-sed -i "s@YNH_WWW_ALIAS@$app/@g" $nginx_conf
-sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
+sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginx_conf
 sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
 
 ### PHP ###
