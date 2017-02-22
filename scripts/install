@@ -105,7 +105,7 @@ ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
 ### Nginx ###
-if [ $path = "" ]; then
+if [ $path = "/" ]; then
 nginx_conf=../conf/nginx_root.conf
 else
 nginx_conf=../conf/nginx.conf
