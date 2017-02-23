@@ -2,8 +2,12 @@
 	auto_remove=1
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
-		path="/path"	(PATH)
-		is_public=0 (PUBLIC|public=0|private=1)
+        	path="$PATH"    (PATH)
+       		is_public="Yes"	(PUBLIC|public=Yes|private=No)
+        	admin="john"	(USER)
+        	title="My Flarum forum"
+#        password="$PASSWORD"    (PASSWORD)
+#        port="666"  (PORT)
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1
