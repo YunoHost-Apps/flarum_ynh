@@ -21,9 +21,12 @@ is_public=$(ynh_app_setting_get "$app" is_public)
 CHECK_PATH
 
 # Copy source files
-src_path=/var/www/$app
-sudo mkdir -p $src_path
-sudo cp -a ../sources/. $src_path
+#src_path=/var/www/$app
+#sudo mkdir -p $src_path
+#sudo cp -a ../sources/. $src_path
+
+# Update flarum
+sudo su - www-data -s /bin/bash -c "cd /var/www/${app} && composer update"
 
 # Set permissions to app files
 # you may need to make some file and/or directory writeable by www-data (nginx user)
@@ -32,14 +35,13 @@ sudo chmod -R 755 $src_path
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 ### Nginx ###
-if [ $path = "/" ]; then
 nginxconf="../conf/nginx.conf"
 if [ $path = "/" ]; then
     sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
-    sed -i "s@/YNH_WWW_ROOTAPP@@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
 else
     sed -i "s@YNH_WWW_ROOTPATH@$path@g" ../conf/nginx.conf
-    sed -i "s@YNH_WWW_ROOTAPP@$app@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@$path$path@g" ../conf/nginx.conf
 fi
 sed -i "s@YNH_WWW_PATH@$path@g" $nginxconf
 sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginxconf
