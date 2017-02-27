@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load extra functions
-source .functions       
+source .functions
 
 # Activate TRAP to stop the script if an error is detected
 TRAP_ON
@@ -108,10 +108,10 @@ ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 nginxconf="../conf/nginx.conf"
 if [ $path = "/" ]; then
     sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
-    sed -i "s@/YNH_WWW_ROOTAPP@@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
 else
     sed -i "s@YNH_WWW_ROOTPATH@$path@g" ../conf/nginx.conf
-    sed -i "s@YNH_WWW_ROOTAPP@$app@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@$path$path@g" ../conf/nginx.conf
 fi
 sed -i "s@YNH_WWW_PATH@$path@g" $nginxconf
 sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginxconf
@@ -164,31 +164,18 @@ rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
 ynh_mysql_execute_as_root "$apitablesql" $dbname
 ynh_mysql_execute_as_root "$rootsql" $dbname
 ynh_app_setting_set "$app" root_token "$roottoken"
-fi
 
 # Configure SSOwat auth extension
 ssowatdomain=$(</etc/yunohost/current_host)
-data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'"}'
+data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'","flarum-ext-auth-ssowat.onlyUse": true}'
 rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
     -H "Content-Type: application/json" \
     -H "Authorization: Token $roottoken; userId=1" \
     -X POST -d "$data" \
     -L https://${domain}${path}/api/settings )
-echo $path
-exit 0
+
 if [[ $rep != 204 ]]; then
-    echo "SSOwat domain setting failed"
-    exit 1
-fi
-data='{"flarum-ext-auth-ssowat.onlyUse": true}'
-rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Token $roottoken; userId=1" \
-    -X POST -d "$data" \
-    -L https://${domain}${path}/api/settings )
-if [[ $rep != 204 ]]; then
-    echo "SSOwat auth exclusivity failed"
-    exit 1
+    ynh_die "ERROR: Could not configure SSOwat extension"
 fi
 
 # Enable the selected admin to login with SSOwat
@@ -207,12 +194,12 @@ for username in $(ynh_user_list); do
                    -X POST -d "$data" \
                    -L https://${domain}${path}/api/users )
         if [[ $rep != 201 ]]; then
-            echo "Flarum account creation failed for $username"
-            exit 1
+            ynh_die "ERROR: Flarum account creation failed for $username"
         fi
     usersql="UPDATE users SET ssowat_id = '$username' WHERE username = '$username'"
     ynh_mysql_execute_as_root "$usersql" $dbname
     fi
 done
+fi
 
 >&2 echo "Admin : $admin, password : $adminpass. Change it!"
