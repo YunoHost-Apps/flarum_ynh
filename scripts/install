@@ -178,10 +178,6 @@ if [[ $rep != 204 ]]; then
     ynh_die "ERROR: Could not configure SSOwat extension"
 fi
 
-# Enable the selected admin to login with SSOwat
-adminsql="UPDATE users SET ssowat_id = '$admin' WHERE username = '$admin'"
-ynh_mysql_execute_as_root "$adminsql" $dbname
-
 # Create missing users
 for username in $(ynh_user_list); do
     if [ "$username" == "$admin" ]; then continue; else
@@ -196,8 +192,6 @@ for username in $(ynh_user_list); do
         if [[ $rep != 201 ]]; then
             ynh_die "ERROR: Flarum account creation failed for $username"
         fi
-    usersql="UPDATE users SET ssowat_id = '$username' WHERE username = '$username'"
-    ynh_mysql_execute_as_root "$usersql" $dbname
     fi
 done
 fi
