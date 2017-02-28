@@ -1,6 +1,11 @@
 # Flarum package for YunoHost
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
+## Development status
+Package is functional : installation and removal work, though upgrading, backing up and restoring don't.
+
+[SSOwat integration](https://github.com/tituspijean/flarum-ext-auth-ssowat) is functional : users can log in, though logging out is only effective on Flarum. Only user creation hook is in place.
+
 ## Install
 Flarum requires `composer`, which should be automatically retrieved and installed.
 
