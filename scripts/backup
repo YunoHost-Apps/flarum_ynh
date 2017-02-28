@@ -17,7 +17,6 @@ ynh_backup "/var/www/${app}" "sources"
 #
 # TO BE VALIDATED AND TESTED
 ynh_backup "/opt/flarum_composer" "flarum_composer" 
-ynh_backup "/usr/local/bin/composer" "local_composer" 
 
 ### MySQL ###
 # If a MySQL database is used:

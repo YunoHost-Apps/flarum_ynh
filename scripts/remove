@@ -13,7 +13,6 @@ domain=$(ynh_app_setting_get "$app" domain)
 sudo rm -rf /tmp/composerinstall
 sudo rm -rf /var/www/$app
 sudo rm -rf /opt/flarum_composer
-sudo rm -rf /usr/local/bin/composer
 
 # Remove nginx configuration file
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
