@@ -58,7 +58,7 @@ sudo chmod 644 /etc/nginx/conf.d/$domain.d/$app.conf
 # If a dedicated php-fpm process is used:
 # # Modify PHP-FPM pool configuration and copy it to the pool directory
 sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
+sed -i "s@YNH_WWW_ALIAS@$app/@g" ../conf/php-fpm.conf
 finalphpconf=/etc/php5/fpm/pool.d/$app.conf
 sudo cp ../conf/php-fpm.conf $finalphpconf
 sudo chown root: $finalphpconf
