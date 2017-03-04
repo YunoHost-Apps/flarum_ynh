@@ -30,6 +30,7 @@
 	Level 2=auto
 	Level 3=auto
 	Level 4=1   
+# Intégration par l'extension flarum-ext-auth-ldap
 	Level 5=auto
 	Level 6=auto
 	Level 7=auto
