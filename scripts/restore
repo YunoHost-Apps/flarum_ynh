@@ -28,8 +28,8 @@ sudo cp -a ./sources "$src_path"
 #
 # TO BE TESTED AND VALIDATED
 #
-cp -a ./flarum_composer /opt/flarum_composer
-cp -a ./local_composer /usr/local/bin/composer
+cp -a ./flarum_composer /opt/${app}_composer
+#cp -a ./local_composer /usr/local/bin/composer
 
 # Restore permissions to app files
 # you may need to make some file and/or directory writeable by www-data (nginx user)
