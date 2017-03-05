@@ -120,7 +120,7 @@ sudo cp $nginxconf /etc/nginx/conf.d/$domain.d/$app.conf
 
 ### PHP ###
 sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-sed -i "s@YNH_WWW_ALIAS@$app/@g" ../conf/php-fpm.conf
+sed -i "s@YNH_WWW_ALIAS@$final_path@g" ../conf/php-fpm.conf
 finalphpconf=/etc/php5/fpm/pool.d/$app.conf
 sudo cp ../conf/php-fpm.conf $finalphpconf
 sudo chown root: $finalphpconf
