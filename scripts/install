@@ -47,10 +47,32 @@ ynh_app_setting_set "$app" admin "$admin"
 ynh_app_setting_set "$app" is_public "$is_public"
 ynh_app_setting_set "$app" path "$path"
 
-
 # Check final_path availibility. Installation stops if it already exists
 CHECK_FINALPATH
 sudo mkdir "$final_path"
+
+### Nginx ###
+nginxconf="../conf/nginx.conf"
+if [ $path = "/" ]; then
+    sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
+else
+    sed -i "s@YNH_WWW_ROOTPATH@$path@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@$path$path@g" ../conf/nginx.conf
+fi
+sed -i "s@YNH_WWW_PATH@$path@g" $nginxconf
+sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginxconf
+sed -i "s@YNH_WWW_APP@$app@g" $nginxconf
+sudo cp $nginxconf /etc/nginx/conf.d/$domain.d/$app.conf
+
+### PHP ###
+sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
+sed -i "s@YNH_WWW_ALIAS@$final_path@g" ../conf/php-fpm.conf
+finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+sudo cp ../conf/php-fpm.conf $finalphpconf
+sudo chown root: $finalphpconf
+sudo chmod 644 $finalphpconf
+sudo service php5-fpm reload
 
 tmp=/tmp/flaruminstall
 sudo rm -rf $tmp
@@ -71,7 +93,7 @@ if ! type "composer" > /dev/null; then
   ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$tmp/composer-setup.php');")
   if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
   then
-      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /opt/flarum_composer' /etc/php5/fpm/php-fpm.conf || sudo echo 'env[COMPOSER_HOME]= /opt/flarum_composer' >> /etc/php5/fpm/php-fpm.conf"
+      sudo su - root -c "grep -q -F 'env[COMPOSER_HOME]= /opt/flarum_composer' /etc/php5/fpm/pool.d/${app}.conf || sudo echo 'env[COMPOSER_HOME]= /opt/flarum_composer' >> /etc/php5/fpm/pool.d/${app}.conf"
       sudo service php5-fpm reload
       sudo su - www-data -s /bin/bash -c "php $tmp/composer-setup.php --install-dir=$tmp --filename=composer"
       sudo mv $tmp/composer /usr/local/bin
@@ -103,29 +125,6 @@ dbname=$app
 dbpass=$(ynh_string_random 15)
 ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
-
-### Nginx ###
-nginxconf="../conf/nginx.conf"
-if [ $path = "/" ]; then
-    sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
-    sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
-else
-    sed -i "s@YNH_WWW_ROOTPATH@$path@g" ../conf/nginx.conf
-    sed -i "s@YNH_WWW_ROOTAPP@$path$path@g" ../conf/nginx.conf
-fi
-sed -i "s@YNH_WWW_PATH@$path@g" $nginxconf
-sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $nginxconf
-sed -i "s@YNH_WWW_APP@$app@g" $nginxconf
-sudo cp $nginxconf /etc/nginx/conf.d/$domain.d/$app.conf
-
-### PHP ###
-sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-sed -i "s@YNH_WWW_ALIAS@$final_path@g" ../conf/php-fpm.conf
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
-sudo service php5-fpm reload
 
 # If app is public, add url to SSOWat conf as skipped_uris
 if [[ $is_public -eq 1 ]]; then
