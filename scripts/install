@@ -139,7 +139,7 @@ fi
 sudo service nginx reload
 
 # Install the SSOwat auth extension
-sudo su - www-data -s /bin/bash -c "cd $final_path && composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
+sudo su - www-data -s /bin/bash -c "cd $final_path && /opt/flarum_composer/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
 
 ### POST-INSTALL ###
 if [[ -n $admin && -n $title ]]; then
