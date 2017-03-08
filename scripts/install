@@ -114,7 +114,7 @@ sudo chmod -R 755 $compo
 
 ### Install flarum
 cwd=$(pwd)
-sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /usr/local/bin/composer create-project flarum/flarum . --stability=beta"
+sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /opt/flarum_composer/composer create-project flarum/flarum . --stability=beta"
 sudo cp -Rf $tmp/$app $www_path/
 sudo chown -R www-data:www-data $final_path
 cd $cwd
