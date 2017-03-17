@@ -2,7 +2,7 @@
 	auto_remove=1
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
-        	path="$PATH"    (PATH)
+        	path="/path"    (PATH)
        		is_public=0 (PUBLIC|public=0|private=1)
         	admin="john"	(USER)
         	title="My Flarum forum"
