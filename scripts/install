@@ -81,7 +81,8 @@ sudo chown -R www-data:www-data $tmp
 sudo chmod -R 755 $tmp
 
 # Prepare composer and cache directories
-compo=/opt/${app}_composer
+compo=$final_path/.composer
+COMPOSER_HOME=$compo
 sudo mkdir -p $compo/cache
 sudo chown -R www-data:www-data $compo
 sudo chmod -R 755 $compo
@@ -94,12 +95,7 @@ sudo chmod -R 755 $compo
   ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$compo/composer-setup.php');")
   if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
   then
-#      sudo grep -q -F 'env[COMPOSER_HOME]= $compo' /etc/php5/fpm/pool.d/${app}.conf || sudo echo 'env[COMPOSER_HOME]= /opt/flarum_c$
-#      sudo service php5-fpm reload
-#       echo "php reload"
       sudo php $compo/composer-setup.php --install-dir=$compo --filename=composer
-#      sudo mv /opt/flarum_composer/composer /usr/local/bin
-#      sudo chown root:root /usr/local/bin/composer
       RESULT=$?
   else
       >&2 echo 'ERROR: Invalid installer signature'
@@ -114,7 +110,7 @@ sudo chmod -R 755 $compo
 
 ### Install flarum
 cwd=$(pwd)
-sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 /opt/flarum_composer/composer create-project flarum/flarum . --stability=beta"
+sudo su - www-data -s /bin/bash -c "mkdir -p $tmp/$app && cd $tmp/$app && php -d memory_limit=-1 $compo/composer create-project flarum/flarum . --stability=beta"
 sudo cp -Rf $tmp/$app $www_path/
 sudo chown -R www-data:www-data $final_path
 cd $cwd
@@ -139,7 +135,7 @@ fi
 sudo service nginx reload
 
 # Install the SSOwat auth extension
-sudo su - www-data -s /bin/bash -c "cd $final_path && /opt/flarum_composer/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
+#sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 $compo/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
 
 ### POST-INSTALL ###
 if [[ -n $admin && -n $title ]]; then
@@ -158,42 +154,42 @@ sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 fla
 sudo rm $final_path/configuration.yml
 
 # Generate and add root token for user creation and deletion
-roottoken=$(ynh_string_random 40)
-apitablesql="CREATE TABLE IF NOT EXISTS api_keys (api_key TEXT(40) NOT NULL UNIQUE)"
-rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
-ynh_mysql_execute_as_root "$apitablesql" $dbname
-ynh_mysql_execute_as_root "$rootsql" $dbname
-ynh_app_setting_set "$app" root_token "$roottoken"
+#roottoken=$(ynh_string_random 40)
+#apitablesql="CREATE TABLE IF NOT EXISTS api_keys (api_key TEXT(40) NOT NULL UNIQUE)"
+#rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
+#ynh_mysql_execute_as_root "$apitablesql" $dbname
+#ynh_mysql_execute_as_root "$rootsql" $dbname
+#ynh_app_setting_set "$app" root_token "$roottoken"
 
 # Configure SSOwat auth extension
-ssowatdomain=$(</etc/yunohost/current_host)
-data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'","flarum-ext-auth-ssowat.onlyUse": true}'
-rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Token $roottoken; userId=1" \
-    -X POST -d "$data" \
-    -L https://${domain}${path}/api/settings )
-
-if [[ $rep != 204 ]]; then
-    ynh_die "ERROR: Could not configure SSOwat extension"
-fi
+#ssowatdomain=$(</etc/yunohost/current_host)
+#data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'","flarum-ext-auth-ssowat.onlyUse": true}'
+#rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+#    -H "Content-Type: application/json" \
+#    -H "Authorization: Token $roottoken; userId=1" \
+#    -X POST -d "$data" \
+#    -L https://${domain}${path}/api/settings )
+#
+#if [[ $rep != 204 ]]; then
+#    ynh_die "ERROR: Could not configure SSOwat extension"
+#fi
 
 # Create missing users
-for username in $(ynh_user_list); do
-    if [ "$username" == "$admin" ]; then continue; else
-        userpass=$(ynh_string_random 16)
-        usermail=$(ynh_user_get_info $username 'mail')
-        data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'"}}}'
-        rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-                   -H "Content-Type: application/json" \
-                   -H "Authentication: Token $roottoken" \
-                   -X POST -d "$data" \
-                   -L https://${domain}${path}/api/users )
-        if [[ $rep != 201 ]]; then
-            ynh_die "ERROR: Flarum account creation failed for $username"
-        fi
-    fi
-done
+#for username in $(ynh_user_list); do
+#    if [ "$username" == "$admin" ]; then continue; else
+#        userpass=$(ynh_string_random 16)
+#        usermail=$(ynh_user_get_info $username 'mail')
+#        data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'"}}}'
+#        rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+#                   -H "Content-Type: application/json" \
+#                   -H "Authentication: Token $roottoken" \
+#                   -X POST -d "$data" \
+#                   -L https://${domain}${path}/api/users )
+#        if [[ $rep != 201 ]]; then
+#            ynh_die "ERROR: Flarum account creation failed for $username"
+#        fi
+#    fi
+#done
 fi
 
 >&2 echo "Admin : $admin, password : $adminpass. Change it!"

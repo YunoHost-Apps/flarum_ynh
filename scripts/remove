@@ -58,7 +58,7 @@ SECURE_REMOVE "/opt/${app}_composer"
 
 # Remove nginx and PHP-FPM files and restart services
 REMOVE_NGINX_CONF
-REMOVE_FPM_CONF 
+REMOVE_FPM_CONF
 sudo service nginx reload
 sudo service php5-fpm reload
 
