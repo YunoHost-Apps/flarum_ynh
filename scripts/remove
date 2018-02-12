@@ -6,59 +6,20 @@ app=$YNH_APP_INSTANCE_NAME
 # Source YunoHost helpers
 source /usr/share/yunohost/helpers
 
-SECURE_REMOVE () {      # Suppression de dossier avec vérification des variables
-	chaine="$1"	# L'argument doit être donné entre quotes simple '', pour éviter d'interpréter les variables.
-	no_var=0
-	while (echo "$chaine" | grep -q '\$')	# Boucle tant qu'il y a des $ dans la chaine
-	do
-		no_var=1
-		global_var=$(echo "$chaine" | cut -d '$' -f 2)	# Isole la première variable trouvée.
-		only_var=\$$(expr "$global_var" : '\([A-Za-z0-9_]*\)')	# Isole complètement la variable en ajoutant le $ au début et en gardant uniquement le nom de la variable. Se débarrasse surtout du / et d'un éventuel chemin derrière.
-		real_var=$(eval "echo ${only_var}")		# `eval "echo ${var}` permet d'interpréter une variable contenue dans une variable.
-		if test -z "$real_var" || [ "$real_var" = "/" ]; then
-			echo "Variable $only_var is empty, suppression of $chaine cancelled." >&2
-			return 1
-		fi
-		chaine=$(echo "$chaine" | sed "s@$only_var@$real_var@")	# remplace la variable par sa valeur dans la chaine.
-	done
-	if [ "$no_var" -eq 1 ]
-	then
-		if [ -e "$chaine" ]; then
-			echo "Delete directory $chaine"
-			sudo rm -r "$chaine"
-		fi
-		return 0
-	else
-		echo "No detected variable." >&2
-		return 1
-	fi
-}
-
-REMOVE_NGINX_CONF () {	# Suppression de la configuration nginx
-	if [ -e "/etc/nginx/conf.d/$domain.d/$app.conf" ]; then	# Delete nginx config
-		echo "Delete nginx config"
-		sudo rm "/etc/nginx/conf.d/$domain.d/$app.conf"
-	fi
-}
-
-REMOVE_FPM_CONF () {	# Suppression de la configuration du pool php-fpm
-	if [ -e "/etc/php5/fpm/pool.d/$app.conf" ]; then	# Delete fpm config
-		echo "Delete fpm config"
-		sudo rm "/etc/php5/fpm/pool.d/$app.conf"
-	fi
-}
-
 # Retrieve app settings
 domain=$(ynh_app_setting_get "$app" domain)
 
+# Delete user
+ynh_system_user_delete $app
+
 # Remove sources
-SECURE_REMOVE "/tmp/composerinstall"
-SECURE_REMOVE "/var/www/$app"
-SECURE_REMOVE "/opt/${app}_composer"
+ynh_secure_remove "/tmp/$app"
+ynh_secure_remove "/var/www/$app"
+ynh_secure_remove "/opt/${app}_composer"
 
 # Remove nginx and PHP-FPM files and restart services
-REMOVE_NGINX_CONF
-REMOVE_FPM_CONF
+ynh_remove_nginx_config
+ynh_remove_fpm_config
 sudo service nginx reload
 sudo service php5-fpm reload
 
