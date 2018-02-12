@@ -10,7 +10,7 @@ Package is **in progress** : installation and removal work. Upgrading, backing u
 Flarum requires `composer`, which should be automatically retrieved and installed.
 
 ## Post-installation
-Post-installation is **automated**. You still have to set the mail configuration in the adminstration panel afterwards.
+Post-installation is **automated**. You still have to set the mail configuration in the administration panel afterwards.
 
 However, if you leave the forum title field empty in YunoHost's form, automatic post-installation will not be launched.
 
