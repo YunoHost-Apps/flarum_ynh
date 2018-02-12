@@ -1,11 +1,24 @@
 #!/bin/bash
 
-# Load helpers
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
 source _common.sh
 source /usr/share/yunohost/helpers
 
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
+
+#===================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#===================================================
 
 # This is a multi-instance app, meaning it can be installed several times independently
 # The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -19,9 +32,7 @@ ynh_abort_if_errors
 # db names, ...
 app=$YNH_APP_INSTANCE_NAME
 
-#===================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
-#===================================================
+# Retrieve arguments
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
@@ -51,13 +62,14 @@ ynh_webpath_register $app $domain $path_url
 #===================================================
 
 # Save app settings
-ynh_app_setting_set $app admin $admin
-ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
+ynh_app_setting_set $app admin $admin
+ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app final_path $final_path
 
 #===================================================
-# CREATE APP USER
+# CREATE DEDICATED USER
 #===================================================
 
 ynh_system_user_create $app "$final_path"
@@ -83,8 +95,7 @@ php -r "copy('https://getcomposer.org/installer', '$composer_path/composer-setup
 ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$composer_path/composer-setup.php');")
 if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
 then
-    exec_as $app \
-     php $composer_path/composer-setup.php --install-dir=$composer_path --filename=composer --quiet
+    sudo su - $app -s /bin/bash -c "php $composer_path/composer-setup.php --install-dir=$composer_path --filename=composer --quiet"
     RESULT=$?
 else
     >&2 echo 'ERROR: Invalid Composer installer signature'
@@ -110,11 +121,7 @@ sudo chown -R $app:www-data $tmp
 sudo chmod -R 0775 $tmp
 
 # Install Flarum
-CWD="$(pwd)"
-cd $tmp
-exec_as $app \
- php -d memory_limit=-1 $composer_path/composer create-project flarum/flarum . "$flarum_version" --stability=beta --ansi
-cd $CWD
+sudo su - $app -s /bin/bash -c "php -d memory_limit=-1 $composer_path/composer create-project flarum/flarum $tmp $flarum_version --stability=beta --ansi"
 
 sudo cp -Rf $tmp/* $final_path
 sudo chown -R $app:www-data $final_path
@@ -134,47 +141,51 @@ ynh_app_setting_set "$app" db_pwd "$db_pwd"
 # NGINX CONFIGURATION
 #=================================================
 
-finalnginxconf="/etc/nginx/conf.d/$domain.d/$app.conf"
-sudo cp ../conf/nginx.conf "$finalnginxconf"
+# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-    sed -i "s@YNH_WWW_ROOTPATH@@g" $finalnginxconf
-    sed -i "s@YNH_WWW_ROOTAPP@/@g" $finalnginxconf
+    sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
 else
-    sed -i "s@YNH_WWW_ROOTPATH@$path_url@g" $finalnginxconf
-    sed -i "s@YNH_WWW_ROOTAPP@$path_url$path_url@g" $finalnginxconf
+    sed -i "s@YNH_WWW_ROOTPATH@$path_url@g" ../conf/nginx.conf
+    sed -i "s@YNH_WWW_ROOTAPP@$path_url$path_url@g" ../conf/nginx.conf
 fi
-sed -i "s@YNH_WWW_PATH@$path_url@g" $finalnginxconf
-sed -i "s@YNH_WWW_FINALPATH@$final_path@g" $finalnginxconf
-sed -i "s@YNH_WWW_APP@$app@g" $finalnginxconf
+# Create a dedicated nginx config
+ynh_add_nginx_config
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sed -i "s@YNH_WWW_APP@$app@g" $finalphpconf
-sed -i "s@YNH_WWW_ALIAS@$final_path@g" $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
-sudo service php5-fpm reload
+# Create a dedicated php-fpm config
+ynh_add_fpm_config
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
 
-# If app is public, add url to SSOWat conf as skipped_uris
-if [[ $is_public -eq 1 ]]; then
-  # unprotected_uris allows SSO credentials to be passed anyway.
-  ynh_app_setting_set "$app" unprotected_uris "/"
+if [ $is_public -eq 0 ]
+then	# Remove the public access
+	ynh_app_setting_delete $app skipped_uris
 fi
-  ynh_app_setting_set "$app" skipped_uris "/api"
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+	# unprotected_uris allows SSO credentials to be passed anyway.
+	ynh_app_setting_set $app unprotected_uris "/"
+fi
 
-# Reload services
-service nginx reload
+#=================================================
+# RELOAD NGINX
+#=================================================
 
-# Install the SSOwat auth extension
-#sudo su - www-data -s /bin/bash -c "cd $final_path && php -d memory_limit=-1 $composer_path/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
+systemctl reload nginx
 
 #=================================================
 # FLARUM POST-INSTALL
@@ -205,6 +216,9 @@ rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
 ynh_mysql_execute_as_root "$apitablesql" $db_name
 ynh_mysql_execute_as_root "$rootsql" $db_name
 ynh_app_setting_set "$app" root_token "$roottoken"
+
+# Install the SSOwat auth extension
+#sudo su - www-data -s /bin/bash -c "cd $final_path && /opt/flarum_composer/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
 
 # Configure SSOwat auth extension
 #ssowatdomain=$(</etc/yunohost/current_host)
