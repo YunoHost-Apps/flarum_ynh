@@ -243,7 +243,7 @@ for username in $(ynh_user_list); do
                    -H "Content-Type: application/json" \
                    -H "Authentication: Token $roottoken" \
                    -X POST -d "$data" \
-                   -L https://${domain}${path}/api/users )
+                   -L https://${domain}${path_url}/api/users )
         if [[ $rep != 201 ]]; then
             ynh_die "ERROR: Flarum account creation failed for $username"
         fi
