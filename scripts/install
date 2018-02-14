@@ -208,6 +208,7 @@ if [[ -n $admin && -n $title ]]; then
   cd "$final_path"
   exec_as www-data \
     php -d memory_limit=-1 flarum install -f configuration.yml
+  ynh_secure_remove $finalflarumconf
 
   # Generate and add root token for user creation and deletion
   roottoken=$(ynh_string_random 40)
