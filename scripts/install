@@ -83,28 +83,28 @@ composer_path=/opt/${app}_composer
 # Test if composer is installed
 if ! type "${composer_path}/composer" > /dev/null; then
 
-# Prepare composer directories
-sudo mkdir -p $composer_path
-sudo mkdir -p $composer_path/cache
-sudo chown -R $app:www-data $composer_path
-sudo chmod -R 0775 $composer_path
+  # Prepare composer directories
+  sudo mkdir -p $composer_path
+  sudo mkdir -p $composer_path/cache
+  sudo chown -R $app:www-data $composer_path
+  sudo chmod -R 0775 $composer_path
 
-# Install composer (https://getcomposer.org)
-EXPECTED_SIGNATURE=$(wget https://composer.github.io/installer.sig -O - -q)
-php -r "copy('https://getcomposer.org/installer', '$composer_path/composer-setup.php');"
-ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$composer_path/composer-setup.php');")
-if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
-then
+  # Install composer (https://getcomposer.org)
+  EXPECTED_SIGNATURE=$(wget https://composer.github.io/installer.sig -O - -q)
+  php -r "copy('https://getcomposer.org/installer', '$composer_path/composer-setup.php');"
+  ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$composer_path/composer-setup.php');")
+  if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
+  then
     sudo su - $app -s /bin/bash -c "php $composer_path/composer-setup.php --install-dir=$composer_path --filename=composer --quiet"
     RESULT=$?
-else
+  else
     >&2 echo 'ERROR: Invalid Composer installer signature'
     RESULT=1
-fi
-if [ $RESULT != 0 ]
-then
-  ynh_die 'Composer could not be installed'
-fi
+  fi
+  if [ $RESULT != 0 ]
+  then
+    ynh_die 'Composer could not be installed'
+  fi
 
 fi
 
@@ -143,11 +143,11 @@ ynh_app_setting_set "$app" db_pwd "$db_pwd"
 
 # Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-    sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
-    sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
+  sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
+  sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
 else
-    sed -i "s@YNH_WWW_ROOTPATH@$path_url@g" ../conf/nginx.conf
-    sed -i "s@YNH_WWW_ROOTAPP@$path_url$path_url@g" ../conf/nginx.conf
+  sed -i "s@YNH_WWW_ROOTPATH@$path_url@g" ../conf/nginx.conf
+  sed -i "s@YNH_WWW_ROOTAPP@$path_url$path_url@g" ../conf/nginx.conf
 fi
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -172,13 +172,13 @@ ynh_use_logrotate
 
 if [ $is_public -eq 0 ]
 then	# Remove the public access
-	ynh_app_setting_delete $app skipped_uris
+  ynh_app_setting_delete $app skipped_uris
 fi
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set $app unprotected_uris "/"
+  # unprotected_uris allows SSO credentials to be passed anyway.
+  ynh_app_setting_set $app unprotected_uris "/"
 fi
 
 #=================================================
@@ -193,63 +193,69 @@ systemctl reload nginx
 
 # Only if admin user or title were specified
 if [[ -n $admin && -n $title ]]; then
-finalflarumconf="$final_path/configuration.yml"
-cp ../sources/configuration.yml $finalflarumconf
-admin_pwd=$(ynh_string_random 8)
-sed -i "s@YNH_APP_DOMAIN@$domain@g" $finalflarumconf
-sed -i "s@/YNH_WWW_PATH@$path_url@g" $finalflarumconf
-sed -i "s@YNH_WWW_APP@$app@g" $finalflarumconf
-sed -i "s@YNH_DB_PASS@$db_pwd@g" $finalflarumconf
-sed -i "s@YNH_ADMIN_USER@$admin@g" $finalflarumconf
-sed -i "s@YNH_ADMIN_PASS@$admin_pwd@g" $finalflarumconf
-admin_mail=$(ynh_user_get_info $admin mail)
-sed -i "s%YNH_ADMIN_EMAIL%$admin_mail%g" $finalflarumconf
-sed -i "s@YNH_FORUM_TITLE@$title@g" $finalflarumconf
-cd "$final_path"
-exec_as www-data \
- php -d memory_limit=-1 flarum install -f configuration.yml
+  finalflarumconf="$final_path/configuration.yml"
+  cp ../sources/configuration.yml $finalflarumconf
+  admin_pwd=$(ynh_string_random 8)
+  sed -i "s@YNH_APP_DOMAIN@$domain@g" $finalflarumconf
+  sed -i "s@/YNH_WWW_PATH@$path_url@g" $finalflarumconf
+  sed -i "s@YNH_WWW_APP@$app@g" $finalflarumconf
+  sed -i "s@YNH_DB_PASS@$db_pwd@g" $finalflarumconf
+  sed -i "s@YNH_ADMIN_USER@$admin@g" $finalflarumconf
+  sed -i "s@YNH_ADMIN_PASS@$admin_pwd@g" $finalflarumconf
+  admin_mail=$(ynh_user_get_info $admin mail)
+  sed -i "s%YNH_ADMIN_EMAIL%$admin_mail%g" $finalflarumconf
+  sed -i "s@YNH_FORUM_TITLE@$title@g" $finalflarumconf
+  cd "$final_path"
+  exec_as www-data \
+    php -d memory_limit=-1 flarum install -f configuration.yml
 
-# Generate and add root token for user creation and deletion
-roottoken=$(ynh_string_random 40)
-apitablesql="CREATE TABLE IF NOT EXISTS api_keys (api_key TEXT(40) NOT NULL)"
-rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
-ynh_mysql_execute_as_root "$apitablesql" $db_name
-ynh_mysql_execute_as_root "$rootsql" $db_name
-ynh_app_setting_set "$app" root_token "$roottoken"
+  # Generate and add root token for user creation and deletion
+  roottoken=$(ynh_string_random 40)
+  apitablesql="CREATE TABLE IF NOT EXISTS api_keys (api_key TEXT(40) NOT NULL)"
+  rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
+  ynh_mysql_execute_as_root "$apitablesql" $db_name
+  ynh_mysql_execute_as_root "$rootsql" $db_name
+  ynh_app_setting_set "$app" root_token "$roottoken"
 
-# Install the SSOwat auth extension
-#sudo su - www-data -s /bin/bash -c "cd $final_path && /opt/flarum_composer/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
+  # Install the SSOwat auth extension
+  #sudo su - www-data -s /bin/bash -c "cd $final_path && /opt/flarum_composer/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
 
-# Configure SSOwat auth extension
-#ssowatdomain=$(</etc/yunohost/current_host)
-#data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'","flarum-ext-auth-ssowat.onlyUse": true}'
-#rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-#    -H "Content-Type: application/json" \
-#    -H "Authorization: Token $roottoken; userId=1" \
-#    -X POST -d "$data" \
-#    -L https://${domain}${path}/api/settings )
-#
-#if [[ $rep != 204 ]]; then
-#    ynh_die "ERROR: Could not configure SSOwat extension"
-#fi
+  # Configure SSOwat auth extension
+  #ssowatdomain=$(</etc/yunohost/current_host)
+  #data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'","flarum-ext-auth-ssowat.onlyUse": true}'
+  #rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+    #    -H "Content-Type: application/json" \
+    #    -H "Authorization: Token $roottoken; userId=1" \
+    #    -X POST -d "$data" \
+    #    -L https://${domain}${path}/api/settings )
+  #
+  #if [[ $rep != 204 ]]; then
+  #    ynh_die "ERROR: Could not configure SSOwat extension"
+  #fi
 
-# Create missing users
-for username in $(ynh_user_list); do
+  # Create missing users
+  for username in $(ynh_user_list); do
     if [ "$username" == "$admin" ]; then continue; else
-        userpass=$(ynh_string_random 16)
-        usermail=$(ynh_user_get_info $username 'mail')
-        data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'"}}}'
-        rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-                   -H "Content-Type: application/json" \
-                   -H "Authentication: Token $roottoken" \
-                   -X POST -d "$data" \
-                   -L https://${domain}${path_url}/api/users )
-        if [[ $rep != 201 ]]; then
-            ynh_die "ERROR: Flarum account creation failed for $username"
-        fi
+      userpass=$(ynh_string_random 16)
+      usermail=$(ynh_user_get_info $username 'mail')
+      data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'"}}}'
+      rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
+          -H "Content-Type: application/json" \
+          -H "Authentication: Token $roottoken" \
+          -X POST -d "$data" \
+        -L https://${domain}${path_url}/api/users )
+      if [[ $rep != 201 ]]; then
+        ynh_die "ERROR: Flarum account creation failed for $username"
+      fi
     fi
-done
->&2 echo "Installation successfull. Admin : $admin, password : $admin_pwd. Change it!"
+  done
+  app_message="User : $admin, password : $admin_pwd
+  Change your password!
+  Your forum is accessible at https://$domain/$path_url"
+  >&2 echo $app_message
+  ynh_send_readme_to_admin "$app_message" "$admin"
 else
->&2 echo "Installation successfull. Post-installation required, visit your Flarum instance!"
+  app_message="Post-installation required, visit your Flarum instance."
+  >&2 echo $app_message
+  ynh_send_readme_to_admin "$app_message" "$admin"
 fi
