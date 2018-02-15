@@ -72,43 +72,18 @@ ynh_app_setting_set $app final_path $final_path
 # CREATE DEDICATED USER
 #===================================================
 
-ynh_system_user_create $app "$final_path"
+ynh_system_user_create $app $final_path
 sudo usermod -a -G www-data $app
+# Create working directory
+sudo mkdir -p "$final_path/.composer"
+sudo chown -R $app:www-data $final_path
+sudo chmod -R 0775 $final_path
 
 #=================================================
 # COMPOSER INSTALLATION
 #=================================================
 
-composer_path=/opt/${app}_composer
-# Test if composer is installed
-if ! type "${composer_path}/composer" > /dev/null; then
-
-  # Prepare composer directories
-  sudo mkdir -p $composer_path
-  sudo mkdir -p $composer_path/cache
-  sudo chown -R $app:www-data $composer_path
-  sudo chmod -R 0775 $composer_path
-
-  # Install composer (https://getcomposer.org)
-  EXPECTED_SIGNATURE=$(wget https://composer.github.io/installer.sig -O - -q)
-  php -r "copy('https://getcomposer.org/installer', '$composer_path/composer-setup.php');"
-  ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', '$composer_path/composer-setup.php');")
-  if [ "$EXPECTED_SIGNATURE" = "$ACTUAL_SIGNATURE" ]
-  then
-    sudo su - $app -s /bin/bash -c "php $composer_path/composer-setup.php --install-dir=$composer_path --filename=composer --quiet"
-    RESULT=$?
-  else
-    >&2 echo 'ERROR: Invalid Composer installer signature'
-    RESULT=1
-  fi
-  if [ $RESULT != 0 ]
-  then
-    ynh_die 'Composer could not be installed'
-  fi
-
-fi
-
-COMPOSER_HOME=$composer_path
+init_composer $app $final_path
 
 #=================================================
 # FLARUM INSTALLATION
@@ -121,12 +96,13 @@ sudo chown -R $app:www-data $tmp
 sudo chmod -R 0775 $tmp
 
 # Install Flarum
-sudo su - $app -s /bin/bash -c "php -d memory_limit=-1 $composer_path/composer create-project flarum/flarum $tmp $flarum_version --stability=beta --ansi"
+exec_composer $app $final_path "create-project flarum/flarum $tmp $flarum_version --stability=beta --ansi"
 
+# Copy Flarum to working directory and clean temp directory
 sudo cp -Rf $tmp/* $final_path
 sudo chown -R $app:www-data $final_path
-sudo chmod 0775 -R $final_path
-ynh_secure_remove "$tmp"
+sudo chmod -R 0775 $final_path
+ynh_secure_remove $tmp
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -143,11 +119,11 @@ ynh_app_setting_set "$app" db_pwd "$db_pwd"
 
 # Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-  sed -i "s@YNH_WWW_ROOTPATH@@g" ../conf/nginx.conf
-  sed -i "s@YNH_WWW_ROOTAPP@/@g" ../conf/nginx.conf
+  sed -i "s@__LOCATION_HACK__@@g" ../conf/nginx.conf
+  sed -i "s@__PATH_HACK__@/@g" ../conf/nginx.conf
 else
-  sed -i "s@YNH_WWW_ROOTPATH@$path_url@g" ../conf/nginx.conf
-  sed -i "s@YNH_WWW_ROOTAPP@$path_url$path_url@g" ../conf/nginx.conf
+  sed -i "s@__LOCATION_HACK__@$path_url@g" ../conf/nginx.conf
+  sed -i "s@__PATH_HACK__@$path_url$path_url@g" ../conf/nginx.conf
 fi
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -191,27 +167,31 @@ systemctl reload nginx
 # FLARUM POST-INSTALL
 #=================================================
 
-# Only if admin user or title were specified
 if [[ -n $admin && -n $title ]]; then
+  # If admin user and title were specified, start post-installation
+  # Copy the configuration.yml to working directory
   finalflarumconf="$final_path/configuration.yml"
-  cp ../sources/configuration.yml $finalflarumconf
+  cp ../conf/configuration.yml $finalflarumconf
+  # Generate admin password and retrieve their email address
   admin_pwd=$(ynh_string_random 8)
-  sed -i "s@YNH_APP_DOMAIN@$domain@g" $finalflarumconf
-  sed -i "s@/YNH_WWW_PATH@$path_url@g" $finalflarumconf
-  sed -i "s@YNH_WWW_APP@$app@g" $finalflarumconf
-  sed -i "s@YNH_DB_PASS@$db_pwd@g" $finalflarumconf
-  sed -i "s@YNH_ADMIN_USER@$admin@g" $finalflarumconf
-  sed -i "s@YNH_ADMIN_PASS@$admin_pwd@g" $finalflarumconf
   admin_mail=$(ynh_user_get_info $admin mail)
-  sed -i "s%YNH_ADMIN_EMAIL%$admin_mail%g" $finalflarumconf
-  sed -i "s@YNH_FORUM_TITLE@$title@g" $finalflarumconf
-  cd "$final_path"
-  exec_as www-data \
-    php -d memory_limit=-1 flarum install -f configuration.yml
+  # Populate configuration.yml
+  sed -i "s@__DOMAIN__@$domain@g" $finalflarumconf
+  sed -i "s@/__PATH__@$path_url@g" $finalflarumconf
+  sed -i "s@__USER__@$app@g" $finalflarumconf
+  sed -i "s@__DB_PWD__@$db_pwd@g" $finalflarumconf
+  sed -i "s@__ADMIN__@$admin@g" $finalflarumconf
+  sed -i "s@__ADMIN_PWD__@$admin_pwd@g" $finalflarumconf
+  sed -i "s%__ADMIN_EML__%$admin_mail%g" $finalflarumconf
+  sed -i "s@__FORUM_TITLE__@$title@g" $finalflarumconf
+  # Execute post-installation
+  cd $final_path
+  exec_as $app "php -d memory_limit=-1 flarum install -f configuration.yml"
+  # Delete configuration.yml as it sensitive data
   ynh_secure_remove $finalflarumconf
 
   # Install the SSOwat auth extension
-  sudo su - www-data -s /bin/bash -c "cd $final_path && $composer_path/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev' --ansi"
+  exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:*@dev --ansi"
 
   # Configure SSOwat auth extension
   ssowatdomain=$(</etc/yunohost/current_host)
@@ -219,19 +199,23 @@ if [[ -n $admin && -n $title ]]; then
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
   # Enable SSOwat auth extension
+  # Retrieve current enabled extensions
   sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
   old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $db_name | tail -1)
+  # Append the extension name at the end of the list
   addition=",\"tituspijean-auth-ssowat\"]"
   new_extensions_enabled=${old_extensions_enabled::-1}$addition
   sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
+  # Send login credentials to admin
   app_message="User : $admin, password : $admin_pwd
   Change your password!
   Your forum is accessible at https://$domain$path_url"
   >&2 echo $app_message
   ynh_send_readme_to_admin "$app_message" "$admin"
 else
+  # If admin user and title were not specified, ask admin to perform manual post-installation
   app_message="Post-installation required, visit your Flarum instance."
   >&2 echo $app_message
   ynh_send_readme_to_admin "$app_message" "$admin"

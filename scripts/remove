@@ -34,7 +34,6 @@ ynh_mysql_remove_db $db_user $db_name
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
 ynh_secure_remove "/tmp/$app"
-ynh_secure_remove "/opt/${app}_composer"
 
 #=================================================
 # REMOVE NGINX CONFIGURATION
@@ -65,4 +64,3 @@ ynh_remove_logrotate
 
 # Delete a system user
 ynh_system_user_delete $app
-
