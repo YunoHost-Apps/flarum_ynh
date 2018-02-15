@@ -210,49 +210,25 @@ if [[ -n $admin && -n $title ]]; then
     php -d memory_limit=-1 flarum install -f configuration.yml
   ynh_secure_remove $finalflarumconf
 
-  # Generate and add root token for user creation and deletion
-  roottoken=$(ynh_string_random 40)
-  apitablesql="CREATE TABLE IF NOT EXISTS api_keys (api_key TEXT(40) NOT NULL)"
-  rootsql="INSERT INTO api_keys VALUES ('"$roottoken"')"
-  ynh_mysql_execute_as_root "$apitablesql" $db_name
-  ynh_mysql_execute_as_root "$rootsql" $db_name
-  ynh_app_setting_set "$app" root_token "$roottoken"
-
   # Install the SSOwat auth extension
-  #sudo su - www-data -s /bin/bash -c "cd $final_path && /opt/flarum_composer/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev'"
+  sudo su - www-data -s /bin/bash -c "cd $final_path && $composer_path/composer require 'tituspijean/flarum-ext-auth-ssowat:*@dev' --ansi"
 
   # Configure SSOwat auth extension
-  #ssowatdomain=$(</etc/yunohost/current_host)
-  #data='{"flarum-ext-auth-ssowat.address": "'$ssowatdomain'","flarum-ext-auth-ssowat.onlyUse": true}'
-  #rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-    #    -H "Content-Type: application/json" \
-    #    -H "Authorization: Token $roottoken; userId=1" \
-    #    -X POST -d "$data" \
-    #    -L https://${domain}${path}/api/settings )
-  #
-  #if [[ $rep != 204 ]]; then
-  #    ynh_die "ERROR: Could not configure SSOwat extension"
-  #fi
+  ssowatdomain=$(</etc/yunohost/current_host)
+  sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('flarum-ext-auth-ssowat.address', '$ssowatdomain'), ('flarum-ext-auth-ssowat.onlyUse', '0');"
+  ynh_mysql_execute_as_root "$sql_command" $db_name
 
-  # Create missing users
-  for username in $(ynh_user_list); do
-    if [ "$username" == "$admin" ]; then continue; else
-      userpass=$(ynh_string_random 16)
-      usermail=$(ynh_user_get_info $username 'mail')
-      data='{"data":{"attributes":{"username":"'$username'","email":"'$usermail'","password":"'$userpass'"}}}'
-      rep=$(curl -s -o /dev/null -w "%{http_code}" -k -i \
-          -H "Content-Type: application/json" \
-          -H "Authentication: Token $roottoken" \
-          -X POST -d "$data" \
-        -L https://${domain}${path_url}/api/users )
-      if [[ $rep != 201 ]]; then
-        ynh_die "ERROR: Flarum account creation failed for $username"
-      fi
-    fi
-  done
+  # Enable SSOwat auth extension
+  sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
+  old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $db_name | tail -1)
+  addition=",\"tituspijean-auth-ssowat\"]"
+  new_extensions_enabled=${old_extensions_enabled::-1}$addition
+  sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
+  ynh_mysql_execute_as_root "$sql_command" $db_name
+
   app_message="User : $admin, password : $admin_pwd
   Change your password!
-  Your forum is accessible at https://$domain/$path_url"
+  Your forum is accessible at https://$domain$path_url"
   >&2 echo $app_message
   ynh_send_readme_to_admin "$app_message" "$admin"
 else
