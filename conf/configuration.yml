@@ -1,0 +1,13 @@
+baseUrl : "https://__DOMAIN__/__PATH__"
+databaseConfiguration :
+    host : "localhost"
+    database : "__USER__"
+    username : "__USER__"
+    password : "__DB_PWD__"
+adminUser :
+    username : "__ADMIN__"
+    password : "__ADMIN_PWD__"
+    password_confirmation : "__ADMIN_PWD__"
+    email : "__ADMIN_EML__"
+settings :
+    forum_title : "__FORUM_TITLE__"
