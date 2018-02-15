@@ -190,6 +190,15 @@ if [[ -n $admin && -n $title ]]; then
   # Delete configuration.yml as it sensitive data
   ynh_secure_remove $finalflarumconf
 
+  # Email setup
+  sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
+('mail_driver', 'mail'),
+('mail_encryption', 'ssl'),
+('mail_from', '$app@$domain'),
+('mail_host', 'localhost'),
+('mail_port', '587');"
+  ynh_mysql_execute_as_root "$sql_command" $db_name
+
   # Install the SSOwat auth extension
   exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:*@dev --ansi"
 
