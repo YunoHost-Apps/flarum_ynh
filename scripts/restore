@@ -70,41 +70,14 @@ ynh_system_user_create $app
 #=================================================
 
 # Restore permissions on app files
-chown -R root: $final_path
+chown -R $app:www-data $final_path
+chmod -R 0775 $final_path
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
 ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
-
-#=================================================
-# SPECIFIC RESTORATION
-#=================================================
-# REINSTALL DEPENDENCIES
-#=================================================
-
-# Define and install dependencies
-ynh_install_app_dependencies deb1 deb2
-
-#=================================================
-# ADVERTISE SERVICE IN ADMIN PANEL
-#=================================================
-
-yunohost service add $app --log "/var/log/$app/APP.log"
-
-#=================================================
-# RESTORE SYSTEMD
-#=================================================
-
-ynh_restore_file "/etc/systemd/system/$app.service"
-systemctl enable $app.service
-
-#=================================================
-# RESTORE THE CRON FILE
-#=================================================
-
-ynh_restore_file "/etc/cron.d/$app"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
