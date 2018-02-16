@@ -64,15 +64,3 @@ ynh_mysql_dump_db "$db_name" > db.sql
 #=================================================
 
 ynh_backup "/etc/logrotate.d/$app"
-
-#=================================================
-# BACKUP SYSTEMD
-#=================================================
-
-ynh_backup "/etc/systemd/system/$app.service"
-
-#=================================================
-# BACKUP THE CRON FILE
-#=================================================
-
-ynh_backup "/etc/cron.d/$app"
