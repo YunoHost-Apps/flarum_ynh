@@ -7,6 +7,7 @@
 		domain="domain.tld"	(DOMAIN)
 		path="/path"	(PATH)
 		admin="john"	(USER)
+		title="Test flarum"
 #		language="en"
 		is_public=1	(PUBLIC|public=1|private=0)
 	; Checks
@@ -28,7 +29,7 @@
 	Level 2=auto
 	Level 3=auto
 # Level 4 : HTTP Auth included with the extension tituspijean/flarum-ext-auth-ssowat
-	Level 4=0
+	Level 4=1
 	Level 5=auto
 	Level 6=auto
 	Level 7=auto
@@ -41,4 +42,4 @@
 #;;; Upgrade options
 #	; commit=65c382d138596fcb32b4c97c39398815a1dcd4e8
 #		name=Name of this previous version
-#manifest_arg=domain=DOMAIN&path=PATH&admin=USER&is_public=1&
+#manifest_arg=domain=DOMAIN&path=PATH&admin=USER&title=TITLE&is_public=1&
