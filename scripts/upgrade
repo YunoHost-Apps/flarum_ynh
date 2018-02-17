@@ -112,6 +112,9 @@ fi
 
 # Install Flarum
 exec_composer $app $final_path "update --ansi"
+pushd $final_path
+exec_as $app php flarum cache:clear
+popd
 
 #=================================================
 # NGINX CONFIGURATION
