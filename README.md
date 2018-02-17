@@ -2,7 +2,9 @@
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
 ## Development status
-Package is **in progress** : installation and removal work. Upgrading, backing up and restoring are not supported yet.
+Package is **working**.
+
+However, Flarum is in beta. That means its future updates are not guaranteed to be backward-compatible.
 
 [SSOwat integration](https://github.com/tituspijean/flarum-ext-auth-ssowat) is **non functional** and removed.
 
@@ -10,9 +12,9 @@ Package is **in progress** : installation and removal work. Upgrading, backing u
 Flarum requires `composer`, which should be automatically retrieved and installed.
 
 ## Post-installation
-Post-installation is **automated**. You still have to set the mail configuration in the administration panel afterwards.
+Post-installation is **automated**.
 
-However, if you leave the forum title field empty in YunoHost's form, automatic post-installation will not be launched.
+However, if you leave the forum title or admin user fields empty in YunoHost's form, automatic post-installation will not be launched.
 
 1. Retrieve database password:
   * It should be displayed in the log messages on top of installation page.
