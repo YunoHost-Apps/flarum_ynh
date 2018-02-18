@@ -47,8 +47,10 @@ init_composer() {
 	#	|| ynh_die "Unable to update core dependencies with Composer"
 }
 
-# Install and initialize Composer in the given directory
-# usage: init_composer destdir
+# Install extension, and activate it in database
+# usage: install_and_activate_extension $user $final_path $db_name $extension $short_extension
+# $extension is the "vendor/extension-name" string from packagist
+# $short_extension is the extension name written in database, how it is shortened is still a mystery
 install_and_activate_extension() {
 	local AS_USER=$1
 	local WORKDIR=$2
