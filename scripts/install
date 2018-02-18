@@ -39,6 +39,7 @@ path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
+language=$YNH_APP_ARG_LANGUAGE
 flarum_version="v0.1.0-beta.7"
 
 #===================================================
@@ -66,6 +67,7 @@ ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app language $language
 ynh_app_setting_set $app final_path $final_path
 ynh_app_setting_set $app flarum_version $flarum_version
 
@@ -200,23 +202,26 @@ if [[ -n $admin && -n $title ]]; then
 ('mail_port', '587');"
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
-  # Install the SSOwat auth extension
-  exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:0.4.x-dev --ansi"
-
+  # Install and active the SSOwat auth extension
+  install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:0.4.x-dev" "tituspijean-auth-ssowat"
   # Configure SSOwat auth extension
   ssowatdomain=$(</etc/yunohost/current_host)
   sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('flarum-ext-auth-ssowat.address', '$ssowatdomain'), ('flarum-ext-auth-ssowat.onlyUse', '0');"
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
-  # Enable SSOwat auth extension
-  # Retrieve current enabled extensions
-  sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
-  old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $db_name | tail -1)
-  # Append the extension name at the end of the list
-  addition=",\"tituspijean-auth-ssowat\"]"
-  new_extensions_enabled=${old_extensions_enabled::-1}$addition
-  sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
-  ynh_mysql_execute_as_root "$sql_command" $db_name
+  # Install, activate and set language extensions
+  case $language in
+    fr)
+      install_and_activate_extension $app $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+      sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
+      ynh_mysql_execute_as_root "$sql_command" $db_name
+      ;;
+    de)
+      install_and_activate_extension $app $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
+      sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
+      ynh_mysql_execute_as_root "$sql_command" $db_name
+      ;;
+    esac
 
   # Send login credentials to admin
   app_message="User : $admin, password : $admin_pwd
