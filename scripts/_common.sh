@@ -47,6 +47,35 @@ init_composer() {
 	#	|| ynh_die "Unable to update core dependencies with Composer"
 }
 
+# Install and initialize Composer in the given directory
+# usage: init_composer destdir
+install_and_activate_extension() {
+	local AS_USER=$1
+	local WORKDIR=$2
+	local DB_NAME=$3
+	local EXTENSION=$4
+	local SHORT_EXTENSION=$5
+	local sql_command
+	local old_extensions_enabled
+	local addition
+	local new_extensions_enabled
+
+	# Install extension
+	exec_composer $AS_USER $WORKDIR "require $EXTENSION --ansi"
+
+	# Retrieve current extensions
+	sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
+	old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $db_name | tail -1)
+
+	# Append the extension name at the end of the list
+	addition=",\"${SHORT_EXTENSION}\"]"
+	new_extensions_enabled=${old_extensions_enabled::-1}$addition
+	# Update activated extensions list
+	sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
+	ynh_mysql_execute_as_root "$sql_command" $DB_NAME
+
+}
+
 # Send an email to inform the administrator
 #
 # usage: ynh_send_readme_to_admin app_message [recipients]
