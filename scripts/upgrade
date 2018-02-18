@@ -102,7 +102,7 @@ ynh_system_user_create $app
 # COMPOSER UPGRADE
 #=================================================
 
-if ! type "$final_path/composer" > /dev/null; then
+if ! type "$final_path/composer.phar" > /dev/null; then
   init_composer $app $final_path
 fi
 
@@ -111,6 +111,7 @@ fi
 #=================================================
 
 # Install Flarum
+exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:0.4.x-dev --ansi"
 exec_composer $app $final_path "update --ansi"
 pushd $final_path
 exec_as $app php flarum cache:clear
@@ -119,6 +120,15 @@ popd
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+
+# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
+if [ $path_url = "/" ]; then
+  sed -i "s@__LOCATION_HACK__@@g" ../conf/nginx.conf
+  sed -i "s@__PATH_HACK__@/@g" ../conf/nginx.conf
+else
+  sed -i "s@__LOCATION_HACK__@$path_url@g" ../conf/nginx.conf
+  sed -i "s@__PATH_HACK__@$path_url$path_url@g" ../conf/nginx.conf
+fi
 
 # Create a dedicated nginx config
 ynh_add_nginx_config

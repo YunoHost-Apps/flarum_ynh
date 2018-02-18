@@ -201,7 +201,7 @@ if [[ -n $admin && -n $title ]]; then
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
   # Install the SSOwat auth extension
-  exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:*@dev --ansi"
+  exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:0.4.x-dev --ansi"
 
   # Configure SSOwat auth extension
   ssowatdomain=$(</etc/yunohost/current_host)
