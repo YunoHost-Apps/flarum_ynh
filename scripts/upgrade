@@ -43,6 +43,7 @@ db_name=$(ynh_app_setting_get $app db_name)
 db_pwd=$(ynh_app_setting_get $app db_pwd)
 old_flarum_version=$(ynh_app_setting_get "$app" flarum_version)
 flarum_version="v0.1.0-beta.7"
+ssowat_ext_ver="*@dev"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -110,12 +111,18 @@ fi
 # FLARUM UPGRADE
 #=================================================
 
-# Install Flarum
-exec_composer $app $final_path "require tituspijean/flarum-ext-auth-ssowat:0.4.x-dev --ansi"
+# Upgrade Flarum
 exec_composer $app $final_path "update --ansi"
 pushd $final_path
 exec_as $app php flarum cache:clear
 popd
+
+# Update SSOwat extension
+install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
+# Configure SSOwat auth extension
+ssowatdomain=$(</etc/yunohost/current_host)
+sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
+ynh_mysql_execute_as_root "$sql_command" $db_name
 
 #=================================================
 # NGINX CONFIGURATION

@@ -41,6 +41,7 @@ title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
 flarum_version="v0.1.0-beta.7"
+ssowat_ext_ver="*@dev"
 
 #===================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
@@ -203,10 +204,10 @@ if [[ -n $admin && -n $title ]]; then
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
   # Install and active the SSOwat auth extension
-  install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:0.4.x-dev" "tituspijean-auth-ssowat"
+  install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
   # Configure SSOwat auth extension
   ssowatdomain=$(</etc/yunohost/current_host)
-  sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('flarum-ext-auth-ssowat.address', '$ssowatdomain'), ('flarum-ext-auth-ssowat.onlyUse', '0');"
+  sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
   ynh_mysql_execute_as_root "$sql_command" $db_name
 
   # Install, activate and set language extensions
