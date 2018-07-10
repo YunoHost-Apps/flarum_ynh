@@ -117,12 +117,25 @@ ynh_send_readme_to_admin() {
 	local mail_subject="☁️🆈🅽🅷☁️: \`$app\` was just installed!"
 
 	local mail_message="This is an automated message from your beloved YunoHost server.
+
 Specific information for the application $app.
+
 $app_message
+
 ---
 Automatic diagnosis data from YunoHost
+
 $(yunohost tools diagnosis | grep -B 100 "services:" | sed '/services:/d')"
 
+	# Define binary to use for mail command
+	if [ -e /usr/bin/bsd-mailx ]
+	then
+		local mail_bin=/usr/bin/bsd-mailx
+	else
+		local mail_bin=/usr/bin/mail.mailutils
+	fi
+
 	# Send the email to the recipients
-	echo "$mail_message" | mail -a "Content-Type: text/plain; charset=UTF-8" -s "$mail_subject" "$recipients"
+	echo "$mail_message" | $mail_bin -a "Content-Type: text/plain; charset=UTF-8" -s "$mail_subject" "$recipients"
 }
+
