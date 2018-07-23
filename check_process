@@ -1,4 +1,4 @@
-;; Nom du test
+;; flarum_ynh package check
 # Commentaire ignoré
 #	; pre-install
 #		echo -n "Here your commands to execute in the container"
@@ -8,7 +8,7 @@
 		path="/path"	(PATH)
 		admin="john"	(USER)
 		title="Test flarum"
-#		language="en"
+		language="en"
 		is_public=1	(PUBLIC|public=1|private=0)
 	; Checks
 		pkg_linter=1
@@ -18,7 +18,7 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		upgrade=1	from_commit=d059d5e8439fed02e86b355518351b9dcd43e6d8
+		upgrade=1	from_commit=9c02e9953994b9c99c199346c839209d07e88626
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
