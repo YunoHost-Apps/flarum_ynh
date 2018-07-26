@@ -1,5 +1,4 @@
 ;; flarum_ynh package check
-# Commentaire ignoré
 #	; pre-install
 #		echo -n "Here your commands to execute in the container"
 #		echo ", before each installation of the app."
@@ -18,11 +17,11 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		upgrade=1	from_commit=9c02e9953994b9c99c199346c839209d07e88626
+		upgrade=1	from_commit=46ca549825e311f4095b173e79d58a349d70d9a2
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
-		port_already_use=0	(66)
+		port_already_use=0
 		change_url=0
 ;;; Levels
 	Level 1=auto
@@ -40,6 +39,6 @@
 #Email=
 #Notification=none
 #;;; Upgrade options
-#	; commit=65c382d138596fcb32b4c97c39398815a1dcd4e8
+#	; commit=46ca549825e311f4095b173e79d58a349d70d9a2
 #		name=Name of this previous version
 #manifest_arg=domain=DOMAIN&path=PATH&admin=USER&title=TITLE&is_public=1&
