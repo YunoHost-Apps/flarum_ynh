@@ -72,6 +72,7 @@ ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app language $language
 ynh_app_setting_set $app final_path $final_path
 ynh_app_setting_set $app flarum_version $flarum_version
+ynh_app_setting_set $app bazaar_extension $bazaar_extension
 
 #===================================================
 # CREATE DEDICATED USER
@@ -224,7 +225,7 @@ if [[ -n $admin && -n $title ]]; then
       ynh_mysql_execute_as_root "$sql_command" $db_name
       ;;
     esac
-    
+
   if [[ $bazaar_extension ]]; then
     install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
   fi
