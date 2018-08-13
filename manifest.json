@@ -1,102 +1,102 @@
 {
-  "name": "Flarum",
-  "id": "flarum",
-  "packaging_format": 1,
-  "description": {
-    "en": "Flarum (open-source forum software) package for YunoHost.",
-    "fr": "Package Flarum (système de forum libre) pour YunoHost.",
-    "de": "Flarum (Open Source) ist ein Programmpaket für Yunohost."
-  },
-  "url": "http://flarum.org/",
-  "license": "MIT",
-  "version": "0.1.0-beta.7",
-  "maintainer": {
-    "name": "Titus PiJean",
-    "email": "tituspijean@outlook.com"
-  },
-  "requirements": {
-    "yunohost": ">= 2.4.0"
-  },
-  "multi_instance": true,
-  "services": [
-    "nginx",
-    "php5-fpm",
-    "mysql"
-  ],
-  "arguments": {
-    "install": [{
-        "name": "domain",
-        "type": "domain",
-        "ask": {
-          "en": "Choose a domain name for Flarum",
-          "fr": "Choisissez un nom de domaine pour Flarum",
-          "de": "Wählen einen Domain-Namen für Flarum"
-        },
-        "example": "example.com"
-      },
-      {
-        "name": "path",
-        "type": "path",
-        "ask": {
-          "en": "Choose a path for Flarum",
-          "fr": "Choisissez un chemin pour Flarum",
-          "de": "Wählen einen Pfad für Flarum"
-        },
-        "example": "/flarum",
-        "default": "/flarum"
-      },
-      {
-        "name": "admin",
-        "type": "user",
-        "ask": {
-          "en": "Choose the admin user (required for automatic post-installation)",
-          "fr": "Choisissez l’administrateur (nécessaire pour la post-installation automatique)",
-          "de": "Wählen einen Administrator (erforderlich für die automatische Nachinstallation)"
-        },
-        "example": "johndoe",
-        "optional": true
-      },
-      {
-        "name": "title",
-        "ask": {
-          "en": "Choose a title for your forum (required for automatic post-installation)",
-          "fr": "Choisissez un titre pour votre forum (nécessaire pour la post-installation automatique)",
-          "de": "Wählen einen Titel für eure Internetforum (erforderlich für die automatische Nachinstallation)"
-        },
-        "example": "My forum",
-        "default": "",
-        "optional": true
-      },
-      {
-        "name": "is_public",
-        "type": "boolean",
-        "ask": {
-          "en": "Is it a public application?",
-          "fr": "Est-ce une application publique ?",
-          "de": "Ist es eine öffentliche Applikation ?"
-        },
-        "default": true
-      },
-      {
-        "name": "bazaar_extension",
-        "type": "boolean",
-        "ask": {
-          "en": "Do you want to install bazaar extension, extensions provider for Flarum?",
-          "fr": "Voulez-vous installer l'extension bazaar, fournisseur d'extensions pour Flarum ?",
-          "de": "Wollen Sie die Bazaar Erweiterung installieren ?"
-        },
-        "default": false
-      },
-      {
-        "name": "language",
-        "ask": {
-          "en": "Choose the application language",
-          "fr": "Choisissez la langue de l'application",
-          "de": "Wählen Sie eine Sprache"
-        },
-        "choices": ["fr", "en", "de"],
-        "default": "en"
-      }
-    ]
-  }
+    "name": "Flarum",
+    "id": "flarum",
+    "packaging_format": 1,
+    "description": {
+        "en": "Flarum (open-source forum software) package for YunoHost.",
+        "fr": "Package Flarum (système de forum libre) pour YunoHost.",
+        "de": "Flarum (Open Source) ist ein Programmpaket für Yunohost."
+    },
+    "url": "http://flarum.org/",
+    "license": "MIT",
+    "version": "0.1.0-beta.7",
+    "maintainer": {
+        "name": "Titus PiJean",
+        "email": "tituspijean@outlook.com"
+    },
+    "requirements": {
+        "yunohost": ">= 2.4.0"
+    },
+    "multi_instance": true,
+    "services": [
+        "nginx",
+        "php5-fpm",
+        "mysql"
+    ],
+    "arguments": {
+        "install": [{
+                "name": "domain",
+                "type": "domain",
+                "ask": {
+                    "en": "Choose a domain name for Flarum",
+                    "fr": "Choisissez un nom de domaine pour Flarum",
+                    "de": "Wählen einen Domain-Namen für Flarum"
+                },
+                "example": "example.com"
+            },
+            {
+                "name": "path",
+                "type": "path",
+                "ask": {
+                    "en": "Choose a path for Flarum",
+                    "fr": "Choisissez un chemin pour Flarum",
+                    "de": "Wählen einen Pfad für Flarum"
+                },
+                "example": "/flarum",
+                "default": "/flarum"
+            },
+            {
+                "name": "admin",
+                "type": "user",
+                "ask": {
+                    "en": "Choose the admin user (required for automatic post-installation)",
+                    "fr": "Choisissez l’administrateur (nécessaire pour la post-installation automatique)",
+                    "de": "Wählen einen Administrator (erforderlich für die automatische Nachinstallation)"
+                },
+                "example": "johndoe",
+                "optional": true
+            },
+            {
+                "name": "title",
+                "ask": {
+                    "en": "Choose a title for your forum (required for automatic post-installation)",
+                    "fr": "Choisissez un titre pour votre forum (nécessaire pour la post-installation automatique)",
+                    "de": "Wählen einen Titel für eure Internetforum (erforderlich für die automatische Nachinstallation)"
+                },
+                "example": "My forum",
+                "default": "",
+                "optional": true
+            },
+            {
+                "name": "is_public",
+                "type": "boolean",
+                "ask": {
+                    "en": "Is it a public application?",
+                    "fr": "Est-ce une application publique ?",
+                    "de": "Ist es eine öffentliche Applikation ?"
+                },
+                "default": true
+            },
+            {
+                "name": "bazaar_extension",
+                "type": "boolean",
+                "ask": {
+                    "en": "Do you want to install Bazaar extension, extensions provider for Flarum?",
+                    "fr": "Voulez-vous installer l'extension Bazaar, fournisseur d'extensions pour Flarum ?",
+                    "de": "Wollen Sie die Bazaar Erweiterung installieren ?"
+                },
+                "default": false
+            },
+            {
+                "name": "language",
+                "ask": {
+                    "en": "Choose the application language",
+                    "fr": "Choisissez la langue de l'application",
+                    "de": "Wählen Sie eine Sprache"
+                },
+                "choices": ["fr", "en", "de"],
+                "default": "en"
+            }
+        ]
+    }
 }
