@@ -85,7 +85,7 @@
           "fr": "Voulez-vous installer l'extension bazaar, fournisseur d'extensions pour Flarum ?",
           "de": "Wollen Sie die Bazaar Erweiterung installieren ?"
         },
-        "default": true
+        "default": false
       },
       {
         "name": "language",
