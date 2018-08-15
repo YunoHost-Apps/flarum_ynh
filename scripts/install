@@ -100,7 +100,7 @@ sudo chown -R $app:www-data $tmp
 sudo chmod -R 0775 $tmp
 
 # Install Flarum
-exec_composer $app $final_path "create-project flarum/flarum $tmp $flarum_version --stability=beta --ansi"
+exec_composer $app $final_path "create-project flarum/flarum $tmp $flarum_version --stability=beta --ansi -d $tmp"
 
 # Copy Flarum to working directory and clean temp directory
 sudo cp -Rf $tmp/* $final_path
@@ -176,6 +176,7 @@ if [[ -n $admin && -n $title ]]; then
   # Copy the configuration.yml to working directory
   finalflarumconf="$final_path/configuration.yml"
   cp ../conf/configuration.yml $finalflarumconf
+  chown $app:www-data $finalflarumconf
   # Generate admin password and retrieve their email address
   admin_pwd=$(ynh_string_random 8)
   admin_mail=$(ynh_user_get_info $admin mail)
@@ -189,10 +190,11 @@ if [[ -n $admin && -n $title ]]; then
   sed -i "s%__ADMIN_EML__%$admin_mail%g" $finalflarumconf
   sed -i "s@__FORUM_TITLE__@$title@g" $finalflarumconf
   # Execute post-installation
-  cd $final_path
-  exec_as $app "php -d memory_limit=-1 flarum install -f configuration.yml"
+  pushd $final_path
+  exec_as $app "php -d $final_path -d memory_limit=-1 flarum install -f configuration.yml"
   # Delete configuration.yml as it sensitive data
   ynh_secure_remove $finalflarumconf
+  popd
 
   # Email setup
   sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
