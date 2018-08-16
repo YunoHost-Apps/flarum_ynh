@@ -227,7 +227,7 @@ if [[ -n $admin && -n $title ]]; then
     esac
 
   if [[ $bazaar_extension ]]; then
-    install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
+    exec_composer $app $final_path "require flagrow/bazaar --ansi"
   fi
 
   # Send login credentials to admin
