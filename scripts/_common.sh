@@ -21,10 +21,12 @@ exec_composer() {
 
   # Do not run composer as root
   if [ $AS_USER = "root" ] ; then ynh_die "Do not run composer as root" ; fi
-
+	pushd "${WORKDIR}"
 	exec_as "$AS_USER" COMPOSER_HOME="${WORKDIR}/.composer" \
-		php "${WORKDIR}/composer.phar" $@ \
-		-d "${WORKDIR}" -d memory_limit=-1 --quiet --no-interaction
+		php -d memory_limit=-1 \
+		"${WORKDIR}/composer.phar" $@ \
+		--quiet --no-interaction
+	popd
 }
 
 # Install and initialize Composer in the given directory
@@ -41,7 +43,7 @@ init_composer() {
 		| COMPOSER_HOME="${WORKDIR}/.composer" \
 		php -- --quiet --install-dir="$WORKDIR" \
 		|| ynh_die "Unable to install Composer"
-
+	chmod +x "${WORKDIR}/composer.phar"
 	# update dependencies to create composer.lock
 	#exec_composer "$AS_USER" "$WORKDIR" install --no-dev \
 	#	|| ynh_die "Unable to update core dependencies with Composer"
@@ -63,7 +65,7 @@ install_and_activate_extension() {
 	local new_extensions_enabled
 
 	# Install extension
-	exec_composer $AS_USER $WORKDIR "require $EXTENSION --ansi"
+	exec_composer $AS_USER $WORKDIR "require $EXTENSION --ansi -d $WORKDIR"
 
 	# Retrieve current extensions
 	sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
@@ -138,4 +140,3 @@ $(yunohost tools diagnosis | grep -B 100 "services:" | sed '/services:/d')"
 	# Send the email to the recipients
 	echo "$mail_message" | $mail_bin -a "Content-Type: text/plain; charset=UTF-8" -s "$mail_subject" "$recipients"
 }
-
