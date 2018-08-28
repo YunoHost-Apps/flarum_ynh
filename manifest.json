@@ -53,7 +53,7 @@
                     "fr": "Choisissez l’administrateur (nécessaire pour la post-installation automatique)",
                     "de": "Wählen einen Administrator (erforderlich für die automatische Nachinstallation)"
                 },
-                "example": "johndoe",
+                "example": "johndoe"
             },
             {
                 "name": "title",
@@ -63,7 +63,7 @@
                     "de": "Wählen einen Titel für eure Internetforum"
                 },
                 "example": "My forum",
-                "default": "",
+                "default": ""
             },
             {
                 "name": "is_public",
