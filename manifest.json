@@ -53,19 +53,17 @@
                     "fr": "Choisissez l’administrateur (nécessaire pour la post-installation automatique)",
                     "de": "Wählen einen Administrator (erforderlich für die automatische Nachinstallation)"
                 },
-                "example": "johndoe",
-                "optional": true
+                "example": "johndoe"
             },
             {
                 "name": "title",
                 "ask": {
-                    "en": "Choose a title for your forum (required for automatic post-installation)",
-                    "fr": "Choisissez un titre pour votre forum (nécessaire pour la post-installation automatique)",
-                    "de": "Wählen einen Titel für eure Internetforum (erforderlich für die automatische Nachinstallation)"
+                    "en": "Choose a title for your forum",
+                    "fr": "Choisissez un titre pour votre forum",
+                    "de": "Wählen einen Titel für eure Internetforum"
                 },
                 "example": "My forum",
-                "default": "",
-                "optional": true
+                "default": ""
             },
             {
                 "name": "is_public",
