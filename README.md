@@ -1,5 +1,10 @@
 Flarum for YunoHost
 -------------------
+
+[![Integration level](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum)
+
+[![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=flarum)
+
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
 **Shipped version:**  0.1.0-beta.7
@@ -21,19 +26,6 @@ You can also install it with `yunohost app install https://github.com/YunoHost-A
   - `path`
   - `admin`, among the YunoHosts users
   - `public`, *true* by default, for guests to read the forum
-- Optional parameters are :
-  - `title` :warning: if you leave it empty, you will have to perform manual post-installation.
+  - `title` of the forum
   - `language` can be English (by default), French, and German. Other languages installable after installation as any other extensions
   - `bazaar_extension` to install the extension marketplace (*false* by default), to avoid using the command line to add new extensions.
-
-### Manual post-installation
-
-1. Retrieve database password:
-  * It should be displayed in the log messages, on top of installation page, for web installations.
-  * For command line installations, `sudo cat /etc/yunohost/apps/flarum/settings.yml | grep mysql` (Replace `flarum` by its actual app id if you are using multiple Flarum instances in YunoHost)
-
-2. Go to your Flarum homepage to initiate manual post-installation.
-
-3. Fill in the blanks about `MySQL` as follow, put the retrieved database password. The remaining blanks are up to you.
-
-<p align="center"><img src="http://i.imgur.com/p7XmTDw.png" width="300" ></p>
