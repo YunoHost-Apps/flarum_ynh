@@ -49,9 +49,9 @@
                 "name": "admin",
                 "type": "user",
                 "ask": {
-                    "en": "Choose the admin user (required for automatic post-installation)",
-                    "fr": "Choisissez l’administrateur (nécessaire pour la post-installation automatique)",
-                    "de": "Wählen einen Administrator (erforderlich für die automatische Nachinstallation)"
+                    "en": "Choose the admin user",
+                    "fr": "Choisissez l’administrateur",
+                    "de": "Wählen einen Administrator"
                 },
                 "example": "johndoe"
             },
