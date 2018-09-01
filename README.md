@@ -29,3 +29,29 @@ You can also install it with `yunohost app install https://github.com/YunoHost-A
   - `title` of the forum
   - `language` can be English (by default), French, and German. Other languages installable after installation as any other extensions
   - `bazaar_extension` to install the extension marketplace (*false* by default), to avoid using the command line to add new extensions.
+
+### Performance issues and loading errors
+#### `Low memory` errors
+A swapfile will enable your system to extend its limited memory through its disk capacity. The following commands will create a 1 GB swapfile.
+```
+sudo dd if=/dev/zero of=/swapfile bs=1024 count=1024000
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+```
+
+Then add this line in `/etc/fstab`:
+```
+/swapfile none swap sw 0 0
+```
+Reboot the system and try the installation again.
+
+#### `Timeout` errors
+Some users have reported a successful installation, but get a blank page due to a `timeout` on a PHP script that prepares the forum assests (`Minify.php`, notably).
+In `/etc/php/7.0/fpm/conf.d/20-{APPID}.ini`, you can increase the `max_execution_time` and `max_input_time` limits (both values are in seconds if nothing is specified).
+Reload PHP-FPM with `sudo service php7.0-fpm reload`.
+
+#### Upload limit
+If you are facing an error while uploading large files into the forum, PHP may be limiting file upload.
+In `/etc/php/7.0/fpm/conf.d/20-{APPID}.ini`, you can uncomment (remove `;` at the beginning of the line) and increase the values of `upload_max_filesize` and `post_max_size` (both values are in bytes).
+Reload PHP-FPM with `sudo service php7.0-fpm reload`.
