@@ -125,11 +125,11 @@ ynh_app_setting_set "$app" db_pwd "$db_pwd"
 
 # Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-  sed -i "s@__LOCATION_HACK__@@g" ../conf/nginx.conf
-  sed -i "s@__PATH_HACK__@/@g" ../conf/nginx.conf
+  ynh_replace_string "__LOCATION_HACK__" "" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "/" "../conf/nginx.conf"
 else
-  sed -i "s@__LOCATION_HACK__@$path_url@g" ../conf/nginx.conf
-  sed -i "s@__PATH_HACK__@$path_url$path_url@g" ../conf/nginx.conf
+  ynh_replace_string "__LOCATION_HACK__" "$path_url" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "$path_url$path_url" "../conf/nginx.conf"
 fi
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -173,74 +173,66 @@ systemctl reload nginx
 # FLARUM POST-INSTALL
 #=================================================
 
-if [[ -n $admin && -n $title ]]; then
-  # If admin user and title were specified, start post-installation
-  # Copy the configuration.yml to working directory
-  finalflarumconf="$final_path/configuration.yml"
-  cp ../conf/configuration.yml $finalflarumconf
-  chown $app:www-data $finalflarumconf
-  # Generate admin password and retrieve their email address
-  admin_pwd=$(ynh_string_random 8)
-  admin_mail=$(ynh_user_get_info $admin mail)
-  # Populate configuration.yml
-  sed -i "s@__DOMAIN__@$domain@g" $finalflarumconf
-  sed -i "s@/__PATH__@$path_url@g" $finalflarumconf
-  sed -i "s@__USER__@$app@g" $finalflarumconf
-  sed -i "s@__DB_PWD__@$db_pwd@g" $finalflarumconf
-  sed -i "s@__ADMIN__@$admin@g" $finalflarumconf
-  sed -i "s@__ADMIN_PWD__@$admin_pwd@g" $finalflarumconf
-  sed -i "s%__ADMIN_EML__%$admin_mail%g" $finalflarumconf
-  sed -i "s@__FORUM_TITLE__@$title@g" $finalflarumconf
-  # Execute post-installation
-  pushd $final_path
-  exec_as $app "php -d $final_path -d memory_limit=-1 flarum install -f configuration.yml"
-  # Delete configuration.yml as it sensitive data
-  ynh_secure_remove $finalflarumconf
-  popd
+# Copy the configuration.yml to working directory
+finalflarumconf="$final_path/configuration.yml"
+cp ../conf/configuration.yml $finalflarumconf
+chown $app:www-data $finalflarumconf
+# Generate admin password and retrieve their email address
+admin_pwd=$(ynh_string_random 8)
+admin_mail=$(ynh_user_get_info $admin mail)
+# Populate configuration.yml
+ynh_replace_string "__DOMAIN__" "$domain" "$finalflarumconf"
+ynh_replace_string "/__PATH__" "$path_url" "$finalflarumconf"
+ynh_replace_string "__USER__" "$app" "$finalflarumconf"
+ynh_replace_string "__DB_PWD__" "$db_pwd" "$finalflarumconf"
+ynh_replace_string "__ADMIN__" "$admin" "$finalflarumconf"
+ynh_replace_string "__ADMIN_PWD__" "$admin_pwd" "$finalflarumconf"
+ynh_replace_string "__ADMIN_EML__" "$admin_mail" "$finalflarumconf"
+ynh_replace_string "__FORUM_TITLE__" "$title" "$finalflarumconf"
+# Execute post-installation
+pushd $final_path
+exec_as $app "php -d $final_path -d memory_limit=-1 flarum install -f configuration.yml"
+# Delete configuration.yml as it sensitive data
+ynh_secure_remove $finalflarumconf
+popd
 
-  # Email setup
-  sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
-('mail_driver', 'mail'),
-('mail_encryption', 'ssl'),
-('mail_from', '$app@$domain'),
-('mail_host', 'localhost'),
-('mail_port', '587');"
-  ynh_mysql_execute_as_root "$sql_command" $db_name
+# Email setup
+sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
+  ('mail_driver', 'mail'),
+  ('mail_encryption', 'ssl'),
+  ('mail_from', '$app@$domain'),
+  ('mail_host', 'localhost'),
+  ('mail_port', '587');"
+ynh_mysql_execute_as_root "$sql_command" $db_name
 
-  # Install and active the SSOwat auth extension
-  install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
-  # Configure SSOwat auth extension
-  ssowatdomain=$(</etc/yunohost/current_host)
-  sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-  ynh_mysql_execute_as_root "$sql_command" $db_name
+# Install and active the SSOwat auth extension
+install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
+# Configure SSOwat auth extension
+ssowatdomain=$(</etc/yunohost/current_host)
+sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
+ynh_mysql_execute_as_root "$sql_command" $db_name
 
-  # Install, activate and set language extensions
-  case $language in
-    fr)
-      install_and_activate_extension $app $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
-      sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
-      ynh_mysql_execute_as_root "$sql_command" $db_name
-      ;;
-    de)
-      install_and_activate_extension $app $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
-      sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
-      ynh_mysql_execute_as_root "$sql_command" $db_name
-      ;;
-    esac
+# Install, activate and set language extensions
+case $language in
+  fr)
+    install_and_activate_extension $app $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+    sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
+    ynh_mysql_execute_as_root "$sql_command" $db_name
+    ;;
+  de)
+    install_and_activate_extension $app $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
+    sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
+    ynh_mysql_execute_as_root "$sql_command" $db_name
+    ;;
+  esac
 
-  if [[ $bazaar_extension ]]; then
-    exec_composer $app $final_path "require flagrow/bazaar --ansi"
-  fi
-
-  # Send login credentials to admin
-  app_message="User : $admin, password : $admin_pwd
-  Change your password!
-  Your forum is accessible at https://$domain$path_url"
-  >&2 echo $app_message
-  ynh_send_readme_to_admin "$app_message" "$admin"
-else
-  # If admin user and title were not specified, ask admin to perform manual post-installation
-  app_message="Post-installation required, visit your Flarum instance."
-  >&2 echo $app_message
-  ynh_send_readme_to_admin "$app_message" "$admin"
+if [[ $bazaar_extension ]]; then
+  exec_composer $app $final_path "require flagrow/bazaar --ansi"
 fi
+
+# Send login credentials to admin
+app_message="User : $admin, password : $admin_pwd
+Change your password!
+Your forum is accessible at https://$domain$path_url"
+>&2 echo $app_message
+ynh_send_readme_to_admin "$app_message" "$admin"
