@@ -1,3 +1,7 @@
+# Version numbers
+flarum_version="0.1.0-beta.7"
+ssowat_ext_ver="*@dev"
+
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]
 exec_as() {

@@ -40,8 +40,6 @@ admin=$YNH_APP_ARG_ADMIN
 title=$YNH_APP_ARG_TITLE
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
-flarum_version="v0.1.0-beta.7"
-ssowat_ext_ver="*@dev"
 bazaar_extension=$YNH_APP_ARG_BAZAAR_EXTENSION
 
 #===================================================
