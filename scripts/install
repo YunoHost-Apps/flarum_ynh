@@ -101,7 +101,10 @@ sudo chown -R $app:www-data $tmp
 sudo chmod -R 0775 $tmp
 
 # Install Flarum
-exec_composer $app $final_path "create-project flarum/flarum $tmp $flarum_version --stability=beta --ansi -d $tmp"
+# First, create the project with core and all basic extensions
+exec_composer $app $final_path "create-project flarum/flarum $tmp --stability=beta --ansi -d $tmp"
+# Let's fix the core version by explicitely requiring it
+exec_composer $app $final_path "require flarum/core:$flarum_version -n --ansi -d $tmp"
 
 # Copy Flarum to working directory and clean temp directory
 sudo cp -Rf $tmp/* $final_path
@@ -204,7 +207,7 @@ sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
   ('mail_port', '587');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
 
-# Install and active the SSOwat auth extension
+# Install and activate the SSOwat auth extension
 install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
 # Configure SSOwat auth extension
 ssowatdomain=$(</etc/yunohost/current_host)

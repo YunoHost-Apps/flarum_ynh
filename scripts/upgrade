@@ -110,9 +110,12 @@ fi
 # FLARUM UPGRADE
 #=================================================
 
-if [[ $old_flarum_version -ne $flarum_version ]]; then
+# Downward compatibility: remove the v before version number
+if [[ $old_flarum_version == "v*" ]] then $old_flarum_version = ${old_flarum_version:1}; fi
+# Check if upgrade of Flarum core is needed
+if [[ dpkg --compare-version $old_flarum_version lt $flarum_version ]]; then
 	# Upgrade Flarum
-	exec_composer $app $final_path "update --ansi"
+	exec_composer $app $final_path "require -n flarum/core:'$flarum_version'"
 	pushd $final_path
 	exec_as $app php flarum cache:clear
 	popd
@@ -120,7 +123,7 @@ else
 	echo "Flarum doesn't need any update, let's check the extension."
 fi
 
-# Update SSOwat extension
+# Install and activate the SSOwat auth extension
 install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
 # Configure SSOwat auth extension
 ssowatdomain=$(</etc/yunohost/current_host)
