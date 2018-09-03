@@ -137,11 +137,11 @@ fi
 
 # Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-  sed -i "s@__LOCATION_HACK__@@g" ../conf/nginx.conf
-  sed -i "s@__PATH_HACK__@/@g" ../conf/nginx.conf
+  ynh_replace_string "__LOCATION_HACK__" "" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "/" "../conf/nginx.conf"
 else
-  sed -i "s@__LOCATION_HACK__@$path_url@g" ../conf/nginx.conf
-  sed -i "s@__PATH_HACK__@$path_url$path_url@g" ../conf/nginx.conf
+  ynh_replace_string "__LOCATION_HACK__" "$path_url" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "$path_url$path_url" "../conf/nginx.conf"
 fi
 
 # Create a dedicated nginx config
