@@ -112,7 +112,7 @@ fi
 # FLARUM UPGRADE
 #=================================================
 
-if [[ $old_flarum_version = $flarum_version ]]; then
+if [[ $old_flarum_version -ne $flarum_version ]]; then
 	# Upgrade Flarum
 	exec_composer $app $final_path "update --ansi"
 	pushd $final_path
