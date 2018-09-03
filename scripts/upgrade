@@ -42,6 +42,7 @@ final_path=$(ynh_app_setting_get "$app" final_path)
 db_name=$(ynh_app_setting_get $app db_name)
 db_pwd=$(ynh_app_setting_get $app db_pwd)
 old_flarum_version=$(ynh_app_setting_get "$app" flarum_version)
+old_ssowat_ext_ver=$(ynh_app_setting_get "$app" ssowat_ext_ver)
 bazaar_extension=$(ynh_app_setting_get "$app" bazaar_extension)
 
 #=================================================
@@ -123,12 +124,15 @@ else
 	echo "Flarum doesn't need any update, let's check the extension."
 fi
 
-# Install and activate the SSOwat auth extension
-install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
-# Configure SSOwat auth extension
-ssowatdomain=$(</etc/yunohost/current_host)
-sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-ynh_mysql_execute_as_root "$sql_command" $db_name
+# Check if upgrade of SSOwat extension is needed
+if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver) ]] || [ -z $old_ssowat_ext_ver] ; then
+	# Install and activate the SSOwat auth extension
+	install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
+	# Configure SSOwat auth extension
+	ssowatdomain=$(</etc/yunohost/current_host)
+	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
+	ynh_mysql_execute_as_root "$sql_command" $db_name
+fi
 
 if [[ $bazaar_extension ]]; then
    install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
