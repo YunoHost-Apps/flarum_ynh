@@ -42,8 +42,6 @@ final_path=$(ynh_app_setting_get "$app" final_path)
 db_name=$(ynh_app_setting_get $app db_name)
 db_pwd=$(ynh_app_setting_get $app db_pwd)
 old_flarum_version=$(ynh_app_setting_get "$app" flarum_version)
-flarum_version="v0.1.0-beta.7"
-ssowat_ext_ver="*@dev"
 bazaar_extension=$(ynh_app_setting_get "$app" bazaar_extension)
 
 #=================================================
@@ -204,4 +202,9 @@ fi
 
 systemctl reload nginx
 
+#===================================================
+# STORE SETTINGS
+#===================================================
+
 ynh_app_setting_set $app flarum_version $flarum_version
+ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
