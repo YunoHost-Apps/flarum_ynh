@@ -111,7 +111,7 @@ fi
 #=================================================
 
 # Downward compatibility: remove the v before version number
-if [[ $old_flarum_version == "v*" ]] then $old_flarum_version = ${old_flarum_version:1}; fi
+if [[ $old_flarum_version == "v*" ]]; then $old_flarum_version = ${old_flarum_version:1}; fi
 # Check if upgrade of Flarum core is needed
 if [[ dpkg --compare-version $old_flarum_version lt $flarum_version ]]; then
 	# Upgrade Flarum
