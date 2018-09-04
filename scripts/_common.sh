@@ -1,3 +1,7 @@
+# Version numbers
+flarum_version="0.1.0-beta.7.1"
+ssowat_ext_ver="0.5"
+
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]
 exec_as() {
@@ -65,7 +69,7 @@ install_and_activate_extension() {
 	local new_extensions_enabled
 
 	# Install extension
-	exec_composer $AS_USER $WORKDIR "require $EXTENSION --ansi -d $WORKDIR"
+	exec_composer $AS_USER $WORKDIR "require $EXTENSION -n --ansi -d $WORKDIR"
 
 	# Retrieve current extensions
 	sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"

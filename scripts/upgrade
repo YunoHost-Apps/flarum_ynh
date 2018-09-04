@@ -42,8 +42,7 @@ final_path=$(ynh_app_setting_get "$app" final_path)
 db_name=$(ynh_app_setting_get $app db_name)
 db_pwd=$(ynh_app_setting_get $app db_pwd)
 old_flarum_version=$(ynh_app_setting_get "$app" flarum_version)
-flarum_version="v0.1.0-beta.7"
-ssowat_ext_ver="*@dev"
+old_ssowat_ext_ver=$(ynh_app_setting_get "$app" ssowat_ext_ver)
 bazaar_extension=$(ynh_app_setting_get "$app" bazaar_extension)
 
 #=================================================
@@ -112,9 +111,12 @@ fi
 # FLARUM UPGRADE
 #=================================================
 
-if [[ $old_flarum_version -ne $flarum_version ]]; then
+# Downward compatibility: remove the v before version number
+if [[ $old_flarum_version == "v*" ]]; then $old_flarum_version = ${old_flarum_version:1}; fi
+# Check if upgrade of Flarum core is needed
+if [[ $(dpkg --compare-versions $old_flarum_version lt $flarum_version) ]]; then
 	# Upgrade Flarum
-	exec_composer $app $final_path "update --ansi"
+	exec_composer $app $final_path "require -n flarum/core:'$flarum_version'"
 	pushd $final_path
 	exec_as $app php flarum cache:clear
 	popd
@@ -122,12 +124,15 @@ else
 	echo "Flarum doesn't need any update, let's check the extension."
 fi
 
-# Update SSOwat extension
-install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
-# Configure SSOwat auth extension
-ssowatdomain=$(</etc/yunohost/current_host)
-sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-ynh_mysql_execute_as_root "$sql_command" $db_name
+# Check if upgrade of SSOwat extension is needed
+if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver) ]] || [ -z $old_ssowat_ext_ver] ; then
+	# Install and activate the SSOwat auth extension
+	install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
+	# Configure SSOwat auth extension
+	ssowatdomain=$(</etc/yunohost/current_host)
+	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
+	ynh_mysql_execute_as_root "$sql_command" $db_name
+fi
 
 if [[ $bazaar_extension ]]; then
    install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
@@ -139,11 +144,11 @@ fi
 
 # Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-  sed -i "s@__LOCATION_HACK__@@g" ../conf/nginx.conf
-  sed -i "s@__PATH_HACK__@/@g" ../conf/nginx.conf
+  ynh_replace_string "__LOCATION_HACK__" "" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "/" "../conf/nginx.conf"
 else
-  sed -i "s@__LOCATION_HACK__@$path_url@g" ../conf/nginx.conf
-  sed -i "s@__PATH_HACK__@$path_url$path_url@g" ../conf/nginx.conf
+  ynh_replace_string "__LOCATION_HACK__" "$path_url" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "$path_url$path_url" "../conf/nginx.conf"
 fi
 
 # Create a dedicated nginx config
@@ -204,4 +209,9 @@ fi
 
 systemctl reload nginx
 
+#===================================================
+# STORE SETTINGS
+#===================================================
+
 ynh_app_setting_set $app flarum_version $flarum_version
+ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
