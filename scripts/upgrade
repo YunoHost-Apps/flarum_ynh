@@ -125,7 +125,7 @@ else
 fi
 
 # Check if upgrade of SSOwat extension is needed
-if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver) ]] || [ -z $old_ssowat_ext_ver] ; then
+if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver && echo true) || -z $old_ssowat_ext_ver ]]; then
 	# Install and activate the SSOwat auth extension
 	install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
 	# Configure SSOwat auth extension
@@ -134,7 +134,7 @@ if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver) ]] || [ 
 	ynh_mysql_execute_as_root "$sql_command" $db_name
 fi
 
-if [[ $bazaar_extension ]]; then
+if [ $bazaar_extension -eq 1 ]; then
    install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
 fi
 
