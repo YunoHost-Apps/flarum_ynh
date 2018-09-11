@@ -228,7 +228,7 @@ case $language in
     ;;
   esac
 
-if [[ $bazaar_extension ]]; then
+if [ $bazaar_extension -eq 1 ]; then
   exec_composer $app $final_path "require flagrow/bazaar --ansi"
 fi
 
