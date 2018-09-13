@@ -1,6 +1,6 @@
 # Version numbers
 flarum_version="0.1.0-beta.7.1"
-ssowat_ext_ver="0.5"
+ssowat_ext_ver="0.6"
 
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]

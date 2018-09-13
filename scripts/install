@@ -226,9 +226,9 @@ case $language in
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
-  esac
+esac
 
-if [[ $bazaar_extension ]]; then
+if [ $bazaar_extension -eq 1 ]; then
   exec_composer $app $final_path "require flagrow/bazaar --ansi"
 fi
 
