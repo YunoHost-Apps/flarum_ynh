@@ -120,8 +120,9 @@ if [[ $(dpkg --compare-versions $old_flarum_version lt $flarum_version) ]]; then
 	pushd $final_path
 	exec_as $app php flarum cache:clear
 	popd
+	ynh_print_info "Flarum has been updated to version $flarum_version."
 else
-	echo "Flarum doesn't need any update, let's check the extension."
+	ynh_print_info "Flarum does not need updating."
 fi
 
 # Check if upgrade of SSOwat extension is needed
@@ -132,10 +133,14 @@ if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver && echo t
 	ssowatdomain=$(</etc/yunohost/current_host)
 	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
 	ynh_mysql_execute_as_root "$sql_command" $db_name
+	ynh_print_info "SSOwat extension has been updated and configured."
+else
+	ynh_print_info "SSOwat extension does not need updating."
 fi
 
 if [ $bazaar_extension -eq 1 ]; then
    install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
+   ynh_print_info "Bazaar extension has been installed."
 fi
 
 #=================================================
