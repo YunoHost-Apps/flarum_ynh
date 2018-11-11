@@ -118,8 +118,8 @@ if [[ $(dpkg --compare-versions $old_flarum_version lt $flarum_version && echo t
 	# Upgrade Flarum
 	exec_composer $app $final_path "require -n flarum/core:$flarum_version"
 	# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
-	if [[ $flarum_version == "0.1.0-beta.7.2"]]; then
-		curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd"
+	if [[ $flarum_version == "0.1.0-beta.7.2" ]]; then
+		curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd" -k
 	fi
 	pushd $final_path
 	exec_as $app php flarum cache:clear
