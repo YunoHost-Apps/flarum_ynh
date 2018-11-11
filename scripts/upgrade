@@ -114,14 +114,20 @@ fi
 # Downward compatibility: remove the v before version number
 if [[ $old_flarum_version == "v*" ]]; then $old_flarum_version = ${old_flarum_version:1}; fi
 # Check if upgrade of Flarum core is needed
-if [[ $(dpkg --compare-versions $old_flarum_version lt $flarum_version) ]]; then
+if [[ $(dpkg --compare-versions $old_flarum_version lt $flarum_version && echo true) ]]; then
 	# Upgrade Flarum
-	exec_composer $app $final_path "require -n flarum/core:'$flarum_version'"
+	exec_composer $app $final_path "require -n flarum/core:$flarum_version"
+	# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
+	if [[ $flarum_version == "0.1.0-beta.7.2"]]; then
+		curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd"
+	fi
 	pushd $final_path
 	exec_as $app php flarum cache:clear
 	popd
+	upgraded_flarum=true
 else
-	echo "Flarum doesn't need any update, let's check the extension."
+	echo "Flarum does not need to be updated."
+	upgraded_flarum=false
 fi
 
 # Check if upgrade of SSOwat extension is needed
@@ -132,6 +138,10 @@ if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver && echo t
 	ssowatdomain=$(</etc/yunohost/current_host)
 	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
 	ynh_mysql_execute_as_root "$sql_command" $db_name
+	upgraded_ssowat=true
+else
+	echo "SSOwat extension does not need to be updated."
+        upgraded_ssowat=false
 fi
 
 if [ $bazaar_extension -eq 1 ]; then
@@ -213,5 +223,9 @@ systemctl reload nginx
 # STORE SETTINGS
 #===================================================
 
-ynh_app_setting_set $app flarum_version $flarum_version
-ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
+if [ $upgraded_flarum ]; then
+	ynh_app_setting_set $app flarum_version $flarum_version
+fi
+if [ $upgraded_ssowat ]; then
+	ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
+fi
