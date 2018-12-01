@@ -101,6 +101,7 @@ sudo chown -R $app:www-data $tmp
 sudo chmod -R 0775 $tmp
 
 # Install Flarum
+ynh_print_info "Composer is installing Flarum and its dependencies. It may take a while..."
 # First, create the project with core and all basic extensions
 exec_composer $app $final_path "create-project flarum/flarum $tmp --stability=beta --ansi -d $tmp"
 # Let's fix the core version by explicitely requiring it
@@ -111,6 +112,7 @@ sudo cp -Rf $tmp/* $final_path
 sudo chown -R $app:www-data $final_path
 sudo chmod -R 0775 $final_path
 ynh_secure_remove $tmp
+ynh_print_info "   ... done!"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -175,6 +177,7 @@ systemctl reload nginx
 # FLARUM POST-INSTALL
 #=================================================
 
+ynh_print_info "Configuring Flarum..."
 # Copy the configuration.yml to working directory
 finalflarumconf="$final_path/configuration.yml"
 cp ../conf/configuration.yml $finalflarumconf
@@ -206,6 +209,7 @@ sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
   ('mail_host', 'localhost'),
   ('mail_port', '587');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
+ynh_print_info "   ... done!"
 
 # Install and activate the SSOwat auth extension
 install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
@@ -213,6 +217,7 @@ install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext
 ssowatdomain=$(</etc/yunohost/current_host)
 sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
+ynh_print_info "SSOwat extension has been installed."
 
 # Install, activate and set language extensions
 case $language in
@@ -220,21 +225,24 @@ case $language in
     install_and_activate_extension $app $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
+    ynh_print_info "French language has been installed."
     ;;
   de)
     install_and_activate_extension $app $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
+    ynh_print_info "German language has been installed."
     ;;
 esac
 
 if [ $bazaar_extension -eq 1 ]; then
   exec_composer $app $final_path "require flagrow/bazaar --ansi"
+  ynh_print_info "Bazaar extension has been installed."
 fi
 
 # Send login credentials to admin
 app_message="User : $admin, password : $admin_pwd
 Change your password!
 Your forum is accessible at https://$domain$path_url"
->&2 echo $app_message
 ynh_send_readme_to_admin "$app_message" "$admin"
+ynh_print_warn "$app_message"

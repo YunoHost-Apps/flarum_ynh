@@ -1,5 +1,5 @@
 # Version numbers
-flarum_version="0.1.0-beta.7.1"
+flarum_version="0.1.0-beta.7.2"
 ssowat_ext_ver="0.6"
 
 # Execute a command as another user
@@ -26,10 +26,11 @@ exec_composer() {
   # Do not run composer as root
   if [ $AS_USER = "root" ] ; then ynh_die "Do not run composer as root" ; fi
 	pushd "${WORKDIR}"
-	exec_as "$AS_USER" COMPOSER_HOME="${WORKDIR}/.composer" \
+	ynh_exec_warn_less \
+              "exec_as "$AS_USER" COMPOSER_HOME="${WORKDIR}/.composer" \
 		php -d memory_limit=-1 \
 		"${WORKDIR}/composer.phar" $@ \
-		--quiet --no-interaction
+		--no-interaction"
 	popd
 }
 
@@ -44,8 +45,8 @@ init_composer() {
 
 	# install composer
 	curl -sS https://getcomposer.org/installer \
-		| COMPOSER_HOME="${WORKDIR}/.composer" \
-		php -- --quiet --install-dir="$WORKDIR" \
+		| ynh_exec_warn_less \
+		"COMPOSER_HOME="${WORKDIR}/.composer" php -- --install-dir="$WORKDIR"" \
 		|| ynh_die "Unable to install Composer"
 	chmod +x "${WORKDIR}/composer.phar"
 	# update dependencies to create composer.lock
