@@ -69,6 +69,7 @@ ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app language $language
 ynh_app_setting_set $app final_path $final_path
+ynh_app_setting_set $app project_version $project_version
 ynh_app_setting_set $app flarum_version $flarum_version
 ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
 ynh_app_setting_set $app bazaar_extension $bazaar_extension
@@ -103,7 +104,7 @@ sudo chmod -R 0775 $tmp
 # Install Flarum
 ynh_print_info "Composer is installing Flarum and its dependencies. It may take a while..."
 # First, create the project with core and all basic extensions
-exec_composer $app $final_path "create-project flarum/flarum $tmp --stability=beta --ansi -d $tmp"
+exec_composer $app $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
 # Let's fix the core version by explicitely requiring it
 exec_composer $app $final_path "require flarum/core:$flarum_version -n --ansi -d $tmp"
 
