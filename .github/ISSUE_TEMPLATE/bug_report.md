@@ -38,5 +38,5 @@ about: Create a report to help us debug
 *A clear and concise description of what you expected to happen. You can remove this section if the command above is enough to understand your intent.*
 
 **Logs**
-*Perform the command again with `--debug | tee flarum.log` at the end. The log will be available in the `flarum.log` file. Remove any personal information and credentials, and copy and paste it here in a code block. If the log is long, you can use the [YunoPaste](https://paste.yunohost.org) service.*
+*After a failed command, YunoHost makes the log available to you, but also to others, thanks to `yunohost log display [log name] --share`. The actual command, with the correct log name, is displayed at the end of the failed attempt in the CLI. Execute it and copy here the share link it outputs.*
 *If applicable and useful, add screenshots to help explain your problem.*
