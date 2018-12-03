@@ -1,4 +1,5 @@
 # Version numbers
+project_version="0.1.0-beta.7"
 flarum_version="0.1.0-beta.7.2"
 ssowat_ext_ver="0.6"
 
