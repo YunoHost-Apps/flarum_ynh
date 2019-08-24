@@ -9,9 +9,9 @@
     },
     "url": "http://flarum.org/",
     "license": "MIT",
-    "version": "0.1.0-beta.7",
+    "version": "0.1.0-beta.9~ynh1",
     "maintainer": {
-        "name": "Titus PiJean",
+        "name": "tituspijean",
         "email": "tituspijean@outlook.com"
     },
     "requirements": {
@@ -20,7 +20,7 @@
     "multi_instance": true,
     "services": [
         "nginx",
-        "php5-fpm",
+        "php7.3-fpm",
         "mysql"
     ],
     "arguments": {
