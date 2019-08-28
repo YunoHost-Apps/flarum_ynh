@@ -7,6 +7,8 @@
 #=================================================
 
 source _common.sh
+source ynh_add_extra_apt_repos__3
+source ynh_install_php__3
 source ynh_exec_as
 source ynh_composer__2
 source ynh_send_readme_to_admin__2
@@ -93,8 +95,7 @@ ynh_script_progression --message="Installing dependencies..." --time --weight=1
 ###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
-#ynh_install_app_dependencies $pkg_dependencies
-apt install $pkg_dependencies
+ynh_install_php --phpversion=7.3 --package="$pkg_dependencies"
 
 #===================================================
 # CREATE DEDICATED USER
