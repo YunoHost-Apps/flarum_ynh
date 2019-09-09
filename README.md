@@ -2,7 +2,7 @@
 
 [![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=flarum)
 
-[![Integration level](https://ci-apps.yunohost.org/ci/logs/flarum%20(Community).svg)](https://dash.yunohost.org/appci/app/flarum) [![Flarum version](https://img.shields.io/badge/flarum-0.1.0--beta.9-green.svg)](https://github.com/flarum/flarum/releases/tag/v0.1.0-beta.9) ![PHP version](https://img.shields.io/badge/php--7.3-green.svg)
+[![Integration level](https://ci-apps.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://dash.yunohost.org/appci/app/flarum) [![Flarum version](https://img.shields.io/badge/flarum-0.1.0--beta.9-green.svg)](https://github.com/flarum/flarum/releases/tag/v0.1.0-beta.9) ![PHP version](https://img.shields.io/badge/php-7.3-green.svg)
 
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
@@ -14,7 +14,6 @@
 - SSOwat integration through a [dedicated extension](https://github.com/tituspijean/flarum-ext-auth-ssowat).
 
 ## Installation
-::warning: Flarum requires PHP 7.1+. PHP versions above 7.0 are currently not officially supported by YunoHost. This package's `install` script directly calls `apt install php7.3 ...`. Proceed with caution.
 
 This Flarum package can be installed through:
 - YunoHost's webadmin, in the Community listing
