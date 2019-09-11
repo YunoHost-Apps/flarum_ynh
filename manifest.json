@@ -3,9 +3,9 @@
     "id": "flarum",
     "packaging_format": 1,
     "description": {
-        "en": "Flarum (open-source forum software) package for YunoHost.",
-        "fr": "Package Flarum (système de forum libre) pour YunoHost.",
-        "de": "Flarum (Open Source) ist ein Programmpaket für Yunohost."
+        "en": "Flarum is the next-generation forum software that makes online discussion fun. It's simple, fast, and free.",
+        "fr": "Flarum est le forum de nouvelle génération qui rend les discussions ligne un plaisir. Il est simple, rapide, et libre.",
+        "de": "Flarum ist die Forensoftware der nächsten Generation, mit der Online-Diskussionen Spaß machen. Es ist einfach, schnell und freie."
     },
     "url": "http://flarum.org/",
     "license": "MIT",
@@ -15,7 +15,7 @@
         "email": "tituspijean@outlook.com"
     },
     "requirements": {
-        "yunohost": ">= 2.4.0"
+        "yunohost": ">= 3.5.0"
     },
     "multi_instance": true,
     "services": [
@@ -57,6 +57,7 @@
             },
             {
                 "name": "title",
+                "type": "string",
                 "ask": {
                     "en": "Choose a title for your forum",
                     "fr": "Choisissez un titre pour votre forum",
@@ -87,6 +88,7 @@
             },
             {
                 "name": "language",
+                "type": "string",
                 "ask": {
                     "en": "Choose the application language",
                     "fr": "Choisissez la langue de l'application",
