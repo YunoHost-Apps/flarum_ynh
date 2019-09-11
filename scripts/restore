@@ -6,7 +6,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-source _common.sh
+#Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -66,7 +67,7 @@ ynh_system_user_create --username=$app
 # Set right permissions
 chown -R $app: $final_path
 chown -R $app:www-data $final_path/storage
-sudo chmod -R 0775 $final_path
+chmod -R 0775 $final_path
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION

@@ -102,11 +102,11 @@ ynh_install_php --phpversion=7.3 --package="$pkg_dependencies"
 #===================================================
 
 ynh_system_user_create $app $final_path 1
-sudo usermod -a -G www-data $app
+usermod -a -G www-data $app
 # Create working directory
-sudo mkdir -p "$final_path/.composer"
-sudo chown -R $app:www-data $final_path
-sudo chmod -R 0775 $final_path
+mkdir -p "$final_path/.composer"
+chown -R $app:www-data $final_path
+chmod -R 0775 $final_path
 
 #=================================================
 # COMPOSER INSTALLATION
@@ -121,9 +121,9 @@ ynh_install_composer $php_version $final_path
 
 # Prepare Flarum temp directory
 tmp=/tmp/$app
-sudo mkdir -p $tmp
-sudo chown -R $app:www-data $tmp
-sudo chmod -R 0775 $tmp
+mkdir -p $tmp
+chown -R $app:www-data $tmp
+chmod -R 0775 $tmp
 
 # Install Flarum
 ynh_script_progression --message="Composer is installing Flarum and its dependencies (may take a while)..." --time --weight=3
@@ -134,13 +134,13 @@ ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$p
 ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version -n --ansi -d $tmp"
 
 # Copy Flarum to working directory and clean temp directory
-sudo cp -Rf $tmp/* $final_path
+cp -Rf $tmp/* $final_path
 ynh_secure_remove $tmp
 
 # Set right permissions for the post-installation
 chown -R $app: $final_path
 chown -R $app:www-data $final_path/storage
-sudo chmod -R 0775 $final_path
+chmod -R 0775 $final_path
 
 #=================================================
 # CREATE A MYSQL DATABASE

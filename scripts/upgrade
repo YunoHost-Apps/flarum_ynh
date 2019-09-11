@@ -175,9 +175,9 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 	ynh_secure_remove --file="$final_path"
 
 	# Create working directory
-	sudo mkdir -p "$final_path/.composer"
-	sudo chown -R $app:www-data $final_path
-	sudo chmod -R 0775 $final_path
+	mkdir -p "$final_path/.composer"
+	chown -R $app:www-data $final_path
+	chmod -R 0775 $final_path
 
 	#=================================================
 	# COMPOSER INSTALLATION
@@ -192,9 +192,9 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 
 	# Prepare Flarum temp directory
 	tmp=/tmp/$app
-	sudo mkdir -p $tmp
-	sudo chown -R $app:www-data $tmp
-	sudo chmod -R 0775 $tmp
+	mkdir -p $tmp
+	chown -R $app:www-data $tmp
+	chmod -R 0775 $tmp
 
 	# Install Flarum
 	ynh_script_progression --message="Composer is installing Flarum and its dependencies (may take a while)..." --time --weight=3
@@ -205,10 +205,10 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 	ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version -n --ansi -d $tmp"
 
 	# Copy Flarum to working directory
-	sudo cp -Rf $tmp/* $final_path
+	cp -Rf $tmp/* $final_path
 	# Copy config.php and assets from old app versions
-	sudo cp -Rf $tmpbak/config.php $final_path
-	sudo cp -Rf $tmpbak/assets $final_path/public
+	cp -Rf $tmpbak/config.php $final_path
+	cp -Rf $tmpbak/assets $final_path/public
 	# Clean temp directory
 	ynh_secure_remove $tmp
 	ynh_secure_remove $tmpbak
@@ -216,7 +216,7 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 	# Set right permissions for the post-installation
 	chown -R $app: $final_path
 	chown -R $app:www-data $final_path/storage
-	sudo chmod -R 0775 $final_path
+	chmod -R 0775 $final_path
 fi
 
 pushd $final_path
@@ -270,7 +270,7 @@ ynh_use_logrotate --non-append
 # Set permissions on app files
 chown -R $app: $final_path
 chown -R $app:www-data $final_path/storage
-sudo chmod -R 0775 $final_path
+chmod -R 0775 $final_path
 
 #=================================================
 # SETUP SSOWAT
