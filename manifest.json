@@ -20,7 +20,6 @@
     "multi_instance": true,
     "services": [
         "nginx",
-        "php7.3-fpm",
         "mysql"
     ],
     "arguments": {
@@ -73,6 +72,10 @@
                     "en": "Is it a public application?",
                     "fr": "Est-ce une application publique ?",
                     "de": "Ist es eine öffentliche Applikation ?"
+                },
+                "help": {
+                    "en": "If public, it will be open to all visitors like any forum. If private, only the YunoHost server users can access it.",
+                    "fr": "Si public, le forum sera accessible à tous, comme pour tout forum. Si privé, seuls les utilisateurs du serveur YunoHost pourront y accéder."
                 },
                 "default": true
             },
