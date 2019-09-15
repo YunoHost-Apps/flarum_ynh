@@ -7,72 +7,76 @@
 #=================================================
 
 source _common.sh
+source ynh_add_extra_apt_repos__3
+source ynh_install_php__3
+source ynh_exec_as
+source ynh_composer__2
+source ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
 #=================================================
-# MANAGE SCRIPT FAILURE
+# LOAD SETTINGS
 #=================================================
+ynh_script_progression --message="Loading installation settings..." --time --weight=1
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-#===================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
-#===================================================
-
-# This is a multi-instance app, meaning it can be installed several times independently
-# The id of the app as stated in the manifest is available as $YNH_APP_ID
-# The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
-# The app instance name is available as $YNH_APP_INSTANCE_NAME
-#    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
-#    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
-#    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
-# The app instance name is probably what you are interested the most, since this is
-# guaranteed to be unique. This is a good unique identifier to define installation path,
-# db names, ...
 app=$YNH_APP_INSTANCE_NAME
 
-# Retrieve app settings
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+is_public=$(ynh_app_setting_get --app=$app --key=is_public)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+language=$(ynh_app_setting_get --app=$app --key=language)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
+old_project_version=$(ynh_app_setting_get --app=$app --key=project_version)
+old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
+old_ssowat_version=$(ynh_app_setting_get --app=$app --key=ssowat_version)
+[ -z "$old_ssowat_version" ] && old_ssowat_version="0.6"
+bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
 
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_app_setting_get "$app" path)
-admin=$(ynh_app_setting_get "$app" admin)
-is_public=$(ynh_app_setting_get "$app" is_public)
-final_path=$(ynh_app_setting_get "$app" final_path)
-db_name=$(ynh_app_setting_get $app db_name)
-db_pwd=$(ynh_app_setting_get $app db_pwd)
-old_flarum_version=$(ynh_app_setting_get "$app" flarum_version)
-old_ssowat_ext_ver=$(ynh_app_setting_get "$app" ssowat_ext_ver)
-bazaar_extension=$(ynh_app_setting_get "$app" bazaar_extension)
+#=================================================
+# CHECK VERSION
+#=================================================
+
+### This helper will compare the version of the currently installed app and the version of the upstream package.
+### $upgrade_type can have 2 different values
+### - UPGRADE_APP if the upstream app version has changed
+### - UPGRADE_PACKAGE if only the YunoHost package has changed
+### ynh_check_app_version_changed will stop the upgrade if the app is up to date.
+### UPGRADE_APP should be used to upgrade the core app only if there's an upgrade to do.
+upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_script_progression --message="Ensuring downward compatibility..." --time --weight=1
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
-	ynh_app_setting_set $app is_public 1
+	ynh_app_setting_set --app=$app --key=is_public --value=1
 	is_public=1
 elif [ "$is_public" = "No" ]; then
-	ynh_app_setting_set $app is_public 0
+	ynh_app_setting_set --app=$app --key=is_public --value=0
 	is_public=0
 fi
 
 # If db_name doesn't exist, create it
-if [ -z $db_name ]; then
-	db_name=$(ynh_sanitize_dbid $app)
-	ynh_app_setting_set $app db_name $db_name
+if [ -z "$db_name" ]; then
+	db_name=$(ynh_sanitize_dbid --db_name=$app)
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
 # If final_path doesn't exist, create it
-if [ -z $final_path ]; then
+if [ -z "$final_path" ]; then
 	final_path=/var/www/$app
-	ynh_app_setting_set $app final_path $final_path
+	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --time --weight=1
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -88,23 +92,61 @@ ynh_abort_if_errors
 #=================================================
 
 # Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path $path_url)
+# N.B. : this is for app installations before YunoHost 2.7
+# where this value might be something like /foo/ or foo/
+# instead of /foo ....
+# If nobody installed your app before 2.7, then you may
+# safely remove this line
+path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading nginx web server configuration..." --time --weight=1
+
+# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
+if [ $path_url = "/" ]; then
+  ynh_replace_string "__PATH_HACK__" "" "../conf/nginx.conf"
+else
+  ynh_replace_string "__PATH_HACK__" "$path_url" "../conf/nginx.conf"
+fi
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
+
+ynh_install_php --phpversion=7.3 --package="$pkg_dependencies"
+
+#=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
 
-# Create a system user
-ynh_system_user_create $app
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app
 
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading php-fpm configuration..." --time --weight=1
+
+# Create a dedicated php-fpm config
+ynh_add_fpm_config $php_version
+
+#=================================================
+# SPECIFIC UPGRADE
 #=================================================
 # COMPOSER UPGRADE
 #=================================================
 
 if ! type "$final_path/composer.phar" > /dev/null; then
-  init_composer $app $final_path
+  ynh_install_composer $php_version $final_path
 fi
 
 #=================================================
@@ -112,81 +154,109 @@ fi
 #=================================================
 
 # Downward compatibility: remove the v before version number
-if [[ $old_flarum_version == "v*" ]]; then $old_flarum_version = ${old_flarum_version:1}; fi
+if [[ $old_project_version == "v*" ]]; then $old_project_version = ${old_project_version:1}; fi
 # Check if upgrade of Flarum core is needed
-if [[ $(dpkg --compare-versions $old_flarum_version lt $flarum_version && echo true) ]]; then
-	# Upgrade Flarum
-	exec_composer $app $final_path "require -n flarum/core:$flarum_version"
-	# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
-	if [[ $flarum_version == "0.1.0-beta.7.2" ]]; then
-		curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd" -k
-	fi
-	pushd $final_path
-	exec_as $app php flarum cache:clear
-	popd
-  ynh_print_info "Flarum has been updated to version $flarum_version."
-	upgraded_flarum=true
-else
-	ynh_print_info "Flarum does not need updating."
-	upgraded_flarum=false
+
+# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
+if [[ $project_version == "0.1.0-beta.7.2" ]]; then
+	curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd" -k
+fi
+#=================================================
+# UPGRADING TO 0.1.0-beta.8 and above
+#=================================================
+if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo true) ]]; then
+
+	# Backing up the app directory
+	tmpbak="/tmp/${app}backup"
+	mkdir -p $tmpbak
+	cp -R $final_path/* $tmpbak
+
+	# Deleting current app directory
+	ynh_secure_remove --file="$final_path"
+
+	# Create working directory
+	mkdir -p "$final_path/.composer"
+	chown -R $app:www-data $final_path
+	chmod -R 0775 $final_path
+
+	#=================================================
+	# COMPOSER INSTALLATION
+	#=================================================
+
+	ynh_script_progression --message="Installing Composer..." --time --weight=1
+	ynh_install_composer $php_version $final_path
+
+	#=================================================
+	# FLARUM INSTALLATION
+	#=================================================
+
+	# Prepare Flarum temp directory
+	tmp=/tmp/$app
+	mkdir -p $tmp
+	chown -R $app:www-data $tmp
+	chmod -R 0775 $tmp
+
+	# Install Flarum
+	ynh_script_progression --message="Composer is installing Flarum and its dependencies (may take a while)..." --time --weight=3
+
+	# First, create the project with core and all basic extensions
+	ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
+	# Let's fix the core version by explicitely requiring it
+	ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version -n --ansi -d $tmp"
+
+	# Copy Flarum to working directory
+	cp -Rf $tmp/* $final_path
+	# Copy config.php and assets from old app versions
+	cp -Rf $tmpbak/config.php $final_path
+	cp -Rf $tmpbak/assets $final_path/public
+	# Clean temp directory
+	ynh_secure_remove $tmp
+	ynh_secure_remove $tmpbak
+
+	# Set right permissions for the post-installation
+	chown -R $app: $final_path
+	chown -R $app:www-data $final_path/storage
+	chmod -R 0775 $final_path
 fi
 
-# Check if upgrade of SSOwat extension is needed
-if [[ $(dpkg --compare-versions $old_ssowat_ext_ver lt $ssowat_ext_ver && echo true) || -z $old_ssowat_ext_ver ]]; then
-	# Install and activate the SSOwat auth extension
-	install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
-	# Configure SSOwat auth extension
-	ssowatdomain=$(</etc/yunohost/current_host)
-	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-	ynh_mysql_execute_as_root "$sql_command" $db_name
-  ynh_print_info "SSOwat extension has been updated and configured."
-	upgraded_ssowat=true
-else
-	ynh_print_info "SSOwat extension does not need updating."
- upgraded_ssowat=false
-fi
+pushd $final_path
+	ynh_composer_exec $app $php_version $final_path "update --prefer-dist --no-dev -o --with-all-dependencies"
+	exec_as $app php$php_version flarum migrate
+	exec_as $app php$php_version flarum cache:clear
+popd
+
+# Install and activate the SSOwat auth extension
+install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
+# Configure SSOwat auth extension
+ssowatdomain=$(</etc/yunohost/current_host)
+sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
+ynh_mysql_execute_as_root "$sql_command" $db_name
+
+# Install, activate and set language extensions
+case $language in
+  fr)
+    ynh_script_progression --message="Installing French extension..." --time --weight=2
+    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+    sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
+    ynh_mysql_execute_as_root "$sql_command" $db_name
+    ;;
+  de)
+    ynh_script_progression --message="Installing German extension..." --time --weight=2
+    install_and_activate_extension $app $php_version $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
+    sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
+    ynh_mysql_execute_as_root "$sql_command" $db_name
+    ;;
+esac
+ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
 
 if [ $bazaar_extension -eq 1 ]; then
-   install_and_activate_extension $app $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
-   ynh_print_info "Bazaar extension has been installed."
-fi
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-
-# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
-if [ $path_url = "/" ]; then
-  ynh_replace_string "__LOCATION_HACK__" "" "../conf/nginx.conf"
-  ynh_replace_string "__PATH_HACK__" "/" "../conf/nginx.conf"
-else
-  ynh_replace_string "__LOCATION_HACK__" "$path_url" "../conf/nginx.conf"
-  ynh_replace_string "__PATH_HACK__" "$path_url$path_url" "../conf/nginx.conf"
-fi
-
-# Create a dedicated nginx config
-ynh_add_nginx_config
-
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-
-# Create a dedicated php-fpm config
-ynh_add_fpm_config
-
-#=================================================
-# SPECIFIC UPGRADE
-#=================================================
-
-# If app is public, add url to SSOWat conf as skipped_uris
-if [[ $is_public -eq 1 ]]; then
-  # See install script
-  ynh_app_setting_set "$app" unprotected_uris "/"
+   install_and_activate_extension $app $php_version $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
 fi
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_script_progression --message="Upgrading logrotate configuration..." --time --weight=1
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -197,38 +267,32 @@ ynh_use_logrotate --non-append
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Set right permissions
-chown -R $app:www-data $final_path
-sudo chmod -R 0775 $final_path
+# Set permissions on app files
+chown -R $app: $final_path
+chown -R $app:www-data $final_path/storage
+chmod -R 0775 $final_path
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_script_progression --message="Upgrading SSOwat configuration..." --time --weight=1
 
-if [ $is_public -eq 0 ]
-then	# Remove the public access
-	ynh_app_setting_delete $app skipped_uris
-fi
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
 	# unprotected_uris allows SSO credentials to be passed anyway
-	ynh_app_setting_set $app unprotected_uris "/"
+	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 fi
 
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
 
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
 
-#===================================================
-# STORE SETTINGS
-#===================================================
+#=================================================
+# END OF SCRIPT
+#=================================================
 
-if [ $upgraded_flarum ]; then
-	ynh_app_setting_set $app flarum_version $flarum_version
-fi
-if [ $upgraded_ssowat ]; then
-	ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
-fi
+ynh_script_progression --message="Upgrade of $app completed" --time --last

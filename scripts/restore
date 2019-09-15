@@ -6,7 +6,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-source _common.sh
+#Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -42,14 +43,40 @@ test ! -d $final_path \
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
+ynh_script_progression --message="Restoring the app main directory..." --time --weight=1
 
-ynh_restore_file "$final_path"
+ynh_restore_file --origin_path="$final_path"
 
+#=================================================
+# RECREATE THE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Recreating the dedicated system user..." --time --weight=1
+
+# Create the dedicated user (if not existing)
+ynh_system_user_create --username=$app
+
+#=================================================
+# RESTORE USER RIGHTS
+#=================================================
+
+# Set right permissions
+chown -R $app: $final_path
+chown -R $app:www-data $final_path/storage
+chmod -R 0775 $final_path
+
+#=================================================
+# RESTORE THE PHP-FPM CONFIGURATION
+#=================================================
+
+ynh_restore_file --origin_path="/etc/php/${php_version}/fpm/pool.d/$app.conf"
+
+#=================================================
+# SPECIFIC RESTORATION
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
@@ -57,28 +84,6 @@ ynh_restore_file "$final_path"
 db_pwd=$(ynh_app_setting_get $app mysqlpwd)
 ynh_mysql_setup_db $db_name $db_name $db_pwd
 ynh_mysql_connect_as $db_name $db_pwd $db_name < ./db.sql
-
-#=================================================
-# RECREATE THE DEDICATED USER
-#=================================================
-
-# Create the dedicated user (if not existing)
-ynh_system_user_create $app
-
-#=================================================
-# RESTORE USER RIGHTS
-#=================================================
-
-# Restore permissions on app files
-chown -R $app:www-data $final_path
-chmod -R 0775 $final_path
-
-#=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
-#=================================================
-
-ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
-ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
@@ -91,6 +96,13 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # RELOAD NGINX AND PHP-FPM
 #=================================================
+ynh_script_progression --message="Reloading nginx web server and php-fpm..." --time --weight=1
 
-systemctl reload php5-fpm
-systemctl reload nginx
+ynh_systemd_action --service_name=php${php_version}-fpm --action=reload
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Restoration completed for $app" --time --last

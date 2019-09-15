@@ -7,6 +7,11 @@
 #=================================================
 
 source _common.sh
+source ynh_add_extra_apt_repos__3
+source ynh_install_php__3
+source ynh_exec_as
+source ynh_composer__2
+source ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -69,27 +74,46 @@ ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app language $language
 ynh_app_setting_set $app final_path $final_path
+ynh_app_setting_set $app php_version $php_version
 ynh_app_setting_set $app project_version $project_version
-ynh_app_setting_set $app flarum_version $flarum_version
-ynh_app_setting_set $app ssowat_ext_ver $ssowat_ext_ver
+ynh_app_setting_set $app core_version $core_version
+ynh_app_setting_set $app ssowat_version $ssowat_version
 ynh_app_setting_set $app bazaar_extension $bazaar_extension
+
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Installing dependencies..." --time --weight=1
+
+### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
+### Those deb packages will be installed as dependencies of this package.
+### If you're not using this helper:
+###		- Remove the section "REMOVE DEPENDENCIES" in the remove script
+###		- Remove the variable "pkg_dependencies" in _common.sh
+###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
+###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
+
+ynh_install_php --phpversion=7.3 --package="$pkg_dependencies"
 
 #===================================================
 # CREATE DEDICATED USER
 #===================================================
 
-ynh_system_user_create $app $final_path
-sudo usermod -a -G www-data $app
+ynh_system_user_create $app $final_path 1
+usermod -a -G www-data $app
 # Create working directory
-sudo mkdir -p "$final_path/.composer"
-sudo chown -R $app:www-data $final_path
-sudo chmod -R 0775 $final_path
+mkdir -p "$final_path/.composer"
+chown -R $app:www-data $final_path
+chmod -R 0775 $final_path
 
 #=================================================
 # COMPOSER INSTALLATION
 #=================================================
 
-init_composer $app $final_path
+ynh_script_progression --message="Installing Composer..." --time --weight=1
+ynh_install_composer $php_version $final_path
 
 #=================================================
 # FLARUM INSTALLATION
@@ -97,23 +121,26 @@ init_composer $app $final_path
 
 # Prepare Flarum temp directory
 tmp=/tmp/$app
-sudo mkdir -p $tmp
-sudo chown -R $app:www-data $tmp
-sudo chmod -R 0775 $tmp
+mkdir -p $tmp
+chown -R $app:www-data $tmp
+chmod -R 0775 $tmp
 
 # Install Flarum
-ynh_print_info "Composer is installing Flarum and its dependencies. It may take a while..."
+ynh_script_progression --message="Composer is installing Flarum and its dependencies (may take a while)..." --time --weight=3
+
 # First, create the project with core and all basic extensions
-exec_composer $app $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
+ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
 # Let's fix the core version by explicitely requiring it
-exec_composer $app $final_path "require flarum/core:$flarum_version -n --ansi -d $tmp"
+ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version -n --ansi -d $tmp"
 
 # Copy Flarum to working directory and clean temp directory
-sudo cp -Rf $tmp/* $final_path
-sudo chown -R $app:www-data $final_path
-sudo chmod -R 0775 $final_path
+cp -Rf $tmp/* $final_path
 ynh_secure_remove $tmp
-ynh_print_info "   ... done!"
+
+# Set right permissions for the post-installation
+chown -R $app: $final_path
+chown -R $app:www-data $final_path/storage
+chmod -R 0775 $final_path
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -130,12 +157,11 @@ ynh_app_setting_set "$app" db_pwd "$db_pwd"
 
 # Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
 if [ $path_url = "/" ]; then
-  ynh_replace_string "__LOCATION_HACK__" "" "../conf/nginx.conf"
-  ynh_replace_string "__PATH_HACK__" "/" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "" "../conf/nginx.conf"
 else
-  ynh_replace_string "__LOCATION_HACK__" "$path_url" "../conf/nginx.conf"
-  ynh_replace_string "__PATH_HACK__" "$path_url$path_url" "../conf/nginx.conf"
+  ynh_replace_string "__PATH_HACK__" "$path_url" "../conf/nginx.conf"
 fi
+
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
@@ -144,7 +170,7 @@ ynh_add_nginx_config
 #=================================================
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_add_fpm_config $php_version
 
 #=================================================
 # SETUP LOGROTATE
@@ -177,8 +203,8 @@ systemctl reload nginx
 #=================================================
 # FLARUM POST-INSTALL
 #=================================================
+ynh_script_progression --message="Configuring Flarum..." --time --weight=2
 
-ynh_print_info "Configuring Flarum..."
 # Copy the configuration.yml to working directory
 finalflarumconf="$final_path/configuration.yml"
 cp ../conf/configuration.yml $finalflarumconf
@@ -197,9 +223,9 @@ ynh_replace_string "__ADMIN_EML__" "$admin_mail" "$finalflarumconf"
 ynh_replace_string "__FORUM_TITLE__" "$title" "$finalflarumconf"
 # Execute post-installation
 pushd $final_path
-exec_as $app "php -d $final_path -d memory_limit=-1 flarum install -f configuration.yml"
-# Delete configuration.yml as it sensitive data
-ynh_secure_remove $finalflarumconf
+  exec_as $app php$php_version -d $final_path -d memory_limit=-1 flarum install -f configuration.yml
+  # Delete configuration.yml as it contains sensitive data
+  ynh_secure_remove $finalflarumconf
 popd
 
 # Email setup
@@ -210,10 +236,11 @@ sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
   ('mail_host', 'localhost'),
   ('mail_port', '587');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
-ynh_print_info "   ... done!"
+
 
 # Install and activate the SSOwat auth extension
-install_and_activate_extension $app $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_ext_ver" "tituspijean-auth-ssowat"
+ynh_script_progression --message="Installing SSOwat extension..." --time --weight=2
+install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
 # Configure SSOwat auth extension
 ssowatdomain=$(</etc/yunohost/current_host)
 sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
@@ -223,25 +250,29 @@ ynh_print_info "SSOwat extension has been installed."
 # Install, activate and set language extensions
 case $language in
   fr)
-    install_and_activate_extension $app $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+    ynh_script_progression --message="Installing French extension..." --time --weight=2
+    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
-    ynh_print_info "French language has been installed."
     ;;
   de)
-    install_and_activate_extension $app $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
+    ynh_script_progression --message="Installing German extension..." --time --weight=2
+    install_and_activate_extension $app $php_version $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
-    ynh_print_info "German language has been installed."
     ;;
 esac
 
 if [ $bazaar_extension -eq 1 ]; then
-  exec_composer $app $final_path "require flagrow/bazaar --ansi"
-  ynh_print_info "Bazaar extension has been installed."
+  ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
+  ynh_composer_exec $app $php_version $final_path "require flagrow/bazaar --ansi"
 fi
 
-# Send login credentials to admin
+#=================================================
+# SEND CREDENTIALS TO ADMIN
+#=================================================
+
+ynh_script_progression --message="Sending generated admin credentials by email, but you can log in with your YunoHost credentials!" --time --weight=1
 app_message="User : $admin, password : $admin_pwd
 Change your password!
 Your forum is accessible at https://$domain$path_url"
