@@ -130,8 +130,6 @@ ynh_script_progression --message="Composer is installing Flarum and its dependen
 
 # First, create the project with core and all basic extensions
 ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
-# Let's fix the core version by explicitely requiring it
-ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version -n --ansi -d $tmp"
 
 # Copy Flarum to working directory and clean temp directory
 cp -Rf $tmp/* $final_path

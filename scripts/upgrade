@@ -201,8 +201,6 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 
 	# First, create the project with core and all basic extensions
 	ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
-	# Let's fix the core version by explicitely requiring it
-	ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version -n --ansi -d $tmp"
 
 	# Copy Flarum to working directory
 	cp -Rf $tmp/* $final_path
@@ -220,7 +218,6 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 fi
 
 pushd $final_path
-	ynh_composer_exec $app $php_version $final_path "require flarum/core:$core_version"
 	ynh_composer_exec $app $php_version $final_path "update --prefer-dist --no-dev -o --with-all-dependencies"
 	exec_as $app php$php_version flarum migrate
 	exec_as $app php$php_version flarum cache:clear
