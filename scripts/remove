@@ -82,11 +82,11 @@ ynh_remove_logrotate
 #=================================================
 
 # Remove a temp directory securely
-ynh_secure_remove --file="/tmp/$app/"
+ynh_secure_remove --file="/tmp/$app"
 ynh_secure_remove --file="/tmp/${app}backup"
 
 # Remove the log files
-ynh_secure_remove --file="/var/log/$app/"
+ynh_secure_remove --file="/var/log/$app"
 
 #=================================================
 # GENERIC FINALIZATION
