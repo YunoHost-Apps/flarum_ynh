@@ -99,7 +99,11 @@ fi
 #=================================================
 # ...
 #=================================================
-ynh_replace_string "$old_domain$old_path" "$new_domain$new_path" "$final_path/config.php"
+if [ $new_path = "/" ]; then
+	ynh_replace_string "$old_domain$old_path" "$new_domain" "$final_path/config.php"
+else
+	ynh_replace_string "$old_domain$old_path" "$new_domain$new_path" "$final_path/config.php"
+fi
 
 #=================================================
 # GENERIC FINALISATION
