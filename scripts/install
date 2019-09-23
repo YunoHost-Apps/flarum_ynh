@@ -95,7 +95,7 @@ ynh_script_progression --message="Installing dependencies..." --time --weight=1
 ###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
-ynh_install_php --phpversion=7.3 --package="$pkg_dependencies"
+ynh_install_php --phpversion=${php_version} --package="$pkg_dependencies"
 
 #===================================================
 # CREATE DEDICATED USER
@@ -121,6 +121,7 @@ ynh_install_composer $php_version $final_path
 
 # Prepare Flarum temp directory
 tmp=/tmp/$app
+ynh_secure_remove --file="$tmp"
 mkdir -p $tmp
 chown -R $app:www-data $tmp
 chmod -R 0775 $tmp
@@ -248,7 +249,7 @@ ynh_mysql_execute_as_root "$sql_command" $db_name
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/lang-french" "milescellar-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
@@ -262,7 +263,7 @@ esac
 
 if [ $bazaar_extension -eq 1 ]; then
   ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
-  ynh_composer_exec $app $php_version $final_path "require flagrow/bazaar --ansi"
+  ynh_composer_exec $app $php_version $final_path "require extiverse/bazaar --ansi"
 fi
 
 #=================================================

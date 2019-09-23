@@ -99,6 +99,7 @@ fi
 #=================================================
 # ...
 #=================================================
+ynh_replace_string "$old_domain$old_path" "$new_domain$new_path" "$final_path/config.php"
 
 #=================================================
 # GENERIC FINALISATION
