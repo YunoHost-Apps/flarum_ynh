@@ -248,7 +248,7 @@ ynh_mysql_execute_as_root "$sql_command" $db_name
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/lang-french" "milescellar-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
@@ -262,7 +262,7 @@ esac
 
 if [ $bazaar_extension -eq 1 ]; then
   ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
-  ynh_composer_exec $app $php_version $final_path "require flagrow/bazaar --ansi"
+  ynh_composer_exec $app $php_version $final_path "require extiverse/bazaar --ansi"
 fi
 
 #=================================================
