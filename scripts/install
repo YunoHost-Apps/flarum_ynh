@@ -121,6 +121,7 @@ ynh_install_composer $php_version $final_path
 
 # Prepare Flarum temp directory
 tmp=/tmp/$app
+ynh_secure_remove --file="$tmp"
 mkdir -p $tmp
 chown -R $app:www-data $tmp
 chmod -R 0775 $tmp
