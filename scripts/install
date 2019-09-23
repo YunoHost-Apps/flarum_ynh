@@ -95,7 +95,7 @@ ynh_script_progression --message="Installing dependencies..." --time --weight=1
 ###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
-ynh_install_php --phpversion=7.3 --package="$pkg_dependencies"
+ynh_install_php --phpversion=${php_version} --package="$pkg_dependencies"
 
 #===================================================
 # CREATE DEDICATED USER
