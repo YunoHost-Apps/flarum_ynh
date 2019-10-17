@@ -32,7 +32,6 @@ db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 old_project_version=$(ynh_app_setting_get --app=$app --key=project_version)
 old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
 old_ssowat_version=$(ynh_app_setting_get --app=$app --key=ssowat_version)
-[ -z "$old_ssowat_version" ] && old_ssowat_version="0.6"
 bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
 
 #=================================================
@@ -72,6 +71,13 @@ if [ -z "$final_path" ]; then
 	final_path=/var/www/$app
 	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
+
+# If some settings are missing, assume older package version
+[ -z "$old_project_version" ] && old_project_version="0.1.0-beta.7"
+[ -z "$old_ssowat_version" ] && old_ssowat_version="0.6"
+
+# Remove the v before version number
+if [[ $old_project_version == "v*" ]]; then $old_project_version = ${old_project_version:1}; fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -153,18 +159,7 @@ fi
 # FLARUM UPGRADE
 #=================================================
 
-# Downward compatibility: remove the v before version number
-if [[ $old_project_version == "v*" ]]; then $old_project_version = ${old_project_version:1}; fi
-# Check if upgrade of Flarum core is needed
-
-# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
-if [[ $project_version == "0.1.0-beta.7.2" ]]; then
-	curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd" -k
-fi
-#=================================================
-# UPGRADING TO 0.1.0-beta.8 and above
-#=================================================
-if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo true) ]]; then
+if [[ $(dpkg --compare-versions $old_project_version lt $project_version && echo true) ]]; then
 
 	# Backing up the app directory
 	tmpbak="/tmp/${app}backup"
@@ -205,9 +200,15 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 
 	# Copy Flarum to working directory
 	cp -Rf $tmp/* $final_path
-	# Copy config.php and assets from old app versions
+	# Copy config.php from old app version
 	cp -Rf $tmpbak/config.php $final_path
-	cp -Rf $tmpbak/assets $final_path/public
+        # Copy assets from old app version. Can be either in root folder or in "public" folder
+	if [ -d $tmpbak/assets ]; then
+		cp -Rf $tmpbak/assets $final_path/public
+	fi
+        if [ -d $tmpbak/public/assets ]; then
+                cp -Rf $tmpbak/public/assets $final_path/public
+        fi
 	# Clean temp directory
 	ynh_secure_remove $tmp
 	ynh_secure_remove $tmpbak
@@ -218,11 +219,17 @@ if [[ $(dpkg --compare-versions $old_project_version lt "0.1.0-beta.8" && echo t
 	chmod -R 0775 $final_path
 fi
 
+# Perform migrations and clear cache
 pushd $final_path
 	ynh_composer_exec $app $php_version $final_path "update --prefer-dist --no-dev -o --with-all-dependencies"
 	exec_as $app php$php_version flarum migrate
 	exec_as $app php$php_version flarum cache:clear
 popd
+
+# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
+if [[ $project_version == "0.1.0-beta.7.2" ]]; then
+        curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd" -k
+fi
 
 # Install and activate the SSOwat auth extension
 install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
@@ -233,6 +240,12 @@ ynh_mysql_execute_as_root "$sql_command" $db_name
 
 # Install, activate and set language extensions
 case $language in
+  en)
+    ynh_script_progression --message="Installing French extension..." --time --weight=2
+    install_and_activate_extension $app $php_version $final_path $db_name "flarum/lang-english" "flarum-lang-english"
+    sql_command="UPDATE \`settings\` SET \`value\` = 'en' WHERE \`settings\`.\`key\` = 'default_locale'"
+    ynh_mysql_execute_as_root "$sql_command" $db_name
+    ;;
   fr)
     ynh_script_progression --message="Installing French extension..." --time --weight=2
     install_and_activate_extension $app $php_version $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
@@ -293,5 +306,10 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 # END OF SCRIPT
 #=================================================
+
+ynh_app_setting_set $app php_version $php_version
+ynh_app_setting_set $app project_version $project_version
+ynh_app_setting_set $app core_version $core_version
+ynh_app_setting_set $app ssowat_version $ssowat_version
 
 ynh_script_progression --message="Upgrade of $app completed" --time --last
