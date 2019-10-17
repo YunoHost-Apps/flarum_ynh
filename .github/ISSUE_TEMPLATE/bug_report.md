@@ -19,7 +19,8 @@ about: Create a report to help us debug
 
 **Versions**
 - YunoHost version:
-- Package version/branch: *if you did not specify anything, put "latest"*
+- Using, or trying to install package version/branch:
+- If upgrading, current package version: *can be found in the admin, or with `yunohost app info $app_id`*
 
 **To Reproduce**
 *Steps to reproduce the behavior.*
