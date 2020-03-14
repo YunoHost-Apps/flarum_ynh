@@ -2,7 +2,7 @@
 
 [![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=flarum)
 
-[![Integration level](https://ci-apps.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://dash.yunohost.org/appci/app/flarum) [![Flarum version](https://img.shields.io/badge/flarum-0.1.0--beta.11-green.svg)](https://github.com/flarum/flarum/releases/tag/v0.1.0-beta.11) ![PHP version](https://img.shields.io/badge/php-7.3-green.svg)
+[![Integration level](https://ci-apps.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://dash.yunohost.org/appci/app/flarum) [![Flarum version](https://img.shields.io/badge/flarum-0.1.0--beta.12-green.svg)](https://github.com/flarum/flarum/releases/tag/v0.1.0-beta.12) ![PHP version](https://img.shields.io/badge/php-7.3-green.svg)
 
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
@@ -29,6 +29,21 @@ Required parameters are:
 - `bazaar_extension` to install the extension marketplace (*false* by default), to avoid using the command line to add new extensions.
 
 After installation, simply open your browser to Flarum's page. First loading may be a bit longer as assets are generated.
+
+## Upgrading
+
+Note that all third-party extensions are removed upon upgrading.
+
+## Adding extensions after installation
+
+Replace `flarum` with your app ID in case of multiple installation.
+Replace `vendor/extension` with the appropriate names. Read the extension documentation if it requires additional steps.
+
+```bash
+app=flarum
+cd /var/www/$app
+sudo -u $app php7.3 composer.phar require vendor/extension
+```
 
 ## Troubleshooting
 
