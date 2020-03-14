@@ -8,11 +8,11 @@
 
 #Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
-source ../settings/scripts/ynh_add_extra_apt_repos__3
-source ../settings/scripts/ynh_install_php__3
-source ../settings/scripts/ynh_exec_as
-source ../settings/scripts/ynh_composer__2
-source ../settings/scripts/ynh_send_readme_to_admin__2
+source ../settings/scripts/experimental_helpers/ynh_add_extra_apt_repos__3
+source ../settings/scripts/experimental_helpers/ynh_install_php__3
+source ../settings/scripts/experimental_helpers/ynh_exec_as
+source ../settings/scripts/experimental_helpers/ynh_composer__2
+source ../settings/scripts/experimental_helpers/ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
 #=================================================
