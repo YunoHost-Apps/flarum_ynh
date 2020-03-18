@@ -7,9 +7,9 @@ pkg_dependencies="php7.3-curl php7.3-dom php7.3-gd php7.3-json php7.3-mbstring p
 
 # Version numbers
 php_version="7.3"
-project_version="0.1.0-beta.11"
-core_version="0.1.0-beta.11"
-ssowat_version="0.1.0-beta.10-2"
+project_version="0.1.0-beta.12"
+core_version="0.1.0-beta.12"
+ssowat_version="0.1.0-beta.12"
 
 #=================================================
 # PERSONAL HELPERS

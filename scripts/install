@@ -7,11 +7,11 @@
 #=================================================
 
 source _common.sh
-source ynh_add_extra_apt_repos__3
-source ynh_install_php__3
-source ynh_exec_as
-source ynh_composer__2
-source ynh_send_readme_to_admin__2
+source experimental_helpers/ynh_add_extra_apt_repos__3
+source experimental_helpers/ynh_install_php__3
+source experimental_helpers/ynh_exec_as
+source experimental_helpers/ynh_composer__2
+source experimental_helpers/ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
 #=================================================
