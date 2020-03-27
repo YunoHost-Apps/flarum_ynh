@@ -9,13 +9,13 @@
     },
     "url": "http://flarum.org/",
     "license": "MIT",
-    "version": "0.1.0-beta.12~ynh1",
+    "version": "0.1.0-beta.12~ynh2",
     "maintainer": {
         "name": "tituspijean",
         "email": "tituspijean@outlook.com"
     },
     "requirements": {
-        "yunohost": ">= 3.5.0"
+        "yunohost": ">= 3.7"
     },
     "multi_instance": true,
     "services": [

@@ -71,7 +71,6 @@ ynh_webpath_register $app $domain $path_url
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app admin $admin
-ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app language $language
 ynh_app_setting_set $app final_path $final_path
 ynh_app_setting_set $app php_version $php_version
@@ -179,18 +178,16 @@ ynh_add_fpm_config $php_version
 ynh_use_logrotate
 
 #=================================================
-# SETUP SSOWAT
+# SETUP PERMISSIONS
 #=================================================
+ynh_script_progression --message="Configuring permissions..." --time --weight=1
 
-if [ $is_public -eq 0 ]
-then	# Remove the public access
-  ynh_app_setting_delete $app skipped_uris
-fi
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-  # unprotected_uris allows SSO credentials to be passed anyway.
-  ynh_app_setting_set $app unprotected_uris "/"
+	# Everyone can access the app.
+	# The "main" permission is automatically created before the install script.
+	ynh_permission_update --permission "main" --add "visitors"
 fi
 
 #=================================================
