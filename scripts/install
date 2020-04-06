@@ -82,19 +82,22 @@ ynh_app_setting_set $app bazaar_extension $bazaar_extension
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
+# INSTALL PHP
+#=================================================
+
+if [ "$(lsb_release --codename --short)" = "buster" ]; then
+	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
+else
+	ynh_print_info --message="Installing php${php_version}..."
+	ynh_install_php --phpversion="${php_version}" --package="$extra_pkg_dependencies"
+fi
+
+#=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..." --time --weight=1
+ynh_print_info --message="Installing dependencies..."
 
-### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
-### Those deb packages will be installed as dependencies of this package.
-### If you're not using this helper:
-###		- Remove the section "REMOVE DEPENDENCIES" in the remove script
-###		- Remove the variable "pkg_dependencies" in _common.sh
-###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
-###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
-
-ynh_install_php --phpversion=${php_version} --package="$pkg_dependencies"
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #===================================================
 # CREATE DEDICATED USER
