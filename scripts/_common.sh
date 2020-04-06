@@ -3,7 +3,8 @@
 #=================================================
 
 # dependencies used by the app
-pkg_dependencies="php7.3-curl php7.3-dom php7.3-gd php7.3-json php7.3-mbstring php7.3-pdo-mysql php7.3-tokenizer php7.3-zip"
+pkg_dependencies=""
+extra_pkg_dependencies="php7.3-curl php7.3-dom php7.3-gd php7.3-json php7.3-mbstring php7.3-pdo-mysql php7.3-tokenizer php7.3-zip"
 
 # Version numbers
 php_version="7.3"

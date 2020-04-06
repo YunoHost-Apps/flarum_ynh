@@ -139,11 +139,22 @@ fi
 ynh_add_nginx_config
 
 #=================================================
+# UPGRADE PHP7.3
+#=================================================
+
+if [ "$(lsb_release --codename --short)" = "buster" ]; then
+	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
+else
+	ynh_print_info --message="Upgrading php${php_version}..."
+	ynh_install_php --phpversion="${php_version}" --package="$extra_pkg_dependencies"
+fi
+
+#=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
+ynh_print_info --message="Upgrading dependencies..."
 
-ynh_install_php --phpversion=${php_version} --package="$pkg_dependencies"
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE DEDICATED USER
