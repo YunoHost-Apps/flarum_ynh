@@ -7,12 +7,12 @@
 #=================================================
 
 source _common.sh
+source /usr/share/yunohost/helpers
 source experimental_helpers/ynh_add_extra_apt_repos__3
 source experimental_helpers/ynh_install_php__3
 source experimental_helpers/ynh_exec_as
 source experimental_helpers/ynh_composer__2
 source experimental_helpers/ynh_send_readme_to_admin__2
-source /usr/share/yunohost/helpers
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -103,7 +103,7 @@ ynh_install_app_dependencies "$pkg_dependencies"
 # CREATE DEDICATED USER
 #===================================================
 
-ynh_system_user_create $app $final_path 1
+ynh_system_user_create $app $final_path
 usermod -a -G www-data $app
 # Create working directory
 mkdir -p "$final_path/.composer"
@@ -120,7 +120,6 @@ ynh_install_composer $php_version $final_path
 #=================================================
 # FLARUM INSTALLATION
 #=================================================
-
 # Prepare Flarum temp directory
 tmp=/tmp/$app
 ynh_secure_remove --file="$tmp"
