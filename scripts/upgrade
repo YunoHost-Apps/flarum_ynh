@@ -88,10 +88,6 @@ if [ ! -z "$protected_uris" ]; then
 	ynh_app_setting_delete --app=$app --key=protected_uris
 fi
 
-# If some settings are missing, assume older package version
-[ -z "$old_project_version" ] && old_project_version="0.1.0-beta.7"
-[ -z "$old_ssowat_version" ] && old_ssowat_version="0.6"
-
 # Remove the v before version number
 if [[ $old_project_version == "v*" ]]; then $old_project_version = ${old_project_version:1}; fi
 
@@ -175,18 +171,12 @@ ynh_add_fpm_config $php_version
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-# COMPOSER UPGRADE
+# COMPOSER AND FLARUM UPGRADE
 #=================================================
 
-if ! type "$final_path/composer.phar" > /dev/null; then
-  ynh_install_composer $php_version $final_path
-fi
-
-#=================================================
-# FLARUM UPGRADE
-#=================================================
-
-if [[ $(dpkg --compare-versions $old_project_version lt $project_version && echo true) ]]; then
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Upgrading source files..." --time --weight=1
 
 	# Backing up the app directory
 	tmpbak="/tmp/${app}backup"
@@ -197,73 +187,53 @@ if [[ $(dpkg --compare-versions $old_project_version lt $project_version && echo
 	# Deleting current app directory
 	ynh_secure_remove --file="$final_path"
 
-	# Create working directory
-	mkdir -p "$final_path/.composer"
-	chown -R $app:www-data $final_path
-	chmod -R 0775 $final_path
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path"
 
-	#=================================================
-	# COMPOSER INSTALLATION
-	#=================================================
+	# Install Composer and Flarum
+	ynh_install_composer --user=$app --phpversion=$php_version --workdir=$final_path
 
-	ynh_script_progression --message="Installing Composer..." --time --weight=1
-	ynh_install_composer $php_version $final_path
+	# Copy config.php back into Flarum
+	cp -f $tmpbak/config.php $final_path
 
-	#=================================================
-	# FLARUM INSTALLATION
-	#=================================================
-
-	# Prepare Flarum temp directory
-	tmp=/tmp/$app
-	mkdir -p $tmp
-	chown -R $app:www-data $tmp
-	chmod -R 0775 $tmp
-
-	# Install Flarum
-	ynh_script_progression --message="Composer is installing Flarum and its dependencies (may take a while)..." --time --weight=3
-
-	# First, create the project with core and all basic extensions
-	ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
-
-	# Copy Flarum to working directory
-	cp -Rf $tmp/* $final_path
-	# Copy config.php from old app version
-	cp -Rf $tmpbak/config.php $final_path
-        # Copy assets from old app version. Can be either in root folder or in "public" folder
+	# Copy assets from old app version. Can be either in root folder or in "public" folder
 	if [ -d $tmpbak/assets ]; then
 		cp -Rf $tmpbak/assets $final_path/public
 	fi
-        if [ -d $tmpbak/public/assets ]; then
-                cp -Rf $tmpbak/public/assets $final_path/public
-        fi
+	if [ -d $tmpbak/public/assets ]; then
+		cp -Rf $tmpbak/public/assets $final_path/public
+	fi
+
 	# Clean temp directory
-	ynh_secure_remove $tmp
 	ynh_secure_remove $tmpbak
 
-	# Set right permissions for the post-installation
+	# Set right permissions
 	chown -R $app: $final_path
 	chown -R $app:www-data $final_path/storage
-	chmod -R 0775 $final_path
+	chmod -R 775 $final_path
+
+	# Perform migrations and clear cache
+	pushd $final_path
+		exec_as $app ynh_composer_exec --phpversion=$php_version --workdir=$final_path \
+			--commands="update --prefer-dist --no-dev -a --with-all-dependencies"
+		exec_as $app php$php_version flarum migrate
+		exec_as $app php$php_version flarum cache:clear
+	popd
 fi
 
-# Perform migrations and clear cache
-pushd $final_path
-	ynh_composer_exec $app $php_version $final_path "update --prefer-dist --no-dev -a --with-all-dependencies"
-	exec_as $app php$php_version flarum migrate
-	exec_as $app php$php_version flarum cache:clear
-popd
+#=================================================
+# FLARUM EXTENSIONS
+#=================================================
 
-# Database password has to be input on admin page after upgrade to 0.1.0-beta.7.2
-if [[ $project_version == "0.1.0-beta.7.2" ]]; then
-        curl "https://$domain$path_url/admin" -H "Accept: */*" --compressed -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" --data "databasePassword=$db_pwd" -k
+if ! exec_as $app php$php_version flarum info | grep -q "tituspijean-auth-ssowat" | grep -q $ssowat_version;
+then
+	# Install and activate the SSOwat auth extension
+	install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
+	# Configure SSOwat auth extension
+	ssowatdomain=$(</etc/yunohost/current_host)
+	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
+	ynh_mysql_execute_as_root "$sql_command" $db_name
 fi
-
-# Install and activate the SSOwat auth extension
-install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
-# Configure SSOwat auth extension
-ssowatdomain=$(</etc/yunohost/current_host)
-sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-ynh_mysql_execute_as_root "$sql_command" $db_name
 
 # Install, activate and set language extensions
 case $language in
@@ -292,6 +262,9 @@ if [ $bazaar_extension -eq 1 ]; then
    install_and_activate_extension $app $php_version $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
 fi
 
+# Clear Flarum's cache
+exec_as $app php$php_version flarum cache:clear
+
 #=================================================
 # SETUP LOGROTATE
 #=================================================
@@ -309,7 +282,7 @@ ynh_use_logrotate --non-append
 # Set permissions on app files
 chown -R $app: $final_path
 chown -R $app:www-data $final_path/storage
-chmod -R 0775 $final_path
+chmod -R 775 $final_path
 
 #=================================================
 # SETUP PERMISSIONS

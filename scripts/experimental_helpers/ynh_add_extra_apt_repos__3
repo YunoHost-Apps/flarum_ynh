@@ -292,4 +292,3 @@ ynh_add_app_dependencies () {
 
 	ynh_install_app_dependencies "${current_dependencies}${package}"
 }
-

@@ -2,14 +2,16 @@
 
 # Execute a command with Composer
 #
-# usage: ynh_composer_exec --phpversion=phpversion [--workdir=$final_path] --commands="commands"
+# usage: ynh_composer_exec --user=user --phpversion=phpversion [--workdir=$final_path] --commands="commands"
+# | arg: -u, --user - The user to perform the command with.
+# | arg: -v, --phpversion - The php version to perform the command with.
 # | arg: -w, --workdir - The directory from where the command will be executed. Default $final_path.
 # | arg: -c, --commands - Commands to execute.
 ynh_composer_exec () {
 	# Declare an array to define the options of this helper.
 	local legacy_args=uvwc
-	declare -Ar args_array=( [u]=user [v]=phpversion= [w]=workdir= [c]=commands= )
-  local user
+	declare -Ar args_array=( [u]=user= [v]=phpversion= [w]=workdir= [c]=commands= )
+	local user
 	local phpversion
 	local workdir
 	local commands
@@ -18,32 +20,36 @@ ynh_composer_exec () {
 	workdir="${workdir:-$final_path}"
 	phpversion="${phpversion:-7.0}"
 
-	COMPOSER_HOME="$workdir/.composer" \
-		exec_as $user php${phpversion} "$workdir/composer.phar" $commands \
-		-d "$workdir" --quiet --no-interaction
+	exec_as $user COMPOSER_HOME="$workdir/.composer" \
+		php${phpversion} "$workdir/composer.phar" $commands \
+			-d "$workdir" --quiet --no-interaction
 }
 
 # Install and initialize Composer in the given directory
 #
-# usage: ynh_install_composer --phpversion=phpversion [--workdir=$final_path]
+# usage: ynh_install_composer --user=user --phpversion=phpversion [--workdir=$final_path]
+# | arg: -u, --user - The user to perform the command with.
+# | arg: -v, --phpversion - The php version to perform the command with.
 # | arg: -w, --workdir - The directory from where the command will be executed. Default $final_path.
 ynh_install_composer () {
 	# Declare an array to define the options of this helper.
-	local legacy_args=vw
-	declare -Ar args_array=( [v]=phpversion= [w]=workdir= )
+	local legacy_args=uvw
+	declare -Ar args_array=( [u]=user= [v]=phpversion= [w]=workdir= )
+	local user
 	local phpversion
 	local workdir
 	# Manage arguments with getopts
 	ynh_handle_getopts_args "$@"
+  user="${user:-root}"
 	workdir="${workdir:-$final_path}"
 	phpversion="${phpversion:-7.0}"
 
 	curl -sS https://getcomposer.org/installer \
-		| COMPOSER_HOME="$workdir/.composer" \
-		exec_as $app php${phpversion} -- --quiet --install-dir="$workdir" \
+		| exec_as $user COMPOSER_HOME="$workdir/.composer" \
+			php${phpversion} -- --quiet --install-dir="$workdir" \
 		|| ynh_die "Unable to install Composer."
 
 	# update dependencies to create composer.lock
-	#ynh_composer_exec --phpversion="${phpversion}" --workdir="$workdir" --commands="install --no-dev" \
-	#	|| ynh_die "Unable to update core dependencies with Composer."
+	ynh_composer_exec --user=$app --phpversion="${phpversion}" --workdir="$workdir" --commands="install --no-dev" \
+		|| ynh_die "Unable to update core dependencies with Composer."
 }
