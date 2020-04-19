@@ -18,6 +18,10 @@ source experimental_helpers/ynh_send_readme_to_admin__2
 # MANAGE SCRIPT FAILURE
 #=================================================
 
+ynh_clean_setup () {
+	### Remove this function if there's nothing to clean before calling the remove script.
+	true
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
@@ -99,49 +103,6 @@ ynh_print_info --message="Installing dependencies..."
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
-#===================================================
-# CREATE DEDICATED USER
-#===================================================
-
-ynh_system_user_create $app $final_path
-usermod -a -G www-data $app
-# Create working directory
-mkdir -p "$final_path/.composer"
-chown -R $app:www-data $final_path
-chmod -R 0775 $final_path
-
-#=================================================
-# COMPOSER INSTALLATION
-#=================================================
-
-ynh_script_progression --message="Installing Composer..." --time --weight=1
-ynh_install_composer $php_version $final_path
-
-#=================================================
-# FLARUM INSTALLATION
-#=================================================
-# Prepare Flarum temp directory
-tmp=/tmp/$app
-ynh_secure_remove --file="$tmp"
-mkdir -p $tmp
-chown -R $app:www-data $tmp
-chmod -R 0775 $tmp
-
-# Install Flarum
-ynh_script_progression --message="Composer is installing Flarum and its dependencies (may take a while)..." --time --weight=3
-
-# First, create the project with core and all basic extensions
-ynh_composer_exec $app $php_version $final_path "create-project flarum/flarum=$project_version $tmp --stability=beta --ansi -d $tmp"
-
-# Copy Flarum to working directory and clean temp directory
-cp -Rf $tmp/* $final_path
-ynh_secure_remove $tmp
-
-# Set right permissions for the post-installation
-chown -R $app: $final_path
-chown -R $app:www-data $final_path/storage
-chmod -R 0775 $final_path
-
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
@@ -150,6 +111,19 @@ db_name=$(ynh_sanitize_dbid $app)
 ynh_app_setting_set $app db_name $db_name
 ynh_mysql_setup_db $db_name $db_name
 ynh_app_setting_set "$app" db_pwd "$db_pwd"
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_script_progression --message="Setting up source files..." --time --weight=1
+
+### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
+### downloaded from an upstream source, like a git repository.
+### `ynh_setup_source` use the file conf/app.src
+
+ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$final_path"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -165,12 +139,34 @@ fi
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
+#===================================================
+# CREATE DEDICATED USER
+#===================================================
+ynh_script_progression --message="Configuring system user..." --time --weight=1
+
+# Create a system user
+ynh_system_user_create $app $final_path
+# Adding it to www-data group
+usermod -a -G www-data $app
+
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config $php_version
+
+#=================================================
+# COMPOSER INSTALLATION
+#=================================================
+ynh_script_progression --message="Installing Composer and Flarum..." --time --weight=1
+
+# Setting user rights
+chown -R $app:www-data $final_path
+chmod -R 775 $final_path
+
+# Install Composer and Flarum
+ynh_install_composer --user=$app --phpversion=$php_version --workdir=$final_path
 
 #=================================================
 # SETUP LOGROTATE
@@ -235,7 +231,6 @@ sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
   ('mail_port', '587');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
 
-
 # Install and activate the SSOwat auth extension
 ynh_script_progression --message="Installing SSOwat extension..." --time --weight=2
 install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
@@ -262,7 +257,8 @@ esac
 
 if [ $bazaar_extension -eq 1 ]; then
   ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
-  ynh_composer_exec $app $php_version $final_path "require extiverse/bazaar --ansi"
+  ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
+    --commands="require extiverse/bazaar --ansi"
 fi
 
 #=================================================
