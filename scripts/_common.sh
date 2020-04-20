@@ -21,30 +21,40 @@ ssowat_version="0.1.0-beta.12"
 # $extension is the "vendor/extension-name" string from packagist
 # $short_extension is the extension name written in database, how it is shortened is still a mystery
 install_and_activate_extension() {
-	local AS_USER=$1
-	local PHP_VERSION=$2
-	local WORKDIR=$3
-	local DB_NAME=$4
-	local EXTENSION=$5
-	local SHORT_EXTENSION=$6
+	# Declare an array to define the options of this helper.
+	local legacy_args=uvwdes
+	declare -Ar args_array=( [u]=user= [v]=phpversion= [w]=workdir= [d]=database= [e]=extension= [s]=short_extension )
+	local user
+	local phpversion
+	local workdir
+	local database
+	local extension
+	local short_extension
+	# Manage arguments with getopts
+	ynh_handle_getopts_args "$@"
+	user="${user:-$app}"
+	phpversion="${phpversion:-$php_version}"
+	workdir="${workdir:-$final_path}"
+	database="${database:-$db_name}"
+
 	local sql_command
 	local old_extensions_enabled
 	local addition
 	local new_extensions_enabled
 
 	# Install extension
-	ynh_composer_exec $AS_USER $PHP_VERSION $WORKDIR "require $EXTENSION -n --ansi -d $WORKDIR"
+	ynh_composer_exec --user=$user --phpversion="${phpversion}" --workdir="$workdir" --commands="require $extension"
 
 	# Retrieve current extensions
 	sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
-	old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $db_name | tail -1)
+	old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $database | tail -1)
 
 	# Append the extension name at the end of the list
-	addition=",\"${SHORT_EXTENSION}\"]"
+	addition=",\"${short_extension}\"]"
 	new_extensions_enabled=${old_extensions_enabled::-1}$addition
 	# Update activated extensions list
 	sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
-	ynh_mysql_execute_as_root "$sql_command" $DB_NAME
+	ynh_mysql_execute_as_root "$sql_command" $database
 
 }
 

@@ -7,12 +7,12 @@
 #=================================================
 
 source _common.sh
-source /usr/share/yunohost/helpers
-source experimental_helpers/ynh_add_extra_apt_repos__3
-source experimental_helpers/ynh_install_php__3
+source experimental_helpers/_ynh_add_extra_apt_repos
+source experimental_helpers/ynh_install_php
 source experimental_helpers/ynh_exec_as
-source experimental_helpers/ynh_composer__2
-source experimental_helpers/ynh_send_readme_to_admin__2
+source experimental_helpers/ynh_composer
+source experimental_helpers/ynh_send_readme_to_admin
+source /usr/share/yunohost/helpers
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -101,7 +101,7 @@ fi
 #=================================================
 ynh_print_info --message="Installing dependencies..."
 
-ynh_install_app_dependencies "$pkg_dependencies"
+_ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -161,12 +161,26 @@ ynh_add_fpm_config $php_version
 #=================================================
 ynh_script_progression --message="Installing Composer and Flarum..." --time --weight=1
 
-# Setting user rights
-chown -R $app:www-data $final_path
+# Set right permissions
+chown -R $app: $final_path
 chmod -R 775 $final_path
 
 # Install Composer and Flarum
 ynh_install_composer --user=$app --phpversion=$php_version --workdir=$final_path
+
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+
+### For security reason, any app should set the permissions to root: before anything else.
+### Then, if write authorization is needed, any access should be given only to directories
+### that really need such authorization.
+
+# Set right permissions
+chown -R $app: $final_path
+chown -R $app:www-data $final_path/storage
+chmod -R 775 $final_path
+
 
 #=================================================
 # SETUP LOGROTATE
@@ -257,7 +271,7 @@ esac
 
 if [ $bazaar_extension -eq 1 ]; then
   ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
-  ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
+  ynh_composer_exec --phpversion=$php_version --workdir=$final_path \
     --commands="require extiverse/bazaar --ansi"
 fi
 
