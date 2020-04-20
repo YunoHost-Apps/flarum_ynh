@@ -75,4 +75,3 @@ ynh_remove_php () {
 		ynh_secure_remove /etc/php/ynh_app_version
 	fi
 }
-
