@@ -251,7 +251,7 @@ case $language in
     ;;
   fr)
     ynh_script_progression --message="Installing French extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/flarum-ext-french" "milescellar-french"
+    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/lang-french" "milescellar-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
