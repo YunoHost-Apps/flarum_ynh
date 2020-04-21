@@ -81,7 +81,7 @@ chmod -R 0775 $final_path
 if [ "$(lsb_release --codename --short)" = "buster" ]; then
 	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
 else
-	ynh_print_info --message="Installing php${php_version}..."
+	ynh_script_progression --message="Installing php${php_version}..." --time --weight=1
 	ynh_install_php --phpversion="${php_version}" --package="$extra_pkg_dependencies"
 fi
 
