@@ -268,8 +268,10 @@ if [ $bazaar_extension -eq 1 ]; then
    install_and_activate_extension $app $php_version $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
 fi
 
-# Clear Flarum's cache
-exec_as $app php$php_version flarum cache:clear
+# Clear cache
+pushd $final_path
+	exec_as $app php$php_version flarum cache:clear
+popd
 
 #=================================================
 # SETUP LOGROTATE
