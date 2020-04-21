@@ -141,14 +141,14 @@ ynh_add_nginx_config
 if [ "$(lsb_release --codename --short)" = "buster" ]; then
 	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
 else
-	ynh_print_info --message="Upgrading php${php_version}..."
+	ynh_script_progression --message="Upgrading php${php_version}..." --time --weight=1
 	ynh_install_php --phpversion="${php_version}" --package="$extra_pkg_dependencies"
 fi
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_print_info --message="Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
 
 _ynh_install_app_dependencies "$pkg_dependencies"
 
