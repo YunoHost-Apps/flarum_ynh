@@ -12,6 +12,8 @@ source experimental_helpers/ynh_install_php
 source experimental_helpers/ynh_exec_as
 source experimental_helpers/ynh_composer
 source experimental_helpers/ynh_send_readme_to_admin
+source experimental_helpers/hardware
+source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -19,8 +21,8 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 ynh_clean_setup () {
-	### Remove this function if there's nothing to clean before calling the remove script.
-	true
+  ### Remove this function if there's nothing to clean before calling the remove script.
+  true
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -68,6 +70,16 @@ ynh_webpath_available $domain $path_url
 ynh_webpath_register $app $domain $path_url
 
 #===================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH CURRENT RAM
+#===================================================
+ynh_script_progression --message="Ensuring sufficient memory..." --time --weight=1
+
+# Check RAM
+if [[ $(ynh_get_ram --free) < 1000 ]]; then
+  ynh_add_swap --size=1000
+fi
+
+#===================================================
 # STORE SETTINGS FROM MANIFEST
 #===================================================
 
@@ -76,7 +88,6 @@ ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app language $language
-ynh_app_setting_set $app final_path $final_path
 ynh_app_setting_set $app php_version $php_version
 ynh_app_setting_set $app project_version $project_version
 ynh_app_setting_set $app core_version $core_version
@@ -90,10 +101,10 @@ ynh_app_setting_set $app bazaar_extension $bazaar_extension
 #=================================================
 
 if [ "$(lsb_release --codename --short)" = "buster" ]; then
-	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
+  pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
 else
-	ynh_script_progression --message="Installing php${php_version}..." --time --weight=1
-	ynh_install_php --phpversion="${php_version}" --package="$extra_pkg_dependencies"
+  ynh_script_progression --message="Installing php${php_version}..." --time --weight=1
+  ynh_install_php --phpversion="${php_version}" --package="$extra_pkg_dependencies"
 fi
 
 #=================================================
@@ -115,11 +126,7 @@ ynh_app_setting_set "$app" db_pwd "$db_pwd"
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --time --weight=1
-
-### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
-### downloaded from an upstream source, like a git repository.
-### `ynh_setup_source` use the file conf/app.src
+ynh_script_progression --message="Setting up source files..." --weight=7
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
@@ -146,8 +153,6 @@ ynh_script_progression --message="Configuring system user..." --time --weight=1
 
 # Create a system user
 ynh_system_user_create $app $final_path
-# Adding it to www-data group
-usermod -a -G www-data $app
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -157,30 +162,28 @@ usermod -a -G www-data $app
 ynh_add_fpm_config $php_version
 
 #=================================================
-# COMPOSER INSTALLATION
+# INSTALL AND INITIALIZE COMPOSER
 #=================================================
-ynh_script_progression --message="Installing Composer and Flarum..." --time --weight=1
+ynh_script_progression --message="Installing Flarum with Composer..." --time --weight=1
 
-# Set right permissions
+# Create composer directory and making sure it is writable
+mkdir -p "$final_path/.composer"
 chown -R $app: $final_path
-chmod -R 775 $final_path
 
-# Install Composer and Flarum
+# Installing composer
 ynh_install_composer --user=$app --phpversion=$php_version --workdir=$final_path
 
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
+# Set Flarum version
+ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
+  --commands="require flarum/core:$core_version --prefer-lowest --no-update"
 
-### For security reason, any app should set the permissions to root: before anything else.
-### Then, if write authorization is needed, any access should be given only to directories
-### that really need such authorization.
+# Require SSOwat extension
+ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
+  --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
 
-# Set right permissions
-chown -R $app: $final_path
-chown -R $app:www-data $final_path/storage
-chmod -R 775 $final_path
-
+# Update and download dependencies
+ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
+  --commands="update"
 
 #=================================================
 # SETUP LOGROTATE
@@ -197,9 +200,9 @@ ynh_script_progression --message="Configuring permissions..." --time --weight=1
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# Everyone can access the app.
-	# The "main" permission is automatically created before the install script.
-	ynh_permission_update --permission "main" --add "visitors"
+  # Everyone can access the app.
+  # The "main" permission is automatically created before the install script.
+  ynh_permission_update --permission "main" --add "visitors"
 fi
 
 #=================================================
@@ -216,7 +219,7 @@ ynh_script_progression --message="Configuring Flarum..." --time --weight=2
 # Copy the configuration.yml to working directory
 finalflarumconf="$final_path/configuration.yml"
 cp ../conf/configuration.yml $finalflarumconf
-chown $app:www-data $finalflarumconf
+chown $app: $finalflarumconf
 # Generate admin password and retrieve their email address
 admin_pwd=$(ynh_string_random 8)
 admin_mail=$(ynh_user_get_info $admin mail)
@@ -245,10 +248,9 @@ sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
   ('mail_port', '587');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
 
-# Install and activate the SSOwat auth extension
-ynh_script_progression --message="Installing SSOwat extension..." --time --weight=2
-install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
-# Configure SSOwat auth extension
+# Enable and set up the SSOwat auth extension
+ynh_script_progression --message="Enabling and configuring SSOwat extension..." --time --weight=2
+activate_flarum_extension $db_name "tituspijean-auth-ssowat"
 ssowatdomain=$(</etc/yunohost/current_host)
 sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
 ynh_mysql_execute_as_root "$sql_command" $db_name
@@ -257,13 +259,15 @@ ynh_mysql_execute_as_root "$sql_command" $db_name
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/lang-french" "milescellar-lang-french"
+    ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path --commands="require milescellar/lang-french"
+    activate_flarum_extension $db_name "milescellar-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
   de)
     ynh_script_progression --message="Installing German extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
+    ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path --commands="require cbmainz/flarum-de"
+    activate_flarum_extension $db_name "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
@@ -271,9 +275,19 @@ esac
 
 if [ $bazaar_extension -eq 1 ]; then
   ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
-  ynh_composer_exec --phpversion=$php_version --workdir=$final_path \
-    --commands="require extiverse/bazaar --ansi"
+  ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path --commands="require extiverse/bazaar"
 fi
+
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+
+### For security reason, any app should set the permissions to root: before anything else.
+### Then, if write authorization is needed, any access should be given only to directories
+### that really need such authorization.
+
+# Set right permissions
+chown -R $app:www-data $final_path
 
 #=================================================
 # SEND CREDENTIALS TO ADMIN
