@@ -9,7 +9,7 @@
     },
     "url": "http://flarum.org/",
     "license": "MIT",
-    "version": "0.1.0-beta.12~ynh2",
+    "version": "0.1.0-beta.13~ynh1",
     "maintainer": {
         "name": "tituspijean",
         "email": "tituspijean@outlook.com"
@@ -25,14 +25,22 @@
     "arguments": {
         "install": [{
                 "name": "domain",
-                "type": "domain",
+                "type": "display_text",
                 "ask": {
-                    "en": "Choose a domain name for Flarum",
-                    "fr": "Choisissez un nom de domaine pour Flarum",
-                    "de": "Wählen einen Domain-Namen für Flarum"
-                },
-                "example": "example.com"
+                    "en": "The installation will add a 1 GB swap file if your system has less than 1 GB free RAM.",
+                    "fr": "L'installation ajoutera un fichier swap de 1 Go si votre système a moins de 1 Go de RAM libre."
+                }
             },
+            {
+                    "name": "domain",
+                    "type": "domain",
+                    "ask": {
+                        "en": "Choose a domain name for Flarum",
+                        "fr": "Choisissez un nom de domaine pour Flarum",
+                        "de": "Wählen einen Domain-Namen für Flarum"
+                    },
+                    "example": "example.com"
+                },
             {
                 "name": "path",
                 "type": "path",

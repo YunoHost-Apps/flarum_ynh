@@ -12,6 +12,8 @@ source experimental_helpers/ynh_install_php
 source experimental_helpers/ynh_exec_as
 source experimental_helpers/ynh_composer
 source experimental_helpers/ynh_send_readme_to_admin
+source experimental_helpers/hardware
+source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -44,6 +46,16 @@ bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
 ### ynh_check_app_version_changed will stop the upgrade if the app is up to date.
 ### UPGRADE_APP should be used to upgrade the core app only if there's an upgrade to do.
 upgrade_type=$(ynh_check_app_version_changed)
+
+#===================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH CURRENT RAM
+#===================================================
+ynh_script_progression --message="Ensuring sufficient memory..." --time --weight=1
+
+# Check RAM
+if [[ $(ynh_get_ram --free) < 1000 ]]; then
+	ynh_add_swap --size=1000
+fi
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -178,50 +190,53 @@ ynh_add_fpm_config $php_version
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Upgrading source files..." --time --weight=1
+	# If the app is too old, let's be safe and reinstall all files.
+	if dpkg --compare-versions "$old_core_version" "lt" "0.1.0-beta.9"; then
+		ynh_script_progression --message="Upgrading source files..." --time --weight=1
 
-	# Backing up the app directory
-	tmpbak="/tmp/${app}backup"
-	ynh_secure_remove --file="$tmpbak"
-	mkdir -p $tmpbak
-	cp -R $final_path/* $tmpbak
+		# Backing up the app directory
+		tmpbak="/tmp/${app}backup"
+		ynh_secure_remove --file="$tmpbak"
+		mkdir -p $tmpbak
+		cp -R $final_path/* $tmpbak
 
-	# Deleting current app directory
-	ynh_secure_remove --file="$final_path"
+		# Deleting current app directory
+		ynh_secure_remove --file="$final_path"
 
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path"
+		# Download, check integrity, uncompress and patch the source from app.src
+		ynh_setup_source --dest_dir="$final_path"
 
-	# Setting user rights
-	chown -R $app:www-data $final_path
-	chmod -R 775 $final_path
+		# Setting user rights
+		chown -R $app:www-data $final_path
 
-	# Install Composer and Flarum
-	ynh_install_composer --user=$app --phpversion=$php_version --workdir=$final_path
+		# Install Composer and Flarum
+		ynh_install_composer --user=$app --phpversion=$php_version --workdir=$final_path
 
-	# Copy config.php back into Flarum
-	cp -f $tmpbak/config.php $final_path
+		# Copy config.php back into Flarum
+		cp -f $tmpbak/config.php $final_path
 
-	# Copy assets from old app version. Can be either in root folder or in "public" folder
-	if [ -d $tmpbak/assets ]; then
-		cp -Rf $tmpbak/assets $final_path/public
+		# Copy assets from old app version. Can be either in root folder or in "public" folder
+		if [ -d $tmpbak/assets ]; then
+			cp -Rf $tmpbak/assets $final_path/public
+		fi
+		if [ -d $tmpbak/public/assets ]; then
+			cp -Rf $tmpbak/public/assets $final_path/public
+		fi
+
+		# Clean temp directory
+		ynh_secure_remove $tmpbak
 	fi
-	if [ -d $tmpbak/public/assets ]; then
-		cp -Rf $tmpbak/public/assets $final_path/public
-	fi
-
-	# Clean temp directory
-	ynh_secure_remove $tmpbak
 
 	# Set right permissions
-	chown -R $app: $final_path
-	chown -R $app:www-data $final_path/storage
-	chmod -R 775 $final_path
+	chown -R $app:www-data $final_path
 
 	# Perform migrations and clear cache
 	pushd $final_path
+		ynh_script_progression --message="Upgrading Flarum and its extensions..." --time --weight=1
 		ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
-			--commands="update --prefer-dist --no-dev -a --with-all-dependencies"
+			--commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
+			ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path \
+				--commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
 		exec_as $app php$php_version flarum migrate
 		exec_as $app php$php_version flarum cache:clear
 	popd
@@ -234,7 +249,7 @@ fi
 if ! exec_as $app php$php_version flarum info | grep -q "tituspijean-auth-ssowat" | grep -q $ssowat_version;
 then
 	# Install and activate the SSOwat auth extension
-	install_and_activate_extension $app $php_version $final_path $db_name "tituspijean/flarum-ext-auth-ssowat:$ssowat_version" "tituspijean-auth-ssowat"
+	activate_flarum_extension $db_name "tituspijean-auth-ssowat"
 	# Configure SSOwat auth extension
 	ssowatdomain=$(</etc/yunohost/current_host)
 	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
@@ -243,21 +258,17 @@ fi
 
 # Install, activate and set language extensions
 case $language in
-  en)
-    ynh_script_progression --message="Installing French extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "flarum/lang-english" "flarum-lang-english"
-    sql_command="UPDATE \`settings\` SET \`value\` = 'en' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root "$sql_command" $db_name
-    ;;
   fr)
     ynh_script_progression --message="Installing French extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "milescellar/lang-french" "milescellar-lang-french"
+    ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path --commands="require milescellar/lang-french"
+    activate_flarum_extension $db_name "milescellar-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
   de)
     ynh_script_progression --message="Installing German extension..." --time --weight=2
-    install_and_activate_extension $app $php_version $final_path $db_name "cbmainz/flarum-de" "cbmainz-de"
+    ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path --commands="require cbmainz/flarum-de"
+    activate_flarum_extension $db_name "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
@@ -265,7 +276,8 @@ esac
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
 
 if [ $bazaar_extension -eq 1 ]; then
-   install_and_activate_extension $app $php_version $final_path $db_name "flagrow/bazaar" "flagrow-bazaar"
+  ynh_script_progression --message="Installing Bazaar extension..." --time --weight=2
+  ynh_composer_exec --user=$app --phpversion=$php_version --workdir=$final_path --commands="require extiverse/bazaar"
 fi
 
 # Clear cache
@@ -287,10 +299,12 @@ ynh_use_logrotate --non-append
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Set permissions on app files
-chown -R $app: $final_path
-chown -R $app:www-data $final_path/storage
-chmod -R 775 $final_path
+### For security reason, any app should set the permissions to root: before anything else.
+### Then, if write authorization is needed, any access should be given only to directories
+### that really need such authorization.
+
+# Set right permissions
+chown -R $app:www-data $final_path
 
 #=================================================
 # SETUP PERMISSIONS
