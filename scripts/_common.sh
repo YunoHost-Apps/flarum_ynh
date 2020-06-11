@@ -4,10 +4,12 @@
 
 # dependencies used by the app
 pkg_dependencies=""
-extra_pkg_dependencies="php7.3-curl php7.3-dom php7.3-gd php7.3-json php7.3-mbstring php7.3-pdo-mysql php7.3-tokenizer php7.3-zip"
+
+YNH_PHP_VERSION="7.3"
+
+extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-pdo-mysql php${YNH_PHP_VERSION}-tokenizer php${YNH_PHP_VERSION}-zip"
 
 # Version numbers
-php_version="7.3"
 project_version="~0.1.0-beta.13"
 core_version="~0.1.0-beta.13"
 ssowat_version="dev-0.1.0-beta.13"

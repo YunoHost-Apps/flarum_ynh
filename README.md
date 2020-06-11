@@ -1,10 +1,15 @@
 # Flarum for YunoHost
 
+[![Integration level](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)  
 [![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=flarum)
 
-[![Integration level](https://ci-apps.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://dash.yunohost.org/appci/app/flarum) [![Flarum version](https://img.shields.io/badge/flarum-0.1.0--beta.12-green.svg)](https://github.com/flarum/flarum/releases/tag/v0.1.0-beta.12) ![PHP version](https://img.shields.io/badge/php-7.3-green.svg)
+> *This package allows you to install Flarum quickly and simply on a YunoHost server.  
+If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
 
+## Overview
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
+
+## Screenshots
 
 ![](http://flarum.org/img/screenshot_2x.png)
 
@@ -76,3 +81,35 @@ If you are facing an error while uploading large files into the forum, PHP may b
 In `/etc/php/*php_version*/fpm/pool.d/*app_id*.conf`, you can uncomment (remove `;` at the beginning of the line) and increase the values of `upload_max_filesize` and `post_max_size` (both values are in bytes).
 
 Reload PHP-FPM with `sudo service php*php_version*-fpm reload`.
+
+## Documentation
+
+ * Official documentation: https://flarum.org/docs/
+
+## YunoHost specific features
+
+#### Supported architectures
+
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/flarum/)
+
+## Links
+
+ * Report a bug: https://github.com/YunoHost-Apps/flarum_ynh/issues
+ * App website: https://flarum.org/
+ * Upstream app repository: https://github.com/flarum/flarum
+ * YunoHost website: https://yunohost.org/
+
+---
+
+Developer info
+----------------
+
+Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/flarum_ynh/tree/testing).
+
+To try the testing branch, please proceed like that.
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/flarum_ynh/tree/testing --debug
+or
+sudo yunohost app upgrade flarum -u https://github.com/YunoHost-Apps/flarum_ynh/tree/testing --debug
+```
