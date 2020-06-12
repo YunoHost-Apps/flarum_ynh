@@ -70,13 +70,6 @@ fi
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Stopping a systemd service..." --weight=1
-
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
-
-#=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
 ynh_script_progression --message="Updating nginx web server configuration..." --weight=1
