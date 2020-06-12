@@ -162,7 +162,7 @@ ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path \
 #=================================================
 # FLARUM POST-INSTALL
 #=================================================
-ynh_script_progression --message="Configuring Flarum..." --time --weight=2
+ynh_script_progression --message="Configuring Flarum..." --weight=2
 
 # Copy the configuration.yml to working directory
 finalflarumconf="$final_path/configuration.yml"
