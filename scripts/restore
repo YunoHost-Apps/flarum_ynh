@@ -90,7 +90,7 @@ ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencie
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Reinstalling dependencies..." --weight=1
+ynh_script_progression --message="Reinstalling dependencies..." --weight=2
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies

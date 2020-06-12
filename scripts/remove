@@ -35,7 +35,7 @@ ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Removing dependencies..." --weight=1
+ynh_script_progression --message="Removing dependencies..." --weight=2
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
