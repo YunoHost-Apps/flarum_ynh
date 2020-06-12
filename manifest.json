@@ -73,7 +73,7 @@
                     "de": "Wählen einen Titel für eure Internetforum"
                 },
                 "example": "My forum",
-                "default": ""
+                "default": "My forum"
             },
             {
                 "name": "is_public",
