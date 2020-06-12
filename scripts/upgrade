@@ -206,11 +206,13 @@ ynh_add_swap --size=$swap_needed
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
+	ynh_script_progression --message="Installing composer dependencies..."
+
 	# Set right permissions
 	chown -R $app:www-data $final_path
 
 	# Install Composer and Flarum
-	ynh_install_composer --user=$app --phpversion=$phpversion --workdir=$final_path
+	ynh_install_composer --phpversion=$phpversion --workdir=$final_path
 
 	# Perform migrations and clear cache
 	pushd $final_path
