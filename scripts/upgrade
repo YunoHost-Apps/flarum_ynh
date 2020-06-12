@@ -218,8 +218,8 @@ then
 	# Perform migrations and clear cache
 	pushd $final_path
 		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
-		ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
-		ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+		ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
+		ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
 		exec_as $app php$phpversion flarum migrate
 		exec_as $app php$phpversion flarum cache:clear
 	popd
@@ -243,14 +243,14 @@ fi
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require milescellar/lang-french"
+    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require milescellar/lang-french"
     activate_flarum_extension $db_name "milescellar-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
   de)
     ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require cbmainz/flarum-de"
+    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require cbmainz/flarum-de"
     activate_flarum_extension $db_name "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
@@ -260,7 +260,7 @@ ynh_print_info "You may need to manually enable your language extension in Flaru
 
 if [ $bazaar_extension -eq 1 ]; then
   ynh_script_progression --message="Installing Bazaar extension..." --weight=2
-  ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require extiverse/bazaar"
+  ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require extiverse/bazaar"
 fi
 
 # Clear cache
