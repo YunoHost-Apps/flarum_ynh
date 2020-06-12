@@ -132,14 +132,11 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 # SPECIFIC SETUP
 #=================================================
-# CHECK IF THE APP CAN BE INSTALLED WITH CURRENT RAM
+# ADD SWAP
 #=================================================
-ynh_script_progression --message="Ensuring sufficient memory..." --weight=1
+ynh_print_info --message="Adding swap..."
 
-# Check RAM
-if [[ $(ynh_get_ram --free) < 1000 ]]; then
-  ynh_add_swap --size=1000
-fi
+ynh_add_swap --size=$swap_needed
 
 #=================================================
 # INSTALL COMPOSER DEPENDENCIES
