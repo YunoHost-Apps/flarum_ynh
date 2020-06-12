@@ -162,6 +162,9 @@ ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="upd
 #=================================================
 ynh_script_progression --message="Configuring Flarum..." --weight=2
 
+# Making sure it is writable
+chown -R $app: $final_path
+
 # Copy the configuration.yml to working directory
 finalflarumconf="$final_path/configuration.yml"
 cp ../conf/configuration.yml $finalflarumconf
