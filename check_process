@@ -7,7 +7,6 @@
 		path="/path"	(PATH)
 		admin="john"	(USER)
 		title="Test flarum"
-		bazaar_extension=0
 		language="en"
 		is_public=1	(PUBLIC|public=1|private=0)
 	; Checks
