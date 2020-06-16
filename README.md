@@ -31,7 +31,6 @@ Required parameters are:
 - `public`, *true* by default, for guests to read the forum
 - `title` of the forum
 - `language` can be English `en` (by default), French `fr`, and German `de`. Other languages are installable after installation like any other extensions
-- `bazaar_extension` to install the extension marketplace (*false* by default), to avoid using the command line to add new extensions.
 
 After installation, simply open your browser to Flarum's page. First loading may be a bit longer as assets are generated.
 

@@ -34,7 +34,6 @@ admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
 title=$YNH_APP_ARG_TITLE
-bazaar_extension=$YNH_APP_ARG_BAZAAR_EXTENSION
 
 admin_pwd=$(ynh_string_random --length=8)
 admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
@@ -65,7 +64,6 @@ ynh_app_setting_set --app=$app --key=language --value=$language
 ynh_app_setting_set --app=$app --key=project_version --value=$project_version
 ynh_app_setting_set --app=$app --key=core_version --value=$core_version
 ynh_app_setting_set --app=$app --key=ssowat_version --value=$ssowat_version
-ynh_app_setting_set --app=$app --key=bazaar_extension --value=$bazaar_extension
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -216,11 +214,6 @@ case $language in
     ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
     ;;
 esac
-
-if [ $bazaar_extension -eq 1 ]; then
-  ynh_script_progression --message="Installing Bazaar extension..." --weight=2
-  ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require extiverse/bazaar"
-fi
 
 #=================================================
 # GENERIC FINALIZATION
