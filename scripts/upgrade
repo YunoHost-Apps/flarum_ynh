@@ -94,6 +94,11 @@ fi
 # Remove the v before version number
 if [[ $old_project_version == "v*" ]]; then $old_project_version = ${old_project_version:1}; fi
 
+# Remove bazaar_extension if exists
+if [ ! -z "$bazaar_extension" ]; then
+	ynh_app_setting_delete --app=$app --key=bazaar_extension
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -256,11 +261,6 @@ case $language in
     ;;
 esac
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
-
-if [ $bazaar_extension -eq 1 ]; then
-  ynh_script_progression --message="Installing Bazaar extension..." --weight=2
-  ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require extiverse/bazaar"
-fi
 
 # Clear cache
 pushd $final_path

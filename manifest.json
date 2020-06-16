@@ -90,16 +90,6 @@
                 "default": true
             },
             {
-                "name": "bazaar_extension",
-                "type": "boolean",
-                "ask": {
-                    "en": "Do you want to install Bazaar extension, extensions provider for Flarum?",
-                    "fr": "Voulez-vous installer l'extension Bazaar, fournisseur d'extensions pour Flarum ?",
-                    "de": "Wollen Sie die Bazaar Erweiterung installieren ?"
-                },
-                "default": false
-            },
-            {
                 "name": "language",
                 "type": "string",
                 "ask": {
