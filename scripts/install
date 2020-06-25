@@ -141,24 +141,21 @@ ynh_add_swap --size=$swap_needed
 #=================================================
 ynh_script_progression --message="Installing composer dependencies..."
 
-ynh_exec_warn_less ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
+ynh_exec_warn_less ynh_install_composer --user=$app --phpversion="$phpversion" --workdir="$final_path"
 
 # Set Flarum version
-ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-lowest --no-update"
+ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-lowest --no-update"
 
 # Require SSOwat extension
-ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
+ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
 
 # Update and download dependencies
-ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="update"
+ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="update"
 
 #=================================================
 # FLARUM POST-INSTALL
 #=================================================
 ynh_script_progression --message="Configuring Flarum..." --weight=2
-
-# Making sure it is writable
-chown -R $app: $final_path
 
 # Copy the configuration.yml to working directory
 finalflarumconf="$final_path/configuration.yml"
@@ -201,14 +198,14 @@ ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require qiaeru/lang-french"
+    ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require qiaeru/lang-french"
     activate_flarum_extension $db_name "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
     ;;
   de)
     ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require cbmainz/flarum-de"
+    ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require cbmainz/flarum-de"
     activate_flarum_extension $db_name "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name

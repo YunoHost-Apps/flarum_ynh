@@ -217,13 +217,13 @@ then
 	chown -R $app:www-data $final_path
 
 	# Install Composer and Flarum
-	ynh_install_composer --phpversion=$phpversion --workdir=$final_path
+	ynh_install_composer --user=$app --phpversion=$phpversion --workdir=$final_path
 
 	# Perform migrations and clear cache
 	pushd $final_path
 		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
-		ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
-		ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+		ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
+		ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
 		exec_as $app php$phpversion flarum migrate
 		exec_as $app php$phpversion flarum cache:clear
 	popd
@@ -247,14 +247,14 @@ fi
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require qiaeru/lang-french"
+    ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require qiaeru/lang-french"
     activate_flarum_extension $db_name "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
   de)
     ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require cbmainz/flarum-de"
+    ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require cbmainz/flarum-de"
     activate_flarum_extension $db_name "cbmainz-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
