@@ -261,8 +261,8 @@ ynh_script_progression --message="Sending generated admin credentials by email, 
 app_message="User : $admin, password : $admin_pwd
 Change your password!
 Your forum is accessible at https://$domain$path_url"
-ynh_send_readme_to_admin "$app_message" "$admin"
-ynh_print_warn "$app_message"
+ynh_send_readme_to_admin --app_message=$app_message --recipients=$admin
+ynh_print_warn --message=$app_message
 
 #=================================================
 # END OF SCRIPT
