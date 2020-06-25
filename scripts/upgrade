@@ -133,16 +133,16 @@ then
 	# Create a temporary directory
 	tmpdir="$(mktemp -d)"
 	cp -R $final_path/* $tmpdir
-	
+
 	# Deleting current app directory
 	ynh_secure_remove --file="$final_path"
-	
+
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path"
-	
+
 	# Copy config.php back into Flarum
 	cp -f $tmpdir/config.php $final_path
-	
+
 	# Copy assets from old app version. Can be either in root folder or in "public" folder
 	if [ -d $tmpdir/assets ]; then
 		cp -Rf $tmpdir/assets $final_path/public
@@ -247,8 +247,8 @@ fi
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require milescellar/lang-french"
-    activate_flarum_extension $db_name "milescellar-lang-french"
+    ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require qiaeru/lang-french"
+    activate_flarum_extension $db_name "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root "$sql_command" $db_name
     ;;
