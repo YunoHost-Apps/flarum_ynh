@@ -14,7 +14,7 @@ extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php
 # Version numbers
 project_version="~0.1.0-beta.13"
 core_version="~0.1.0-beta.13"
-ssowat_version="dev-0.1.0-beta.13"
+ssowat_version="~0.1.0-beta.13"
 
 #=================================================
 # PERSONAL HELPERS
