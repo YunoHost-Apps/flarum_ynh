@@ -9,9 +9,11 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 ## Overview
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
+**Shipped version:** 0.1.0-beta.13
+
 ## Screenshots
 
-![](http://flarum.org/img/screenshot_2x.png)
+![](https://flarum.org/assets/img/home-screenshot.png)
 
 ## Features
 
@@ -101,8 +103,7 @@ Reload PHP-FPM with `sudo service php*php_version*-fpm reload`.
 
 ---
 
-Developer info
-----------------
+## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/flarum_ynh/tree/testing).
 
