@@ -12,9 +12,9 @@ YNH_PHP_VERSION="7.3"
 extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-pdo-mysql php${YNH_PHP_VERSION}-tokenizer php${YNH_PHP_VERSION}-zip"
 
 # Version numbers
-project_version="~0.1.0-beta.13"
-core_version="~0.1.0-beta.13"
-ssowat_version="~0.1.0-beta.13"
+project_version="~0.1.0-beta.14"
+core_version="~0.1.0-beta.14"
+ssowat_version="~0.1.0-beta.14"
 
 #=================================================
 # PERSONAL HELPERS
