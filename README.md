@@ -9,7 +9,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 ## Overview
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
-**Shipped version:** 0.1.0-beta.13
+**Shipped version:** 0.1.0-beta.14
 
 ## Screenshots
 
