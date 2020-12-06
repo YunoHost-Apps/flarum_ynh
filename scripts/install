@@ -69,7 +69,7 @@ ynh_app_setting_set --app=$app --key=ssowat_version --value=$ssowat_version
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..."  --weight=1
+ynh_script_progression --message="Installing dependencies..."  --weight=2
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -87,7 +87,7 @@ ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --weight=7
+ynh_script_progression --message="Setting up source files..." --weight=3
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
@@ -96,13 +96,6 @@ ynh_setup_source --dest_dir="$final_path"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-
-# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
-if [ $path_url = "/" ]; then
-  ynh_replace_string "__PATH_HACK__" "" "../conf/nginx.conf"
-else
-  ynh_replace_string "__PATH_HACK__" "$path_url/$path_url" "../conf/nginx.conf"
-fi
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -138,7 +131,7 @@ ynh_add_swap --size=$swap_needed
 #=================================================
 # INSTALL COMPOSER DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing composer dependencies..."
+ynh_script_progression --message="Installing composer dependencies..." --weight=5
 
 ynh_exec_warn_less ynh_install_composer --user=$app --phpversion="$phpversion" --workdir="$final_path"
 

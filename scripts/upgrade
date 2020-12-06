@@ -160,20 +160,13 @@ fi
 #=================================================
 ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=1
 
-# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
-if [ $path_url = "/" ]; then
-  ynh_replace_string "__PATH_HACK__" "" "../conf/nginx.conf"
-else
-  ynh_replace_string "__PATH_HACK__" "$path_url/$path_url" "../conf/nginx.conf"
-fi
-
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=1
+ynh_script_progression --message="Upgrading dependencies..." --weight=2
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -211,7 +204,7 @@ ynh_add_swap --size=$swap_needed
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Installing composer dependencies..."
+	ynh_script_progression --message="Installing composer dependencies..." --weight=5
 
 	# Set right permissions
 	chown -R $app:www-data $final_path

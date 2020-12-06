@@ -29,11 +29,6 @@ ynh_script_progression --message="Loading installation settings..." --weight=1
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 
-# Add settings here as needed by your application
-#db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#db_user=$db_name
-#db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
-
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -84,12 +79,6 @@ then
 	# Set global variables for nginx helper
 	domain="$old_domain"
 	path_url="$new_path"
-	# Bug in Nginx with locations and aliases (see http://stackoverflow.com/a/35102259 )
-	if [ $path_url = "/" ]; then
-	  ynh_replace_string "__PATH_HACK__" "" "../conf/nginx.conf"
-	else
-	  ynh_replace_string "__PATH_HACK__" "$path_url" "../conf/nginx.conf"
-	fi
 	# Create a dedicated nginx config
 	ynh_add_nginx_config
 fi
