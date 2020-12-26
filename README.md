@@ -1,7 +1,7 @@
 # Flarum for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)  
-[![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=flarum)
+[![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
 > *This package allows you to install Flarum quickly and simply on a YunoHost server.  
 If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
