@@ -46,9 +46,9 @@ Replace `flarum` with your app ID in case of multiple installation.
 Replace `vendor/extension` with the appropriate names. Read the extension documentation if it requires additional steps.
 
 ```bash
+sudo su
 app=flarum
 cd /var/www/$app
-sudo su
 sudo -u $app php7.3 composer.phar require vendor/extension
 ```
 
