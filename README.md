@@ -48,6 +48,7 @@ Replace `vendor/extension` with the appropriate names. Read the extension docume
 ```bash
 app=flarum
 cd /var/www/$app
+sudo su
 sudo -u $app php7.3 composer.phar require vendor/extension
 ```
 
