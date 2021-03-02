@@ -42,13 +42,14 @@ Note that all third-party extensions are removed upon upgrading.
 
 ## Adding extensions after installation
 
+You need before to install [Composer](https://getcomposer.org/download/).
 Replace `flarum` with your app ID in case of multiple installation.
 Replace `vendor/extension` with the appropriate names. Read the extension documentation if it requires additional steps.
 
 ```bash
 app=flarum
 cd /var/www/$app
-sudo -u $app php7.3 composer.phar require vendor/extension
+sudo php composer.phar require -n vendor/extension
 ```
 
 ## Troubleshooting
