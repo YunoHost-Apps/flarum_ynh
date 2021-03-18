@@ -58,7 +58,6 @@ ynh_script_progression --message="Storing installation settings..."
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=path --value=$path_url
 ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=is_public --value=$is_public
 ynh_app_setting_set --app=$app --key=language --value=$language
 ynh_app_setting_set --app=$app --key=project_version --value=$project_version
 ynh_app_setting_set --app=$app --key=core_version --value=$core_version
@@ -136,13 +135,13 @@ ynh_script_progression --message="Installing composer dependencies..." --weight=
 ynh_exec_warn_less ynh_install_composer --user=$app --phpversion="$phpversion" --workdir="$final_path"
 
 # Set Flarum version
-ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-lowest --no-update"
+ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-lowest --no-update"
 
 # Require SSOwat extension
-ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
+ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
 
 # Update and download dependencies
-ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="update"
+ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="update"
 
 #=================================================
 # FLARUM POST-INSTALL
