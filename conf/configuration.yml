@@ -1,4 +1,4 @@
-baseUrl : "https://__DOMAIN__/__PATH__"
+baseUrl : "https://__DOMAIN____PATH__"
 databaseConfiguration :
     host : "localhost"
     database : "__USER__"
@@ -8,6 +8,6 @@ adminUser :
     username : "__ADMIN__"
     password : "__ADMIN_PWD__"
     password_confirmation : "__ADMIN_PWD__"
-    email : "__ADMIN_EML__"
+    email : "__ADMIN_MAIL__"
 settings :
-    forum_title : "__FORUM_TITLE__"
+    forum_title : "__TITLE__"

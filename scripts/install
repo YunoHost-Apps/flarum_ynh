@@ -148,19 +148,8 @@ ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --work
 #=================================================
 ynh_script_progression --message="Configuring Flarum..." --weight=2
 
-# Copy the configuration.yml to working directory
-finalflarumconf="$final_path/configuration.yml"
-cp ../conf/configuration.yml $finalflarumconf
-
-# Populate configuration.yml
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="/__PATH__" --replace_string="$path_url" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="__ADMIN__" --replace_string="$admin" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="__ADMIN_PWD__" --replace_string="$admin_pwd" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="__ADMIN_EML__" --replace_string="$admin_mail" --target_file="$finalflarumconf"
-ynh_replace_string --match_string="__FORUM_TITLE__" --replace_string="$title" --target_file="$finalflarumconf"
+# Copy and populate configuration.yml to working directory
+ynh_add_config --template="../conf/configuration.yml" --destination="$final_path/configuration.yml"
 
 # Execute post-installation
 pushd $final_path
