@@ -7,7 +7,7 @@
         "fr": "Un forum de nouvelle génération, simplement.",
         "de": "Forum der nächsten Generation leicht gemacht."
     },
-    "version": "0.1.0.14~ynh2",
+    "version": "0.1.0.14~ynh3",
     "url": "http://flarum.org/",
     "license": "MIT",
     "maintainer": {
@@ -15,7 +15,7 @@
         "email": "tituspijean@outlook.com"
     },
     "requirements": {
-        "yunohost": ">= 3.8.1"
+        "yunohost": ">= 4.1.2"
     },
     "multi_instance": true,
     "services": [
@@ -26,7 +26,7 @@
     "arguments": {
         "install" : [
             {
-                "name": "domain",
+                "name": "swap",
                 "type": "display_text",
                 "ask": {
                     "en": "The installation will add a 1 GB swap file if your system has less than 1 GB free RAM.",
@@ -36,32 +36,17 @@
             {
                 "name": "domain",
                 "type": "domain",
-                "ask": {
-                    "en": "Choose a domain name for Flarum",
-                    "fr": "Choisissez un nom de domaine pour Flarum",
-                    "de": "Wählen einen Domain-Namen für Flarum"
-                    },
-                    "example": "example.com"
-                },
+                "example": "example.com"
+            },
             {
                 "name": "path",
                 "type": "path",
-                "ask": {
-                    "en": "Choose a path for Flarum",
-                    "fr": "Choisissez un chemin pour Flarum",
-                    "de": "Wählen einen Pfad für Flarum"
-                },
                 "example": "/flarum",
                 "default": "/flarum"
             },
             {
                 "name": "admin",
                 "type": "user",
-                "ask": {
-                    "en": "Choose the admin user",
-                    "fr": "Choisissez l’administrateur",
-                    "de": "Wählen einen Administrator"
-                },
                 "example": "johndoe"
             },
             {
@@ -78,11 +63,6 @@
             {
                 "name": "is_public",
                 "type": "boolean",
-                "ask": {
-                    "en": "Is it a public application?",
-                    "fr": "Est-ce une application publique ?",
-                    "de": "Ist es eine öffentliche Applikation ?"
-                },
                 "help": {
                     "en": "If public, it will be open to all visitors like any forum. If private, only the YunoHost server users can access it.",
                     "fr": "Si public, le forum sera accessible à tous, comme pour tout forum. Si privé, seuls les utilisateurs du serveur YunoHost pourront y accéder."
