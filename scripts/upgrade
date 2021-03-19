@@ -199,8 +199,8 @@ then
 	# Perform migrations and clear cache
 	pushd $final_path
 		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
-		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update"
-		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update\"
+		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies\"
 		exec_as $app php$phpversion flarum migrate
 		exec_as $app php$phpversion flarum cache:clear
 	popd
