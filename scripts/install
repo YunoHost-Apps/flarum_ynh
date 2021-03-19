@@ -155,7 +155,7 @@ ynh_add_config --template="../conf/configuration.yml" --destination="$final_path
 pushd $final_path
   exec_as $app php$phpversion -d $final_path -d memory_limit=-1 flarum install -f configuration.yml
   # Delete configuration.yml as it contains sensitive data
-  ynh_secure_remove $finalflarumconf
+  ynh_secure_remove --file="$final_path/configuration.yml"
 popd
 
 # Email setup
