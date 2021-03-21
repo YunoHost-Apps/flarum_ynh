@@ -50,6 +50,15 @@
                 "example": "johndoe"
             },
             {
+                "name": "password",
+                "type": "password",
+                "help": {
+                    "en": "Choose your password. It will be useful if logging in from YunoHost fails or is disrupted.",
+                    "fr": "Choisissez votre mot de passe. Il sera utile si la connexion via YunoHost échoue ou est perturbée."
+                },
+                "example": "Choose a password"
+            },
+            {
                 "name": "title",
                 "type": "string",
                 "ask": {
