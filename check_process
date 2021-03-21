@@ -1,14 +1,18 @@
-;; flarum_ynh package check
-#	; pre-install
-#		echo -n "Here your commands to execute in the container"
-#		echo ", before each installation of the app."
+# See here for more information
+# https://github.com/YunoHost/package_check#syntax-check_process-file
+
+# Move this file from check_process.default to check_process when you have filled it.
+
+;; Test complet
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
 		path="/path"	(PATH)
 		admin="john"	(USER)
-		title="Test flarum"
-		language="en"
+		language="fr"
 		is_public=1	(PUBLIC|public=1|private=0)
+		password="pass"
+		port="666"	(PORT)
+		title="My forum"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1
@@ -17,19 +21,20 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
+		upgrade=1	from_commit=6c0f19d95b5a7cec8e8278173472f3bf4a1adab6
+		upgrade=1	from_commit=0d30809a2903544a660635f62a25bc6057ea2f15
 		backup_restore=1
 		multi_instance=1
-		# This test is no longer necessary since the version 2.7 (PR: https://github.com/YunoHost/yunohost/pull/304), you can still do it if your app could be installed with this version.
-		# incorrect_path=1
 		port_already_use=0
 		change_url=1
-;;; Levels
-	# If the level 5 (Package linter) is forced to 1. Please add justifications here.
-	Level 5=auto
 ;;; Options
-#Email=
-#Notification=none
-#;;; Upgrade options
-#	; commit=46ca549825e311f4095b173e79d58a349d70d9a2
-#		name=Name of this previous version
-#manifest_arg=domain=DOMAIN&path=PATH&admin=USER&title=TITLE&is_public=1&
+Email=
+Notification=none
+;;; Upgrade options
+	; commit=6c0f19d95b5a7cec8e8278173472f3bf4a1adab6
+		name=2020-03-18 0.1.0-beta.12~ynh1
+		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&title=\"My forum\"&
+	; commit=0d30809a2903544a660635f62a25bc6057ea2f15
+		name=2021-02-19 0.1.0.14~ynh2
+		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&title=\"My forum\"&
+
