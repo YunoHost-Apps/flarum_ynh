@@ -12,7 +12,7 @@
 		is_public=1	(PUBLIC|public=1|private=0)
 		password="pass"
 		port="666"	(PORT)
-		title="My forum"
+		title="Forum"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1
