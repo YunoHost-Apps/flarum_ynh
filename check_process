@@ -21,7 +21,6 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		upgrade=1	from_commit=6c0f19d95b5a7cec8e8278173472f3bf4a1adab6
 		upgrade=1	from_commit=0d30809a2903544a660635f62a25bc6057ea2f15
 		backup_restore=1
 		multi_instance=1
@@ -31,9 +30,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=6c0f19d95b5a7cec8e8278173472f3bf4a1adab6
-		name=2020-03-18 0.1.0-beta.12~ynh1
-		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&title=Forum&
 	; commit=0d30809a2903544a660635f62a25bc6057ea2f15
 		name=2021-02-19 0.1.0.14~ynh2
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&title=Forum&
