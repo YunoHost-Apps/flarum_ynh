@@ -166,12 +166,12 @@ pushd $final_path
 popd
 
 # Email setup
-ynh_mysql_execute_as_root --database=$db_name < ../conf/mail.sql
+ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../conf/mail.sql
 
 # Enable and set up the LDAP auth extension
 ynh_script_progression --message="Enabling and configuring LDAP extension..." --weight=2
 activate_flarum_extension $db_name "tituspijean-auth-ldap"
-ynh_mysql_execute_as_root --database=$db_name < ../conf/ldap.sql
+ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../conf/ldap.sql
 
 # Install, activate and set language extensions
 case $language in
