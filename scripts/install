@@ -61,7 +61,7 @@ ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=language --value=$language
 ynh_app_setting_set --app=$app --key=project_version --value=$project_version
 ynh_app_setting_set --app=$app --key=core_version --value=$core_version
-ynh_app_setting_set --app=$app --key=ssowat_version --value=$ssowat_version
+ynh_app_setting_set --app=$app --key=ldap_version --value=$ldap_version
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -132,16 +132,24 @@ ynh_add_swap --size=$swap_needed
 #=================================================
 ynh_script_progression --message="Installing composer dependencies..." --weight=5
 
-ynh_exec_warn_less ynh_install_composer --user=$app --phpversion="$phpversion" --workdir="$final_path"
+ynh_exec_warn_less ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
 
 # Set Flarum version
-ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require flarum/core:$core_version --prefer-lowest --no-update\"
+ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require flarum/core:$core_version --prefer-lowest --no-update\"
 
-# Require SSOwat extension
-ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update\"
+# Require LDAP extension
+ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update\"
 
 # Update and download dependencies
-ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"update\"
+ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"update\"
+
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+ynh_script_progression --message="Securing files and directories..."
+
+# Set permissions to app files
+chown -R $app:www-data $final_path
 
 #=================================================
 # FLARUM POST-INSTALL
@@ -159,20 +167,12 @@ pushd $final_path
 popd
 
 # Email setup
-sql_command="REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
-  ('mail_driver', 'mail'),
-  ('mail_encryption', 'ssl'),
-  ('mail_from', '$app@$domain'),
-  ('mail_host', 'localhost'),
-  ('mail_port', '587');"
-ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
+ynh_mysql_execute_as_root --database=$db_name < ../conf/mail.sql
 
-# Enable and set up the SSOwat auth extension
-ynh_script_progression --message="Enabling and configuring SSOwat extension..." --weight=2
-activate_flarum_extension $db_name "tituspijean-auth-ssowat"
-ssowatdomain=$(</etc/yunohost/current_host)
-sql_command="INSERT INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
+# Enable and set up the LDAP auth extension
+ynh_script_progression --message="Enabling and configuring LDAP extension..." --weight=2
+activate_flarum_extension $db_name "tituspijean-auth-ldap"
+ynh_mysql_execute_as_root --database=$db_name < ../conf/ldap.sql
 
 # Install, activate and set language extensions
 case $language in
@@ -194,14 +194,6 @@ esac
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-ynh_script_progression --message="Securing files and directories..."
-
-# Set permissions to app files
-chown -R $app:www-data $final_path
-
 #=================================================
 # SETUP LOGROTATE
 #=================================================
@@ -229,17 +221,6 @@ fi
 ynh_script_progression --message="Reloading nginx web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# SEND CREDENTIALS TO ADMIN
-#=================================================
-ynh_script_progression --message="Sending generated admin credentials by email, but you can log in with your YunoHost credentials!" --weight=1
-
-app_message="User : $admin, password : $admin_pwd
-Change your password!
-Your forum is accessible at https://$domain$path_url"
-ynh_send_readme_to_admin --app_message=$app_message --recipients=$admin
-ynh_print_warn --message=$app_message
 
 #=================================================
 # END OF SCRIPT

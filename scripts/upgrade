@@ -8,7 +8,6 @@
 
 source _common.sh
 source experimental_helpers/ynh_exec_as
-source experimental_helpers/ynh_composer__2
 source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
@@ -28,8 +27,7 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 old_project_version=$(ynh_app_setting_get --app=$app --key=project_version)
 old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
-old_ssowat_version=$(ynh_app_setting_get --app=$app --key=ssowat_version)
-bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
+old_ldap_version=$(ynh_app_setting_get --app=$app --key=ldap_version)
 
 #=================================================
 # CHECK VERSION
@@ -65,9 +63,17 @@ fi
 # Remove the v before version number
 if [[ $old_project_version == "v*" ]]; then $old_project_version = ${old_project_version:1}; fi
 
-# Remove bazaar_extension if exists
+# Remove bazaar_extension if it exists
+bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
 if [ ! -z "$bazaar_extension" ]; then
 	ynh_app_setting_delete --app=$app --key=bazaar_extension
+fi
+
+# Remove SSOwat if it exists
+ssowat_extension=$(ynh_app_setting_get --app=$app --key=ssowat_extension)
+if [ ! -z "$ssowat_extension" ]; then
+	ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"remove tituspijean/flarum-ext-auth-ssowat\"
+	ynh_app_setting_delete --app=$app --key=ssowat_extension
 fi
 
 #=================================================
@@ -179,7 +185,7 @@ then
 	# Perform migrations and clear cache
 	pushd $final_path
 		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
-		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ssowat:$ssowat_version --no-update\"
+		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update\"
 		ynh_exec_warn_less ynh_composer_exec --user=$app --phpversion=$phpversion --workdir=$final_path --commands=\"require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies\"
 		exec_as $app php$phpversion flarum migrate
 		exec_as $app php$phpversion flarum cache:clear
@@ -190,14 +196,12 @@ fi
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! exec_as $app php$phpversion flarum info | grep -q "tituspijean-auth-ssowat" | grep -q $ssowat_version;
+if ! exec_as $app php$phpversion flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
 then
-	# Install and activate the SSOwat auth extension
-	activate_flarum_extension $db_name "tituspijean-auth-ssowat"
-	# Configure SSOwat auth extension
-	ssowatdomain=$(</etc/yunohost/current_host)
-	sql_command="INSERT IGNORE INTO \`settings\` (\`key\`, \`value\`) VALUES ('tituspijean-auth-ssowat.domain', '$ssowatdomain'), ('tituspijean-auth-ssowat.onlyUse', '0');"
-	ynh_mysql_execute_as_root "$sql_command" $db_name
+	# Install and activate the LDAP auth extension
+	activate_flarum_extension $db_name "tituspijean-auth-ldap"
+	# Configure LDAP auth extension
+	ynh_mysql_execute_as_root --database=$db_name < ../conf/ldap.sql
 fi
 
 # Install, activate and set language extensions
@@ -227,7 +231,7 @@ popd
 # Save version settings
 ynh_app_setting_set $app project_version $project_version
 ynh_app_setting_set $app core_version $core_version
-ynh_app_setting_set $app ssowat_version $ssowat_version
+ynh_app_setting_set $app ldap_version $ldap_version
 
 #=================================================
 # SETUP LOGROTATE

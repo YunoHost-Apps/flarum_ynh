@@ -33,4 +33,3 @@ Notification=none
 	; commit=0d30809a2903544a660635f62a25bc6057ea2f15
 		name=2021-02-19 0.1.0.14~ynh2
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&title=Forum&
-
