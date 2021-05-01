@@ -12,4 +12,5 @@ INSERT INTO `settings` (`key`, `value`) VALUES
 ('tituspijean-auth-ldap.use_ssl', ''),
 ('tituspijean-auth-ldap.use_tls', ''),
 ('tituspijean-auth-ldap.user_mail', 'mail'),
-('tituspijean-auth-ldap.user_username', 'uid');
+('tituspijean-auth-ldap.user_username', 'uid')
+ ON DUPLICATE KEY UPDATE value = VALUES(value);
