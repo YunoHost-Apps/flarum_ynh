@@ -1,4 +1,4 @@
-REPLACE INTO \`settings\` (\`key\`, \`value\`) VALUES
+REPLACE INTO `settings` (`key`, `value`) VALUES
   ('mail_driver', 'mail'),
   ('mail_encryption', 'ssl'),
   ('mail_from', '$app@$domain'),
