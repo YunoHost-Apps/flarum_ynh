@@ -13,4 +13,6 @@ INSERT INTO `settings` (`key`, `value`) VALUES
 ('tituspijean-auth-ldap.use_tls', ''),
 ('tituspijean-auth-ldap.user_mail', 'mail'),
 ('tituspijean-auth-ldap.user_username', 'uid')
- ON DUPLICATE KEY UPDATE value = VALUES(value);
+AS new
+ON DUPLICATE KEY UPDATE
+value = new.value;
