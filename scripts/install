@@ -149,6 +149,8 @@ ynh_script_progression --message="Securing files and directories..."
 
 # Set permissions to app files
 chown -R $app:www-data $final_path
+chmod -R ug+rw,o-rwx $final_path
+chmod -R ug+x $final_path/flarum
 
 #=================================================
 # FLARUM POST-INSTALL
