@@ -9,7 +9,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 ## Overview
 [Flarum](http://flarum.org/), an open-source forum software, packaged for [YunoHost](https://yunohost.org/), a self-hosting server operating server.
 
-**Shipped version:** 0.1.0-beta.14
+**Shipped version:** 0.1.0-beta.16
 
 ## Screenshots
 
@@ -18,7 +18,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 ## Features
 
 - All Flarum features, see its [documentation](http://flarum.org/docs/)
-- SSOwat integration through a [dedicated extension](https://github.com/tituspijean/flarum-ext-auth-ssowat).
+- LDAP integration through a [dedicated extension](https://github.com/tituspijean/flarum-ext-auth-ldap).
 
 ## Installation
 
@@ -42,7 +42,7 @@ Note that all third-party extensions are removed upon upgrading.
 
 ## Adding extensions after installation
 
-Replace `flarum` with your app ID in case of multiple installation.
+Replace `flarum` with your app ID in case of multiple installations.
 Replace `vendor/extension` with the appropriate names. Read the extension documentation if it requires additional steps.
 
 ```bash

@@ -72,9 +72,9 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Restoring user rights..."
 
 # Set right permissions
-chown -R $app: $final_path
-chown -R $app:www-data $final_path/storage
-chmod -R 0775 $final_path
+chown -R $app:www-data $final_path
+chmod -R ug+rw,o-rwx $final_path
+chmod -R ug+x $final_path/flarum
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
