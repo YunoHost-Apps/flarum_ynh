@@ -8,6 +8,8 @@ pkg_dependencies=""
 swap_needed=1024
 
 YNH_PHP_VERSION="7.3"
+YNH_COMPOSER_VERSION="2.0.13"
+
 
 extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-pdo-mysql php${YNH_PHP_VERSION}-tokenizer php${YNH_PHP_VERSION}-zip"
 
