@@ -1,8 +1,8 @@
 baseUrl : "https://__DOMAIN____PATH__"
 databaseConfiguration :
     host : "localhost"
-    database : "__USER__"
-    username : "__USER__"
+    database : "__DB_NAME__"
+    username : "__DB_NAME__"
     password : "__DB_PWD__"
 adminUser :
     username : "__ADMIN__"
