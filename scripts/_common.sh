@@ -2,7 +2,9 @@
 # COMMON VARIABLES
 #=================================================
 
-swap_needed=1024
+#swap_needed=1024
+
+MEMORY_NEEDED="2560"
 
 YNH_PHP_VERSION="7.3"
 YNH_COMPOSER_VERSION="2.0.13"
