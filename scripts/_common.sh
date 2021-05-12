@@ -2,9 +2,6 @@
 # COMMON VARIABLES
 #=================================================
 
-# dependencies used by the app
-pkg_dependencies=""
-
 swap_needed=1024
 
 YNH_PHP_VERSION="7.3"

@@ -92,8 +92,8 @@ Reload PHP-FPM with `sudo service php*php_version*-fpm reload`.
 
 #### Supported architectures
 
-* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/flarum%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/flarum/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/flarum.svg)](https://ci-apps-arm.yunohost.org/ci/apps/flarum/)
 
 ## Links
 

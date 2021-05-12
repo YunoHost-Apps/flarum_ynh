@@ -76,6 +76,14 @@ if [ ! -z "$ssowat_extension" ]; then
 fi
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app --home_dir=$final_path
+
+#=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
 ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=1
@@ -127,7 +135,7 @@ fi
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=1
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -138,16 +146,6 @@ ynh_add_nginx_config
 ynh_script_progression --message="Upgrading dependencies..." --weight=2
 
 ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
-
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir=$final_path
-# Adding it to www-data group
-usermod -a -G www-data $app
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -249,9 +247,9 @@ ynh_use_logrotate --non-append
 ynh_script_progression --message="Securing files and directories..."
 
 # Set permissions on app files
-chown -R $app:www-data $final_path
-chmod -R ug+rw,o-rwx $final_path
-chmod -R ug+x $final_path/flarum
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # RELOAD NGINX

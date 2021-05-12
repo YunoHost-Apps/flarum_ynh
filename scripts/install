@@ -61,15 +61,6 @@ ynh_app_setting_set --app=$app --key=core_version --value=$core_version
 ynh_app_setting_set --app=$app --key=ldap_version --value=$ldap_version
 
 #=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Installing dependencies..."  --weight=2
-
-ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
 ynh_script_progression --message="Creating a MySQL database..."
@@ -103,8 +94,6 @@ ynh_script_progression --message="Configuring system user..." --weight=1
 
 # Create a system user
 ynh_system_user_create --username=$app --home_dir=$final_path
-# Adding it to www-data group
-usermod -a -G www-data $app
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -146,9 +135,9 @@ ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_p
 ynh_script_progression --message="Securing files and directories..."
 
 # Set permissions to app files
-chown -R $app:www-data $final_path
-chmod -R ug+rw,o-rwx $final_path
-chmod -R ug+x $final_path/flarum
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # FLARUM POST-INSTALL
