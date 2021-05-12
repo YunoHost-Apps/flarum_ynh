@@ -153,7 +153,7 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_script_progression --message="Adding swap..."
+ynh_script_progression --message="Adding swap..." --weight=5
 
 ynh_add_swap --size=$swap_needed
 
