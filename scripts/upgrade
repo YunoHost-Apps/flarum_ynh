@@ -7,7 +7,6 @@
 #=================================================
 
 source _common.sh
-source experimental_helpers/ynh_exec_as
 source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
