@@ -107,8 +107,17 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_script_progression --message="Adding swap..." --weight=5
+ynh_script_progression --message="Adding swap if needed..." --weight=5
 
+total_memory=$(ynh_get_ram --total)
+swap_needed=0
+
+if [ $total_memory -lt $MEMORY_NEEDED ]; then
+  # Need a minimum of 2.5Go of memory
+  swap_needed=$(($MEMORY_NEEDED - $total_memory))
+fi
+
+ynh_script_progression --message="Adding $swap_needed Mo to swap..."
 ynh_add_swap --size=$swap_needed
 
 #=================================================
