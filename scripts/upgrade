@@ -141,13 +141,6 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..." -
 ynh_add_nginx_config
 
 #=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=2
-
-ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=1
@@ -184,8 +177,8 @@ then
 		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
 		ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update\"
 		ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies\"
-		exec_as $app php$phpversion flarum migrate
-		exec_as $app php$phpversion flarum cache:clear
+		ynh_exec_as $app php$phpversion flarum migrate
+		ynh_exec_as $app php$phpversion flarum cache:clear
 	popd
 fi
 
@@ -193,7 +186,7 @@ fi
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! exec_as $app php$phpversion flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
+if ! ynh_exec_as $app php$phpversion flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
 then
 	# Install and activate the LDAP auth extension
 	activate_flarum_extension $db_name "tituspijean-auth-ldap"
@@ -223,7 +216,7 @@ ynh_print_info "You may need to manually enable your language extension in Flaru
 
 # Clear cache
 pushd $final_path
-	exec_as $app php$phpversion flarum cache:clear
+	ynh_exec_as $app php$phpversion flarum cache:clear
 popd
 
 # Save version settings
