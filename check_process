@@ -17,7 +17,7 @@
 		setup_public=1
 		upgrade=1
 #		upgrade=1	from_commit=0d30809a2903544a660635f62a25bc6057ea2f15
-		upgrade=1	from_commit=0175b7a3b0a551e14f39c65290d194ccc71cd6ee
+#		upgrade=1	from_commit=0175b7a3b0a551e14f39c65290d194ccc71cd6ee
 #		upgrade=1	from_commit=70e962faa875070b0fcc29f45cc70e2a51de76a6
 		backup_restore=1
 		multi_instance=1
