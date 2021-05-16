@@ -7,8 +7,6 @@
 #=================================================
 
 source _common.sh
-source experimental_helpers/ynh_exec_as
-source experimental_helpers/ynh_composer
 source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
@@ -17,7 +15,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 ynh_clean_setup () {
-  true
+	true
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -72,6 +70,14 @@ ynh_script_progression --message="Installing dependencies..."  --weight=2
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..." --weight=1
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir=$final_path
+
+#=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
 ynh_script_progression --message="Creating a MySQL database..."
@@ -91,29 +97,24 @@ ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_script_progression --message="Configuring NGINX web server..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..." --weight=1
-
-# Create a system user
-ynh_system_user_create --username=$app --home_dir=$final_path
-# Adding it to www-data group
-usermod -a -G www-data $app
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring php-fpm..."
+ynh_script_progression --message="Configuring PHP-FPM..."
 
-# Create a dedicated php-fpm config
+# Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencies"
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
@@ -143,16 +144,6 @@ ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_p
 ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"update\"
 
 #=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-ynh_script_progression --message="Securing files and directories..."
-
-# Set permissions to app files
-chown -R $app:www-data $final_path
-chmod -R ug+rw,o-rwx $final_path
-chmod -R ug+x $final_path/flarum
-
-#=================================================
 # FLARUM POST-INSTALL
 #=================================================
 ynh_script_progression --message="Configuring Flarum..." --weight=2
@@ -162,7 +153,7 @@ ynh_add_config --template="../conf/configuration.yml" --destination="$final_path
 
 # Execute post-installation
 pushd $final_path
-  exec_as $app php$phpversion -d $final_path -d memory_limit=-1 flarum install -f configuration.yml
+  ynh_exec_as $app php$phpversion -d $final_path -d memory_limit=-1 flarum install -f configuration.yml
   # Delete configuration.yml as it contains sensitive data
   ynh_secure_remove --file="$final_path/configuration.yml"
 popd
@@ -208,20 +199,20 @@ ynh_use_logrotate
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring SSOwat..." --weight=1
+ynh_script_progression --message="Configuring permissions..." --weight=1
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
 	# Everyone can access the app.
 	# The "main" permission is automatically created before the install script.
-	ynh_permission_update --permission "main" --add "visitors"
+	ynh_permission_update --permission="main" --add="visitors"
 fi
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
