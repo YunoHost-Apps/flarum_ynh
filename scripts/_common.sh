@@ -13,8 +13,8 @@ YNH_COMPOSER_VERSION="2.0.13"
 extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-pdo-mysql php${YNH_PHP_VERSION}-tokenizer php${YNH_PHP_VERSION}-zip"
 
 # Version numbers
-project_version="~0.1.0-beta.16"
-core_version="~0.1.0-beta.16"
+project_version="~0.1.0"
+core_version="~0.1.0"
 ldap_version="~0.1.0-beta.16-1"
 
 #=================================================
