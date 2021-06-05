@@ -7,7 +7,7 @@
         "fr": "Un forum de nouvelle génération, simplement.",
         "de": "Forum der nächsten Generation leicht gemacht."
     },
-    "version": "1.0.0~ynh4",
+    "version": "1.0.0~ynh5",
     "url": "http://flarum.org/",
     "upstream": {
         "license": "MIT",
