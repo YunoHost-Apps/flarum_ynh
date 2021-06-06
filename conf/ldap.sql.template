@@ -6,7 +6,7 @@ INSERT INTO `settings` (`key`, `value`) VALUES
 ('tituspijean-auth-ldap.follow_referrals', '0'),
 ('tituspijean-auth-ldap.hosts', 'localhost'),
 ('tituspijean-auth-ldap.method_name', 'YunoHost'),
-('tituspijean-auth-ldap.onlyUse', '1'),
+('tituspijean-auth-ldap.onlyUse', '0'),
 ('tituspijean-auth-ldap.port', '389'),
 ('tituspijean-auth-ldap.search_user_fields', 'uid,mail'),
 ('tituspijean-auth-ldap.use_ssl', ''),
