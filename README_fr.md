@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Un forum de nouvelle génération, simplement.
 
-**Version incluse :** 0.1.0.16~ynh5
+**Version incluse :** 1.0.0~ynh5
 
 **Démo :** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 

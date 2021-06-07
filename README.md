@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Next-generation forum made simple.
 
-**Shipped version:** 0.1.0.16~ynh5
+**Shipped version:** 1.0.0~ynh5
 
 **Demo:** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
