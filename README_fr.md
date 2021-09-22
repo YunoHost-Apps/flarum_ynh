@@ -11,7 +11,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Un forum de nouvelle génération, simplement.
+Forum de nouvelle génération, simplement
 
 **Version incluse :** 1.0.0~ynh5
 
