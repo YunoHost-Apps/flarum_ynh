@@ -65,7 +65,7 @@ ynh_app_setting_set --app=$app --key=ldap_version --value=$ldap_version
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..."  --weight=2
+ynh_script_progression --message="Installing dependencies..." --weight=2
 
 ynh_install_app_dependencies $pkg_dependencies
 

@@ -15,7 +15,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Next-generation forum made simple.
+Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
 **Shipped version:** 1.0.0~ynh5
 
