@@ -11,9 +11,9 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Un forum de nouvelle génération, simplement.
+Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapide et facile à utiliser, avec toutes les fonctionnalités dont vous avez besoin pour gérer une communauté.
 
-**Version incluse :** 1.0.0~ynh5
+**Version incluse :** 1.0.0~ynh6
 
 **Démo :** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
