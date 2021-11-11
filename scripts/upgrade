@@ -184,7 +184,8 @@ then
 	# Install Composer and Flarum
 	ynh_exec_warn_less ynh_install_composer --phpversion=$phpversion --workdir=$final_path
 
-	if [ ynh_compare_current_package_version --comparison lt --version 1.1.0~ynh1 ]; then
+	if ynh_compare_current_package_version --comparison lt --version 1.1.0~ynh1
+	then
 		# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
 		# ... except for flarum/core, but that's handled in the next block.
 		jq '.require | .[] = "*"' $final_path/composer.json
