@@ -31,6 +31,7 @@ admin_pwd=$YNH_APP_ARG_PASSWORD
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
 title=$YNH_APP_ARG_TITLE
+core_version=$(ynh_app_upstream_version)
 
 admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 
