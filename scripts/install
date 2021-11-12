@@ -53,13 +53,13 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 #=================================================
 ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain --value=$domain
-ynh_app_setting_set --app=$app --key=path --value=$path_url
-ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=language --value=$language
-ynh_app_setting_set --app=$app --key=project_version --value=$project_version
-ynh_app_setting_set --app=$app --key=core_version --value=$core_version
-ynh_app_setting_set --app=$app --key=ldap_version --value=$ldap_version
+ynh_app_setting_set --app=$app --key=domain --value="$domain"
+ynh_app_setting_set --app=$app --key=path --value="$path_url"
+ynh_app_setting_set --app=$app --key=admin --value="$admin"
+ynh_app_setting_set --app=$app --key=language --value="$language"
+ynh_app_setting_set --app=$app --key=project_version --value="$project_version"
+ynh_app_setting_set --app=$app --key=core_version --value="$core_version"
+ynh_app_setting_set --app=$app --key=ldap_version --value="$ldap_version"
 
 #=================================================
 # STANDARD MODIFICATIONS

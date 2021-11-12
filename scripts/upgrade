@@ -240,9 +240,9 @@ pushd $final_path
 popd
 
 # Save version settings
-ynh_app_setting_set $app project_version $project_version
-ynh_app_setting_set $app core_version $core_version
-ynh_app_setting_set $app ldap_version $ldap_version
+ynh_app_setting_set $app project_version "$project_version"
+ynh_app_setting_set $app core_version "$core_version"
+ynh_app_setting_set $app ldap_version "$ldap_version"
 
 #=================================================
 # GENERIC FINALIZATION
