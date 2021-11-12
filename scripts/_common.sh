@@ -14,8 +14,8 @@ extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php
 
 # Version numbers
 project_version="~1.0.0"
-core_version="~1.0.0"
-ldap_version="~1.0.0-p1"
+#core_version is now retrieved from the manifest
+ldap_version="*"
 
 #=================================================
 # PERSONAL HELPERS

@@ -7,7 +7,7 @@
         "fr": "Forum de nouvelle génération, simplement",
         "de": "Forum der nächsten Generation leicht gemacht"
     },
-    "version": "1.0.0~ynh6",
+    "version": "1.1.1~ynh1",
     "url": "http://flarum.org/",
     "upstream": {
         "license": "MIT",
@@ -22,7 +22,7 @@
         "email": "tituspijean@outlook.com"
     },
     "requirements": {
-        "yunohost": ">= 4.2.0"
+        "yunohost": ">= 4.3.2"
     },
     "multi_instance": true,
     "services": [
@@ -60,8 +60,7 @@
                 "help": {
                     "en": "Choose your password. It will be useful if logging in from YunoHost fails or is disrupted.",
                     "fr": "Choisissez votre mot de passe. Il sera utile si la connexion via YunoHost échoue ou est perturbée."
-                },
-                "example": "Choose a password"
+                }
             },
             {
                 "name": "title",

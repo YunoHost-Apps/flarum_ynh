@@ -31,6 +31,7 @@ admin_pwd=$YNH_APP_ARG_PASSWORD
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
 title=$YNH_APP_ARG_TITLE
+core_version=$(ynh_app_upstream_version)
 
 admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 
@@ -52,13 +53,13 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 #=================================================
 ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain --value=$domain
-ynh_app_setting_set --app=$app --key=path --value=$path_url
-ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=language --value=$language
-ynh_app_setting_set --app=$app --key=project_version --value=$project_version
-ynh_app_setting_set --app=$app --key=core_version --value=$core_version
-ynh_app_setting_set --app=$app --key=ldap_version --value=$ldap_version
+ynh_app_setting_set --app=$app --key=domain --value="$domain"
+ynh_app_setting_set --app=$app --key=path --value="$path_url"
+ynh_app_setting_set --app=$app --key=admin --value="$admin"
+ynh_app_setting_set --app=$app --key=language --value="$language"
+ynh_app_setting_set --app=$app --key=project_version --value="$project_version"
+ynh_app_setting_set --app=$app --key=core_version --value="$core_version"
+ynh_app_setting_set --app=$app --key=ldap_version --value="$ldap_version"
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -135,13 +136,13 @@ ynh_script_progression --message="Installing composer dependencies..." --weight=
 ynh_exec_warn_less ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
 
 # Set Flarum version
-ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require flarum/core:$core_version --prefer-lowest --no-update\"
+ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require flarum/core:$core_version --prefer-lowest --no-update"
 
 # Require LDAP extension
-ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update\"
+ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
 
 # Update and download dependencies
-ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"update\"
+ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="update"
 
 #=================================================
 # FLARUM POST-INSTALL
@@ -172,14 +173,14 @@ ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../c
 case $language in
   fr)
     ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require qiaeru/lang-french:^2.0.0\"
+    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require qiaeru/lang-french:^2.0.0"
     activate_flarum_extension $db_name "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
     ;;
   de)
     ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands=\"require kakifrucht/flarum-de:^1.0.0\"
+    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$final_path --commands="require kakifrucht/flarum-de:^1.0.0"
     activate_flarum_extension $db_name "kakifrucht-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
