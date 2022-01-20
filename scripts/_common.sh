@@ -13,7 +13,7 @@ YNH_COMPOSER_VERSION="2.0.13"
 extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-pdo-mysql php${YNH_PHP_VERSION}-tokenizer php${YNH_PHP_VERSION}-zip"
 
 # Version numbers
-project_version="~1.0.0"
+project_version="1.2.0"
 #core_version is now retrieved from the manifest
 ldap_version="*"
 
