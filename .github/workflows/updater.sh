@@ -60,7 +60,8 @@ fi
 # Proceed only if the retrieved version is greater than the current one
 if dpkg --compare-versions "$current_project_version" "lt" "$project_version" ; then
 
-asset_url="https://github.com/flarum/flarum/archive/${project_version}.zip"
+# Beware, the "v" is back here
+asset_url="https://github.com/flarum/flarum/archive/v${project_version}.zip"
 src="app"
 extension="zip"
 

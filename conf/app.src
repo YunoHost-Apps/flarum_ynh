@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/flarum/flarum/archive/1.2.0.zip
-SOURCE_SUM=d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed
+SOURCE_URL=https://github.com/flarum/flarum/archive/v1.2.0.zip
+SOURCE_SUM=e3261ebb9fde29742c58ba05b2bc5af6f65b03ae4a9b638cf97f72c60a124935
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=true
