@@ -67,29 +67,4 @@ set__free_footprint() {
 # GENERIC FINALIZATION
 #=================================================
 
-ynh_app_config_validate() {
-    _ynh_app_config_validate
-
-    if [ "${changed[fpm_usage]}" == "true" ] || [ "${changed[fpm_footprint]}" == "true" ] || [ "${changed[free_footprint]}" == "true" ]; then
-        # If fpm_footprint is set to 'specific', use $free_footprint value.
-        if [ "$fpm_footprint" = "specific" ]
-        then
-            fpm_footprint=$free_footprint
-        fi
-
-        if [ "$fpm_footprint" == "0" ]
-        then
-            ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
-
-            exit 0
-        fi
-    fi
-}
-
-ynh_app_config_apply() {
-    _ynh_app_config_apply
-
-    ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
-}
-
 ynh_app_config_run $1
