@@ -77,7 +77,7 @@ Reload PHP-FPM with `sudo service php*php_version*-fpm reload`.
 
 * Official app website: https://flarum.org
 * Official admin documentation: https://docs.flarum.org
-* Upstream app code repository: https://github.com/flarum/flarum
+* Upstream app code repository: https://github.com/flarum/framework
 * YunoHost documentation for this app: https://yunohost.org/app_flarum
 * Report a bug: https://github.com/YunoHost-Apps/flarum_ynh/issues
 
