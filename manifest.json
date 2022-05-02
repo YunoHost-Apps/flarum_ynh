@@ -14,7 +14,7 @@
         "website": "https://flarum.org",
         "demo": "https://discuss.flarum.org/d/21101-demos-come-to-flarum",
         "admindoc": "https://docs.flarum.org",
-        "code": "https://github.com/flarum/flarum"
+        "code": "https://github.com/flarum/framework"
     },
     "license": "MIT",
     "maintainer": {
