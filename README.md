@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Flarum for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![Working status](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)  
 [![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -17,13 +17,13 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Shipped version:** 1.2.0~ynh1
+**Shipped version:** 1.3.0~ynh1
 
 **Demo:** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
 ## Screenshots
 
-![](./doc/screenshots/beta16.jpg)
+![Screenshot of Flarum](./doc/screenshots/beta16.jpg)
 
 ## Disclaimers / important information
 
@@ -75,21 +75,22 @@ Reload PHP-FPM with `sudo service php*php_version*-fpm reload`.
 
 ## Documentation and resources
 
-* Official app website: https://flarum.org
-* Official admin documentation: https://docs.flarum.org
-* Upstream app code repository: https://github.com/flarum/flarum
-* YunoHost documentation for this app: https://yunohost.org/app_flarum
-* Report a bug: https://github.com/YunoHost-Apps/flarum_ynh/issues
+* Official app website: <https://flarum.org>
+* Official admin documentation: <https://docs.flarum.org>
+* Upstream app code repository: <https://github.com/flarum/framework>
+* YunoHost documentation for this app: <https://yunohost.org/app_flarum>
+* Report a bug: <https://github.com/YunoHost-Apps/flarum_ynh/issues>
 
 ## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/flarum_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
-```
+
+``` bash
 sudo yunohost app install https://github.com/YunoHost-Apps/flarum_ynh/tree/testing --debug
 or
 sudo yunohost app upgrade flarum -u https://github.com/YunoHost-Apps/flarum_ynh/tree/testing --debug
 ```
 
-**More info regarding app packaging:** https://yunohost.org/packaging_apps
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>
