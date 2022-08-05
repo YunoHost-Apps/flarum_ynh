@@ -105,7 +105,9 @@ ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./
 #=================================================
 ynh_script_progression --message="Adding swap..."
 
-ynh_add_swap --size=$swap_needed
+if [ ${PACKAGE_CHECK_EXEC:-0} -eq 1 ]; then
+  ynh_add_swap --size=$swap_needed
+fi
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
