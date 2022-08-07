@@ -116,7 +116,7 @@ ynh_add_nginx_config
 ynh_script_progression --message="Configuring PHP-FPM..."
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencies"
+ynh_add_fpm_config --usage=low --footprint=low
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
@@ -126,7 +126,9 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 ynh_print_info --message="Adding swap..."
 
-ynh_add_swap --size=$swap_needed
+if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
+  ynh_add_swap --size=$swap_needed
+fi
 
 #=================================================
 # INSTALL COMPOSER DEPENDENCIES
