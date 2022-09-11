@@ -19,6 +19,7 @@ Flarum is a simple discussion platform for your website. It's fast and easy to u
 
 **Shipped version:** 1.4.0~ynh1
 
+
 **Demo:** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
 ## Screenshots
