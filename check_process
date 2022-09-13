@@ -6,7 +6,6 @@
 		language="fr"
 		is_public=1
 		password="pass"
-		port="666"
 		title="Forum"
 	; Checks
 		pkg_linter=1
@@ -16,27 +15,14 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-#		upgrade=1	from_commit=0d30809a2903544a660635f62a25bc6057ea2f15
-#		upgrade=1	from_commit=0175b7a3b0a551e14f39c65290d194ccc71cd6ee
-#		upgrade=1	from_commit=70e962faa875070b0fcc29f45cc70e2a51de76a6
-		upgrade=1	from_commit=b6a29ea2bb4c3d2b5aa2dd786d12b72844e88929
+		upgrade=1	from_commit=e2784eb0fbef9109f074f1b158ed4a8b46e261c3
 		backup_restore=1
 		multi_instance=1
-		port_already_use=0
 		change_url=1
 ;;; Options
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=0d30809a2903544a660635f62a25bc6057ea2f15
-		name=2021-02-19 0.1.0.14~ynh2
-		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&title=Forum&
-	; commit=0175b7a3b0a551e14f39c65290d194ccc71cd6ee
-		name=2021-03-21 0.1.0.14~ynh3
-		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&password=PASSWORD&language=fr&is_public=1&title=Forum&
-	; commit=70e962faa875070b0fcc29f45cc70e2a51de76a6
-		name=2021-05-06 0.1.0.16~ynh2
-		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&password=PASSWORD&language=fr&is_public=1&title=Forum&
-	; commit=b6a29ea2bb4c3d2b5aa2dd786d12b72844e88929
-		name=2021-11-12 fixed 1.0
+	; commit=e2784eb0fbef9109f074f1b158ed4a8b46e261c3
+		name= Merge pull request #191 from YunoHost-Apps/testing
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&password=PASSWORD&language=fr&is_public=1&title=Forum&
