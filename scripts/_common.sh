@@ -13,7 +13,7 @@ extra_php_dependencies="php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-dom php
 pkg_dependencies="$extra_php_dependencies"
 
 # Version numbers
-project_version="1.4.0"
+project_version="1.5.0"
 #core_version is now retrieved from the manifest
 ldap_version="*"
 
