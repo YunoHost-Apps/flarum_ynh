@@ -25,7 +25,7 @@ Replace `vendor/extension` with the appropriate names. Read the extension docume
 sudo su
 app=flarum
 cd /var/www/$app
-sudo -u $app php7.3 composer.phar require vendor/extension
+sudo -u $app php7.4 composer.phar require vendor/extension
 ```
 
 #### Troubleshooting

@@ -19,7 +19,6 @@ Flarum is a simple discussion platform for your website. It's fast and easy to u
 
 **Shipped version:** 1.5.0~ynh2
 
-
 **Demo:** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
 ## Screenshots
@@ -55,7 +54,7 @@ Replace `vendor/extension` with the appropriate names. Read the extension docume
 sudo su
 app=flarum
 cd /var/www/$app
-sudo -u $app php7.3 composer.phar require vendor/extension
+sudo -u $app php7.4 composer.phar require vendor/extension
 ```
 
 #### Troubleshooting
