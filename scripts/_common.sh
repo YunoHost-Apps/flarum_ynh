@@ -45,7 +45,7 @@ activate_flarum_extension() {
 
 	# Use jq to test presence of the extension in the list of enabled extensions
 	# if not, then add it.
-	new_extensions_enabled=$(jq -jrc --arg short_extension 'if (any(index("$short_extension")) | not) then . |= + $short_extension else . end' <<< $old_extensions_enabled)
+	new_extensions_enabled=$(jq -jrc --arg short_extension $short_extension '. + [ $short_extension ] | unique' <<< $old_extensions_enabled)
 
 	# Update activated extensions list
 	sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
