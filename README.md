@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Shipped version:** 1.6.2~ynh1
+**Shipped version:** 1.6.3~ynh1
 
 **Demo:** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 

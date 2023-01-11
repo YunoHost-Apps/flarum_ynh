@@ -17,7 +17,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapide et facile à utiliser, avec toutes les fonctionnalités dont vous avez besoin pour gérer une communauté.
 
-**Version incluse :** 1.6.2~ynh1
+**Version incluse :** 1.6.3~ynh1
 
 **Démo :** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
