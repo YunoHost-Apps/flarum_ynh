@@ -5,15 +5,15 @@ It shall NOT be edited by hand.
 
 # Flarum pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
 [![Installer Flarum avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
 *[Read this readme in english.](./README.md)*
 
-> *Ce package vous permet d'installer Flarum rapidement et simplement sur un serveur YunoHost.
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d’installer Flarum rapidement et simplement sur un serveur YunoHost.
+Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
 
-## Vue d'ensemble
+## Vue d’ensemble
 
 Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapide et facile à utiliser, avec toutes les fonctionnalités dont vous avez besoin pour gérer une communauté.
 
@@ -21,9 +21,9 @@ Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapid
 
 **Démo :** https://discuss.flarum.org/d/21101-demos-come-to-flarum
 
-## Captures d'écran
+## Captures d’écran
 
-![Capture d'écran de Flarum](./doc/screenshots/beta16.jpg)
+![Capture d’écran de Flarum](./doc/screenshots/beta16.jpg)
 
 ## Avertissements / informations importantes
 
@@ -76,9 +76,9 @@ Rechargez PHP-FPM avec `sudo service php*php_version*-fpm reload`.
 
 ## Documentations et ressources
 
-* Site officiel de l'app : <https://flarum.org>
-* Documentation officielle de l'admin : <https://docs.flarum.org>
-* Dépôt de code officiel de l'app : <https://github.com/flarum/framework>
+* Site officiel de l’app : <https://flarum.org>
+* Documentation officielle de l’admin : <https://docs.flarum.org>
+* Dépôt de code officiel de l’app : <https://github.com/flarum/framework>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_flarum>
 * Signaler un bug : <https://github.com/YunoHost-Apps/flarum_ynh/issues>
 
@@ -94,4 +94,4 @@ ou
 sudo yunohost app upgrade flarum -u https://github.com/YunoHost-Apps/flarum_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>
