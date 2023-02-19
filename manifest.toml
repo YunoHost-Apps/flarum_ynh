@@ -1,0 +1,91 @@
+packaging_format = 2
+
+id = "flarum"
+name = "Flarum"
+description.en = "Next-generation forum made simple"
+description.fr = "Forum de nouvelle génération, simplement"
+description.de = "Forum der nächsten Generation leicht gemacht"
+
+version = "1.6.3~ynh2"
+
+maintainers = ["tituspijean"]
+
+[upstream]
+license = "MIT"
+website = "https://flarum.org"
+demo = "https://discuss.flarum.org/d/21101-demos-come-to-flarum"
+admindoc = "https://docs.flarum.org"
+code = "https://github.com/flarum/framework"
+cpe = "cpe:2.3:a:flarum:flarum"
+fund = "https://flarum.org/donate/"
+
+[integration]
+yunohost = ">= 11.0"
+architectures = "all"
+multi_instance = true
+ldap = "true"
+sso = "false"
+disk = "50M" # FIXME: replace with an **estimate** minimum disk requirement. e.g. 20M, 400M, 1G, ...
+ram.build = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+
+[install]
+    [install.swap]
+    ask.en = "The installation will add a 1 GB swap file if your system has less than 1 GB free RAM."
+    ask.fr = "L'installation ajoutera un fichier swap de 1 Go si votre système a moins de 1 Go de RAM libre."
+    type = "alert"
+
+    [install.domain]
+    # this is a generic question - ask strings are automatically handled by Yunohost's core
+    type = "domain"
+
+    [install.path]
+    # this is a generic question - ask strings are automatically handled by Yunohost's core
+    type = "path"
+    default = "/flarum"
+
+    [install.admin]
+    # this is a generic question - ask strings are automatically handled by Yunohost's core
+    type = "user"
+
+    [install.password]
+    # this is a generic question - ask strings are automatically handled by Yunohost's core
+    help.en = "Choose your password. It will be useful if logging in from YunoHost fails or is disrupted."
+    help.fr = "Choisissez votre mot de passe. Il sera utile si la connexion via YunoHost échoue ou est perturbée."
+    type = "password"
+
+    [install.title]
+    ask.en = "Choose a title for your forum"
+    ask.fr = "Choisissez un titre pour votre forum"
+    ask.de = "Wählen einen Titel für eure Internetforum"
+    type = "string"
+    example = "My forum"
+    default = "My forum"
+
+    [install.init_main_permission]
+    help.en = "If public, it will be open to all visitors like any forum. If private, only the YunoHost server users can access it."
+    help.fr = "Si public, le forum sera accessible à tous, comme pour tout forum. Si privé, seuls les utilisateurs du serveur YunoHost pourront y accéder."
+    type = "group"
+    default = "visitors"
+
+    [install.language]
+    ask.en = "Choose the application language"
+    ask.fr = "Choisissez la langue de l'application"
+    ask.de = "Wählen Sie eine Sprache"
+    type = "string"
+    choices = ["fr", "en", "de"]
+    default = "en"
+
+[resources]
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.permissions]
+    main.url = "/"
+
+    [resources.apt]
+    packages = "php7.4-curl, php7.4-dom, php7.4-gd, php7.4-json, php7.4-mbstring, php7.4-pdo-mysql, php7.4-tokenizer, php7.4-zip, php7.4-ldap"
+
+    [resources.database]
+    type = "mysql"

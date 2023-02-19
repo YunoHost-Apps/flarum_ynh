@@ -6,8 +6,8 @@ databaseConfiguration :
     password : "__DB_PWD__"
 adminUser :
     username : "__ADMIN__"
-    password : "__ADMIN_PWD__"
-    password_confirmation : "__ADMIN_PWD__"
+    password : "__PASSWORD__"
+    password_confirmation : "__PASSWORD__"
     email : "__ADMIN_MAIL__"
 settings :
     forum_title : "__TITLE__"
