@@ -30,10 +30,6 @@ ram.build = "50M" # FIXME: replace with an **estimate** minimum ram requirement.
 ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
 
 [install]
-    [install.swap]
-    ask.en = "The installation will add a 1 GB swap file if your system has less than 1 GB free RAM."
-    ask.fr = "L'installation ajoutera un fichier swap de 1 Go si votre système a moins de 1 Go de RAM libre."
-    type = "alert"
 
     [install.domain]
     # this is a generic question - ask strings are automatically handled by Yunohost's core
