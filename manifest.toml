@@ -25,27 +25,23 @@ architectures = "all"
 multi_instance = true
 ldap = true
 sso = false
-disk = "50M" # FIXME: replace with an **estimate** minimum disk requirement. e.g. 20M, 400M, 1G, ...
-ram.build = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
-ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+disk = "80M"
+ram.build = "400M"
+ram.runtime = "50M"
 
 [install]
 
     [install.domain]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "domain"
 
     [install.path]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "path"
     default = "/flarum"
 
     [install.admin]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "user"
 
     [install.password]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     help.en = "Choose your password. It will be useful if logging in from YunoHost fails or is disrupted."
     help.fr = "Choisissez votre mot de passe. Il sera utile si la connexion via YunoHost échoue ou est perturbée."
     type = "password"

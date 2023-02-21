@@ -6,6 +6,7 @@ To allow non-YunoHost users to log in, tune the LDAP extension setting in Flarum
 ### Upgrading
 
 Note that, for the moment, all third-party extensions are removed upon upgrading.
+Their data and parameters remain in Flarum's database, they only require to be reinstalled.
 
 ### Adding extensions
 
