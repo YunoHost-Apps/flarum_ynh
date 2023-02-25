@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Flarum pour YunoHost
 
 [![Niveau d’intégration](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+
 [![Installer Flarum avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
 *[Read this readme in english.](./README.md)*
