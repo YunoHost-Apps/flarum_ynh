@@ -27,7 +27,7 @@ app=$YNH_APP_INSTANCE_NAME
 ynh_script_progression --message="Loading installation settings..." --weight=1
 
 # Needed for helper "ynh_add_nginx_config"
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 
 #=================================================
 # BACKUP BEFORE CHANGE URL THEN ACTIVE TRAP
@@ -100,15 +100,15 @@ fi
 #=================================================
 if [ $new_path = "/" ]; then
 	if [ $old_path = "/" ]; then
-		ynh_replace_string "://$old_domain" "://$new_domain" "$final_path/config.php"
+		ynh_replace_string "://$old_domain" "://$new_domain" "$install_dir/config.php"
 	else
-		ynh_replace_string "://$old_domain$old_path" "://$new_domain" "$final_path/config.php"
+		ynh_replace_string "://$old_domain$old_path" "://$new_domain" "$install_dir/config.php"
 	fi
 else
         if [ $old_path = "/" ]; then
-                ynh_replace_string "://$old_domain" "://$new_domain$new_path" "$final_path/config.php"
+                ynh_replace_string "://$old_domain" "://$new_domain$new_path" "$install_dir/config.php"
         else
-                ynh_replace_string "://$old_domain$old_path" "://$new_domain$new_path" "$final_path/config.php"
+                ynh_replace_string "://$old_domain$old_path" "://$new_domain$new_path" "$install_dir/config.php"
         fi
 fi
 

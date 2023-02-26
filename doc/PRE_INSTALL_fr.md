@@ -1,0 +1,2 @@
+- L'installation nécessite au moins 1 Go de mémoire vive libre. Un fichier *swap* de cette taille sera créé si nécessaire.
+- Vous pouvez sélectionner la langue par défaut dans les paramètres d'installation (parmi l'anglais `en`, le français `fr` et l'allemand `de`). Les autres langues sont installables comme n'importe quelle autre extension.
