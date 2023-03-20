@@ -23,6 +23,8 @@ jobs:
           # Setting up Git user
           git config --global user.name 'yunohost-bot'
           git config --global user.email 'yunohost-bot@users.noreply.github.com'
+          # Download yq/tomlq
+          pip install yq
           # Run the updater script
           /bin/bash .github/workflows/updater.sh
       - name: Commit changes
