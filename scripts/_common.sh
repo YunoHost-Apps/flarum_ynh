@@ -8,7 +8,7 @@ swap_needed=1024
 YNH_COMPOSER_VERSION="2.0.13"
 
 # Version numbers
-project_version="1.6.0"
+project_version="1.7.0"
 #core_version is now retrieved from the manifest
 ldap_version="*"
 
