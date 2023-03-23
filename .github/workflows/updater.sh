@@ -14,9 +14,9 @@
 #=================================================
 
 # Fetching information
-current_version=$(cat manifest.json | jq -j '.version|split("~")[0]')
+current_version=$(cat manifest.toml | tomlq -r '.version|split("~")[0]')
 current_project_version=$(grep -Po 'project_version="\K[^"]*' scripts/_common.sh)
-core_repo=$(cat manifest.json | jq -j '.upstream.code|split("https://github.com/")[1]')
+core_repo=$(cat manifest.toml | tomlq -r '.upstream.code|split("https://github.com/")[1]')
 project_repo="flarum/flarum"
 # Some jq magic is needed, because the latest upstream release is not always the latest version (e.g. security patches for older versions)
 # Core version may be higher than project version, and we actually download the project then perform Composer install.
@@ -104,7 +104,7 @@ echo "scripts/_common.sh patched"
 #=================================================
 
 # Replace new version in manifest
-echo "$(jq -s --indent 4 ".[] | .version = \"$version~ynh1\"" manifest.json)" > manifest.json
+sed -i "/version =/c\version = \"$version~ynh1\"" manifest.toml
 
 # No need to update the README, yunohost-bot takes care of it
 
