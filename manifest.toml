@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.7.1~ynh1"
+version = "1.8.1~ynh1"
 
 maintainers = ["tituspijean"]
 
