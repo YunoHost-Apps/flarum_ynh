@@ -20,7 +20,7 @@ cpe = "cpe:2.3:a:flarum:flarum"
 fund = "https://flarum.org/donate/"
 
 [integration]
-yunohost = ">= 11.0"
+yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
 ldap = true
@@ -55,8 +55,8 @@ ram.runtime = "50M"
     default = "My forum"
 
     [install.init_main_permission]
-    help.en = "If public, it will be open to all visitors like any forum. If private, only the YunoHost server users can access it."
-    help.fr = "Si public, le forum sera accessible à tous, comme pour tout forum. Si privé, seuls les utilisateurs du serveur YunoHost pourront y accéder."
+    help.en = "If set to 'visitors', it will be open to all visitors like any forum. If private, only the YunoHost server users can access it."
+    help.fr = "Si défini sur 'visiteurs', le forum sera accessible à tous, comme pour tout forum. Si privé, seuls les utilisateurs du serveur YunoHost pourront y accéder."
     type = "group"
     default = "visitors"
 
@@ -64,11 +64,17 @@ ram.runtime = "50M"
     ask.en = "Choose the application language"
     ask.fr = "Choisissez la langue de l'application"
     ask.de = "Wählen Sie eine Sprache"
-    type = "string"
+    type = "select"
     choices = ["fr", "en", "de"]
     default = "en"
 
 [resources]
+
+        [resources.sources.main]
+        url = "https://github.com/flarum/flarum/archive/v1.8.0.zip"
+        sha256 = "c6179876c27689522eb3e46d369ca053517602f528dcd36ba8a338ec768845cd"
+        autoupdate.strategy = "latest_github_tag"
+
     [resources.system_user]
 
     [resources.install_dir]
@@ -77,7 +83,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server, php8.0, php8.0-curl, php8.0-dom, php8.0-gd, php8.0-json, php8.0-mbstring, php8.0-pdo-mysql, php8.0-tokenizer, php8.0-zip, php8.0-ldap"
+    packages = "mariadb-server, php8.2-curl, php8.2-dom, php8.2-gd, php8.2-mbstring, php8.2-pdo-mysql, php8.2-tokenizer, php8.2-zip, php8.2-ldap"
 
     [resources.database]
     type = "mysql"

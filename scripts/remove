@@ -11,32 +11,17 @@ source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
 #=================================================
-# REMOVE NGINX CONFIGURATION
+# REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Removing NGINX web server configuration..." --weight=1
+# REMOVE SYSTEMD SERVICE 
+#=================================================
+ynh_script_progression --message="Removing system configurations related to $app..." --weight=1
 
 ynh_remove_nginx_config
 
-#=================================================
-# REMOVE PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing PHP-FPM configuration..." --weight=1
-
 ynh_remove_fpm_config
 
-#=================================================
-# REMOVE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing logrotate configuration..." --weight=1
-
 ynh_remove_logrotate
-
-#=================================================
-# SPECIFIC REMOVE
-#=================================================
-# REMOVE SWAP
-#===================================================
-ynh_script_progression --message="Removing swap..." --weight=1
 
 ynh_del_swap
 
