@@ -61,7 +61,7 @@ then
  	ynh_secure_remove --file="$install_dir"
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir"
+	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
 
 	# Copy config.php back into Flarum
 	cp -f $tmpdir/config.php $install_dir
