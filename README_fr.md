@@ -31,7 +31,7 @@ Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapid
 * Site officiel de l’app : <https://flarum.org>
 * Documentation officielle de l’admin : <https://docs.flarum.org>
 * Dépôt de code officiel de l’app : <https://github.com/flarum/framework>
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_flarum>
+* YunoHost Store: <https://apps.yunohost.org/app/flarum>
 * Signaler un bug : <https://github.com/YunoHost-Apps/flarum_ynh/issues>
 
 ## Informations pour les développeurs
