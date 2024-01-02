@@ -80,8 +80,8 @@ ram.runtime = "50M"
 
         # The flarum source is the one actually being installed
         [resources.sources.flarum]
-        url = "https://github.com/flarum/flarum/archive/refs/tags/v1.8.0.tar.gz"
-        sha256 = "33e0722882670b217637e6c3e410056be6b999507ee68567415f1adb4a064929"
+        url = "https://github.com/flarum/flarum/archive/refs/tags/v1.8.1.tar.gz"
+        sha256 = "25ab0e3f44944ab478dd1076d4ada60a4f1a6255cb291423011d35b341f32570"
         autoupdate.upstream = "https://github.com/flarum/flarum"
         autoupdate.strategy = "latest_github_tag"
 
