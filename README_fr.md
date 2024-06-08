@@ -18,7 +18,7 @@ Il NE doit PAS être modifié à la main.
 
 Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapide et facile à utiliser, avec toutes les fonctionnalités dont vous avez besoin pour gérer une communauté.
 
-**Version incluse :** 1.8.5~ynh1
+**Version incluse :** 1.8.5~ynh1
 
 **Démo :** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 
@@ -28,11 +28,11 @@ Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapid
 
 ## Documentations et ressources
 
-* Site officiel de l’app : <https://flarum.org>
-* Documentation officielle de l’admin : <https://docs.flarum.org>
-* Dépôt de code officiel de l’app : <https://github.com/flarum/framework>
-* YunoHost Store: <https://apps.yunohost.org/app/flarum>
-* Signaler un bug : <https://github.com/YunoHost-Apps/flarum_ynh/issues>
+- Site officiel de l’app : <https://flarum.org>
+- Documentation officielle de l’admin : <https://docs.flarum.org>
+- Dépôt de code officiel de l’app : <https://github.com/flarum/framework>
+- YunoHost Store : <https://apps.yunohost.org/app/flarum>
+- Signaler un bug : <https://github.com/YunoHost-Apps/flarum_ynh/issues>
 
 ## Informations pour les développeurs
 
