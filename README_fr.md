@@ -18,7 +18,7 @@ Il NE doit PAS être modifié à la main.
 
 Flarum est une plate-forme de discussion simple pour votre site Web. C'est rapide et facile à utiliser, avec toutes les fonctionnalités dont vous avez besoin pour gérer une communauté.
 
-**Version incluse :** 1.8.2~ynh1
+**Version incluse :** 1.8.5~ynh1
 
 **Démo :** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 

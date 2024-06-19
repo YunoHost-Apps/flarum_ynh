@@ -9,7 +9,7 @@ It shall NOT be edited by hand.
 
 [![Install Flarum with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
-*[Read this README is other languages.](./ALL_README.md)*
+*[Read this README in other languages.](./ALL_README.md)*
 
 > *This package allows you to install Flarum quickly and simply on a YunoHost server.*  
 > *If you don't have YunoHost, please consult [the guide](https://yunohost.org/install) to learn how to install it.*
@@ -18,7 +18,7 @@ It shall NOT be edited by hand.
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Shipped version:** 1.8.2~ynh1
+**Shipped version:** 1.8.5~ynh1
 
 **Demo:** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 
