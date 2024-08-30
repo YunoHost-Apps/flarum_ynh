@@ -1,64 +1,54 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
+ynh_app_setting_set_default --key=php_upload_max_filesize --value=100M
+
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=1
+ynh_script_progression "Loading installation settings..."
 
-old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
+old_core_version=$(ynh_app_setting_get --key=core_version)
 core_version=$(ynh_app_upstream_version)
 
-#=================================================
-# CHECK VERSION
-#=================================================
-ynh_script_progression --message="Checking version..."
+ynh_script_progression "Checking version..."
 
-upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# STANDARD UPGRADE STEPS
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+ynh_script_progression "Ensuring downward compatibility..."
 
 # Remove bazaar_extension if it exists
-bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
+bazaar_extension=$(ynh_app_setting_get --key=bazaar_extension)
 if [ ! -z "$bazaar_extension" ]; then
-	ynh_app_setting_delete --app=$app --key=bazaar_extension
+	ynh_app_setting_delete --key=bazaar_extension
 fi
 
 # Remove SSOwat extension if it exists
-ssowat_extension=$(ynh_app_setting_get --app=$app --key=ssowat_extension)
+ssowat_extension=$(ynh_app_setting_get --key=ssowat_extension)
 if [ ! -z "$ssowat_extension" ]; then
-	ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="remove tituspijean/flarum-ext-auth-ssowat"
-	ynh_app_setting_delete --app=$app --key=ssowat_extension
+	ynh_composer_exec remove tituspijean/flarum-ext-auth-ssowat
+	ynh_app_setting_delete --key=ssowat_extension
 fi
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ] && ynh_compare_current_package_version --comparison lt --version 1.0~ynh1
+# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
+if ynh_app_upstream_version_changed && ynh_app_upgrading_from_version_before 1.0~ynh1
 then
-	ynh_script_progression --message="Upgrading source files..."
+	ynh_script_progression "Upgrading source files..."
 
 	# Create a temporary directory
 	tmpdir="$(mktemp -d)"
 	cp -R $install_dir/* $tmpdir
 
 	# Deleting current app directory
- 	ynh_secure_remove --file="$install_dir"
+ 	ynh_safe_rm "$install_dir"
 
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
@@ -75,32 +65,29 @@ then
 	fi
 
 	# Clean temp directory
-	ynh_secure_remove --file="$tmpdir"
+	ynh_safe_rm "$tmpdir"
 fi
 
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
-
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod -R o-rwx "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=1
+ynh_script_progression "Upgrading php-fpm configuration..."
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_config_add_phpfpm
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
-#=================================================
-# SPECIFIC UPGRADE
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_script_progression --message="Adding swap..."
+ynh_script_progression "Adding swap..."
 
-if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
+if ! ynh_in_ci_tests; then
   ynh_add_swap --size=$swap_needed
 fi
 
@@ -108,14 +95,14 @@ fi
 # COMPOSER AND FLARUM UPGRADE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
+# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
+if ynh_app_upstream_version_changed
 then
- 	ynh_script_progression --message="Installing composer dependencies..." --weight=5
+ 	ynh_script_progression "Installing composer dependencies..."
 
 	# Set right permissions
-	chown -R $app:www-data $install_dir
-
-	if ynh_compare_current_package_version --comparison lt --version 1.1.0~ynh1
+	#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data $install_dir
+	if ynh_app_upgrading_from_version_before 1.1.0~ynh1
 	then
 		# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
 		# ... except for flarum/core, but that's handled in the next block.
@@ -124,11 +111,11 @@ then
 
 	# Perform migrations and clear cache
 	pushd $install_dir
-		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
-		ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
-		ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
-		ynh_exec_as $app php$phpversion flarum migrate
-		ynh_exec_as $app php$phpversion flarum cache:clear
+		ynh_script_progression "Upgrading Flarum and its extensions..."
+		ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
+		ynh_composer_exec require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies
+		ynh_exec_as_app php$php_version flarum migrate
+		ynh_exec_as_app php$php_version flarum cache:clear
 	popd
 fi
 
@@ -138,30 +125,32 @@ ynh_app_setting_set $app core_version "$core_version"
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! ynh_exec_as $app php$phpversion flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
+if ! ynh_exec_as_app php$php_version flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
 then
 	# Install and activate the LDAP auth extension
 	activate_flarum_extension $db_name "tituspijean-auth-ldap"
 	# Configure LDAP auth extension
-	ynh_add_config --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-	ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../conf/ldap.sql
+	ynh_config_add --template="ldap.sql.template" --destination="../conf/ldap.sql"
+	ynh_mysql_db_shell < ../conf/ldap.sql
 fi
 
 # Install, activate and set language extensions
 case $language in
   fr)
-    ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require qiaeru/lang-french:*"
+    ynh_script_progression "Installing French extension..."
+    ynh_composer_exec require qiaeru/lang-french:*
     activate_flarum_extension $db_name "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
+    ynh_mysql_db_shell <<< "$sql_command"
+
     ;;
   de)
-    ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require kakifrucht/flarum-de:*"
+    ynh_script_progression "Installing German extension..."
+    ynh_composer_exec require kakifrucht/flarum-de:*
     activate_flarum_extension $db_name "kakifrucht-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
+    ynh_mysql_db_shell <<< "$sql_command"
+
     ;;
 esac
 
@@ -169,26 +158,23 @@ ynh_print_info "You may need to manually enable your language extension in Flaru
 
 # Clear cache
 pushd $install_dir
-	ynh_exec_as $app php$phpversion flarum cache:clear
+	ynh_exec_as_app php$php_version flarum cache:clear
 popd
 
 # Set files and directories permissions
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
-
-#=================================================
-# GENERIC FINALIZATION
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod -R o-rwx "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..." --weight=1
+ynh_script_progression "Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
+ynh_config_add_logrotate
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --last
+ynh_script_progression "Upgrade of $app completed"
