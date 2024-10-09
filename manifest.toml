@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.8.5~ynh1"
+version = "1.8.6~ynh1"
 
 maintainers = ["tituspijean"]
 
@@ -73,8 +73,8 @@ ram.runtime = "50M"
         # The main source is only used to auto-update the package
         [resources.sources.main]
         prefetch = false
-        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.5.tar.gz"
-        sha256 = "c5773a53974587b33f1c362a510351b5900887cd92eca7602ea4dd93b1639e7e"
+        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.6.tar.gz"
+        sha256 = "4f4736405bf03bfa9e3375ea448dba8683bea5cc1b0b778ab694e13b5268643f"
         autoupdate.upstream = "https://github.com/flarum/framework"
         autoupdate.strategy = "latest_github_tag"
 
