@@ -5,7 +5,7 @@ EZ editatu eskuz.
 
 # Flarum YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Integrazio maila](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
 
 [![Instalatu Flarum YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
@@ -18,7 +18,7 @@ EZ editatu eskuz.
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Paketatutako bertsioa:** 1.8.5~ynh1
+**Paketatutako bertsioa:** 1.8.7~ynh1
 
 **Demoa:** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 

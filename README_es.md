@@ -5,7 +5,7 @@ No se debe editar a mano.
 
 # Flarum para Yunohost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
 
 [![Instalar Flarum con Yunhost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
@@ -18,7 +18,7 @@ No se debe editar a mano.
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Versión actual:** 1.8.5~ynh1
+**Versión actual:** 1.8.7~ynh1
 
 **Demo:** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 
@@ -36,7 +36,7 @@ Flarum is a simple discussion platform for your website. It's fast and easy to u
 
 ## Información para desarrolladores
 
-Por favor enviar sus correcciones a la [`branch testing`](https://github.com/YunoHost-Apps/flarum_ynh/tree/testing
+Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/flarum_ynh/tree/testing).
 
 Para probar la rama `testing`, sigue asÍ:
 
