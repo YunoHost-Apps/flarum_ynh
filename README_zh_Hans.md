@@ -5,7 +5,7 @@
 
 # YunoHost 上的 Flarum
 
-[![集成程度](https://dash.yunohost.org/integration/flarum.svg)](https://dash.yunohost.org/appci/app/flarum) ![工作状态](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![集成程度](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
 
 [![使用 YunoHost 安装 Flarum](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
@@ -18,7 +18,7 @@
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**分发版本：** 1.8.5~ynh1
+**分发版本：** 1.8.8~ynh1
 
 **演示：** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 

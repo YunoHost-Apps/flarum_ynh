@@ -5,5 +5,4 @@ test_format = 1.0
     args.password = "Passw0rd!"
     args.language = "fr"
 
-    test_upgrade_from.e2784eb0fbef9109f074f1b158ed4a8b46e261c3.name = "Upgrade from 1.4.0~ynh1"
     test_upgrade_from.a10de288c1846116fa18d3261be39e089175eceb.name = "Upgrade from 1.8.1~ynh1"
