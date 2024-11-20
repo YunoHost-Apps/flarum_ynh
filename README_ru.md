@@ -18,7 +18,7 @@
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Поставляемая версия:** 1.8.8~ynh1
+**Поставляемая версия:** 1.8.9~ynh1
 
 **Демо-версия:** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 
