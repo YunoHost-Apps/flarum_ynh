@@ -5,7 +5,9 @@ No se debe editar a mano.
 
 # Flarum para Yunohost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Nivel de integración](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![Estado funcional](https://apps.yunohost.org/badge/state/flarum)
+![Estado En Mantención](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![Instalar Flarum con Yunhost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
@@ -18,7 +20,7 @@ No se debe editar a mano.
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Versión actual:** 1.8.8~ynh1
+**Versión actual:** 1.8.9~ynh1
 
 **Demo:** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 
