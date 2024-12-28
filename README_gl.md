@@ -5,7 +5,9 @@ NON debe editarse manualmente.
 
 # Flarum para YunoHost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Nivel de integración](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![Estado de funcionamento](https://apps.yunohost.org/badge/state/flarum)
+![Estado de mantemento](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![Instalar Flarum con YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 

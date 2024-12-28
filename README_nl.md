@@ -5,7 +5,9 @@ Hij mag NIET handmatig aangepast worden.
 
 # Flarum voor Yunohost
 
-[![Integratieniveau](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Integratieniveau](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![Mate van functioneren](https://apps.yunohost.org/badge/state/flarum)
+![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![Flarum met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 

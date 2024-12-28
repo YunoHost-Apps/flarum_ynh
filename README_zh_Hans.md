@@ -5,7 +5,9 @@
 
 # YunoHost 上的 Flarum
 
-[![集成程度](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![集成程度](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![工作状态](https://apps.yunohost.org/badge/state/flarum)
+![维护状态](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![使用 YunoHost 安装 Flarum](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 

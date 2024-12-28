@@ -5,7 +5,9 @@
 
 # Flarum для YunoHost
 
-[![Уровень интеграции](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Состояние работы](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Состояние сопровождения](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Уровень интеграции](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![Состояние работы](https://apps.yunohost.org/badge/state/flarum)
+![Состояние сопровождения](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![Установите Flarum с YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 

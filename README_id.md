@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # Flarum untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![Status kerja](https://apps.yunohost.org/badge/state/flarum)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![Pasang Flarum dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 

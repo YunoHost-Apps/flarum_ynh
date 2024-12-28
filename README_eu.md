@@ -5,7 +5,9 @@ EZ editatu eskuz.
 
 # Flarum YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/flarum.svg)](https://ci-apps.yunohost.org/ci/apps/flarum/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/flarum.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/flarum.maintain.svg)
+[![Integrazio maila](https://apps.yunohost.org/badge/integration/flarum)](https://ci-apps.yunohost.org/ci/apps/flarum/)
+![Funtzionamendu egoera](https://apps.yunohost.org/badge/state/flarum)
+![Mantentze egoera](https://apps.yunohost.org/badge/maintained/flarum)
 
 [![Instalatu Flarum YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=flarum)
 
