@@ -66,6 +66,7 @@ if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
     ynh_add_swap --size=$swap_needed
   else
     ynh_add_swap_compatibility --size=$swap_needed
+  fi
 fi
 
 #=================================================
