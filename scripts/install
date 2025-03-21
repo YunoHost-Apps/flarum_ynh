@@ -20,10 +20,10 @@ admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_app_setting_set --app=$app --key=language --value="$language"
-ynh_app_setting_set --app=$app --key=project_version --value="$project_version"
-ynh_app_setting_set --app=$app --key=core_version --value="$core_version"
-ynh_app_setting_set --app=$app --key=ldap_version --value="$ldap_version"
+ynh_app_setting_set --key=language --value="$language"
+ynh_app_setting_set --key=project_version --value="$project_version"
+ynh_app_setting_set --key=core_version --value="$core_version"
+ynh_app_setting_set --key=ldap_version --value="$ldap_version"
 
 #=================================================
 # STANDARD MODIFICATIONS
