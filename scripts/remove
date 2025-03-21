@@ -23,7 +23,7 @@ ynh_remove_fpm_config
 
 ynh_remove_logrotate
 
-ynh_del_swap
+# ynh_del_swap
 
 #=================================================
 # END OF SCRIPT
