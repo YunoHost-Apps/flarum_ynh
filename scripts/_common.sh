@@ -49,7 +49,7 @@ activate_flarum_extension() {
 #=================================================
 # EXPERIMENTAL HELPERS
 #=================================================
-ynh_add_swap_btrfs() {
+ynh_add_swap_compatibility() {
     if systemd-detect-virt --container --quiet; then
         ynh_print_warn --message="You are inside a container/VM. swap will not be added, but that can cause troubles for the app $app. Please make sure you have enough RAM available."
         return
