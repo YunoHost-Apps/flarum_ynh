@@ -142,7 +142,7 @@ then
 	# Install and activate the LDAP auth extension
 	activate_flarum_extension $db_name "tituspijean-auth-ldap"
 	# Configure LDAP auth extension
-	ynh_add_config --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
+	ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
 	ynh_mysql_db_shell $db_name < ../conf/ldap.sql
 fi
 
