@@ -36,7 +36,7 @@ activate_flarum_extension() {
 
 	# Retrieve current extensions
 	sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
-	old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $database | tail -1)
+	old_extensions_enabled=$(ynh_mysql_db_shell $database <<< "$sql_command" | tail -1)
 
 	# Use jq to test presence of the extension in the list of enabled extensions
 	# if not, then add it.
@@ -44,7 +44,7 @@ activate_flarum_extension() {
 
 	# Update activated extensions list
 	sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
-	ynh_mysql_execute_as_root "$sql_command" $database
+	ynh_mysql_db_shell $database <<< "$sql_command"
 }
 
 #=================================================
