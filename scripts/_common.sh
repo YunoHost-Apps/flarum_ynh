@@ -5,7 +5,7 @@
 swap_needed=1024
 
 # PHP
-YNH_COMPOSER_VERSION="2.0.13"
+composer_version="2.0.13"
 
 # Version numbers
 project_version="1.8.0"
