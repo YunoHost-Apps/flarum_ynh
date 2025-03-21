@@ -18,13 +18,6 @@ old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
 core_version=$(ynh_app_upstream_version)
 
 #=================================================
-# CHECK VERSION
-#=================================================
-ynh_script_progression "Checking version..."
-
-upgrade_type=$(ynh_app_upstream_version_changed)
-
-#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
