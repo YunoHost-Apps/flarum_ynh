@@ -62,11 +62,7 @@ ynh_config_add_logrotate
 ynh_print_info "Adding swap..."
 
 if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
-  if findmnt -n -o FSTYPE / | grep -q btrfs; then
     ynh_add_swap --size=$swap_needed
-  else
-    ynh_add_swap_compatibility --size=$swap_needed
-  fi
 fi
 
 #=================================================
