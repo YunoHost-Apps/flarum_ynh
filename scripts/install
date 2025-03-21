@@ -102,7 +102,7 @@ ynh_mysql_db_shell $db_name < ../conf/mail.sql
 
 # Enable and set up the LDAP auth extension
 ynh_script_progression "Enabling and configuring LDAP extension..."
-activate_flarum_extension $db_name "tituspijean-auth-ldap"
+activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
 ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
 ynh_mysql_db_shell $db_name < ../conf/ldap.sql
 
@@ -111,12 +111,12 @@ case $language in
   fr)
     ynh_script_progression "Installing French extension..."
     ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require qiaeru/lang-french:*"
-    activate_flarum_extension $db_name "qiaeru-lang-french"
+    activate_flarum_extension -d $db_name -s "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
     ynh_script_progression "Installing German extension..."
     ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require kakifrucht/flarum-de:*"
-    activate_flarum_extension $db_name "kakifrucht-de"
+    activate_flarum_extension -d $db_name -s "kakifrucht-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
     ;;
