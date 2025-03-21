@@ -21,6 +21,7 @@ fund = "https://flarum.org/donate/"
 
 [integration]
 yunohost = ">= 11.2"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
 ldap = true
