@@ -15,7 +15,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
-ynh_script_progression --message="Restoring the app main directory..." --weight=1
+ynh_script_progression "Restoring the app main directory..."
 
 ynh_restore "$install_dir"
 
@@ -25,7 +25,7 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
-ynh_script_progression --message="Restoring the MySQL database..."
+ynh_script_progression "Restoring the MySQL database..."
 
 ynh_mysql_db_shell $db_name < ./db.sql
 
@@ -34,7 +34,7 @@ ynh_mysql_db_shell $db_name < ./db.sql
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Restoring system configurations related to $app..." --weight=1
+ynh_script_progression "Restoring system configurations related to $app..."
 
 ynh_restore "/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
@@ -45,7 +45,7 @@ ynh_restore "/etc/logrotate.d/$app"
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_script_progression --message="Adding swap..."
+ynh_script_progression "Adding swap..."
 
 if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
   ynh_add_swap --size=$swap_needed
@@ -56,7 +56,7 @@ fi
 #=================================================
 # RELOAD NGINX AND PHP-FPM
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..." --weight=1
+ynh_script_progression "Reloading NGINX web server and PHP-FPM..."
 
 ynh_systemctl --service=php$phpversion-fpm --action=reload
 ynh_systemctl --service=nginx --action=reload
@@ -65,4 +65,4 @@ ynh_systemctl --service=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Restoration completed for $app" --last
+ynh_script_progression "Restoration completed for $app" --last
