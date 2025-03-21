@@ -70,16 +70,16 @@ fi
 #=================================================
 ynh_script_progression "Installing composer dependencies..."
 
-ynh_hide_warnings ynh_composer_install --phpversion="$php_version" --workdir="$install_dir"
+ynh_hide_warnings ynh_composer_install
 
 # Set Flarum version
-ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require flarum/core:$core_version --prefer-lowest --no-update"
+ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-lowest --no-update"
 
 # Require LDAP extension
-ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
 
 # Update and download dependencies
-ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="update"
+ynh_hide_warnings ynh_composer_exec update
 
 #=================================================
 # FLARUM POST-INSTALL
