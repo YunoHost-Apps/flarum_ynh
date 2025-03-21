@@ -131,7 +131,7 @@ then
 	popd
 fi
 
-ynh_app_setting_set -app=$app --key=core_version --value="$core_version"
+ynh_app_setting_set --app=$app --key=core_version --value="$core_version"
 
 #=================================================
 # FLARUM EXTENSIONS
