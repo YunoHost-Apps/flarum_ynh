@@ -40,7 +40,7 @@ fi
 # Remove SSOwat extension if it exists
 ssowat_extension=$(ynh_app_setting_get --app=$app --key=ssowat_extension)
 if [ ! -z "$ssowat_extension" ]; then
-	ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="remove tituspijean/flarum-ext-auth-ssowat"
+	ynh_hide_warnings ynh_composer_exec "remove tituspijean/flarum-ext-auth-ssowat"
 	ynh_app_setting_delete --app=$app --key=ssowat_extension
 fi
 
@@ -124,8 +124,8 @@ then
 	# Perform migrations and clear cache
 	pushd $install_dir
 		ynh_script_progression "Upgrading Flarum and its extensions..." 
-		ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
-		ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+		ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+		ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
 		ynh_exec_as_app php$php_version flarum migrate
 		ynh_exec_as_app php$php_version flarum cache:clear
 	popd
@@ -150,12 +150,12 @@ fi
 case $language in
   fr)
     ynh_script_progression "Installing French extension..."
-    ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require qiaeru/lang-french:*"
+    ynh_hide_warnings ynh_composer_exec "require qiaeru/lang-french:*"
     activate_flarum_extension $db_name "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
     ynh_script_progression "Installing German extension..."
-    ynh_hide_warnings ynh_composer_exec --phpversion=$php_version --workdir=$install_dir --commands="require kakifrucht/flarum-de:*"
+    ynh_hide_warnings ynh_composer_exec "require kakifrucht/flarum-de:*"
     activate_flarum_extension $db_name "kakifrucht-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
