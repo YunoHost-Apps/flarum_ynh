@@ -38,7 +38,7 @@ ynh_script_progression "Backing up the app before changing its URL (may take a w
 ynh_backup_before_upgrade
 ynh_clean_setup () {
 	# Remove the new domain config file, the remove script won't do it as it doesn't know yet its location.
-	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+	ynh_safe_rm "/etc/nginx/conf.d/$new_domain.d/$app.conf"
 
 	# Restore it if the upgrade fails
 	ynh_restore_upgradebackup
@@ -80,7 +80,7 @@ then
 	domain="$old_domain"
 	path_url="$new_path"
 	# Create a dedicated NGINX config
-	ynh_add_nginx_config
+	ynh_config_add_nginx
 fi
 
 # Change the domain for NGINX
@@ -100,15 +100,15 @@ fi
 #=================================================
 if [ $new_path = "/" ]; then
 	if [ $old_path = "/" ]; then
-		ynh_replace_string "://$old_domain" "://$new_domain" "$install_dir/config.php"
+		ynh_replace --match="://$old_domain" --replace="://$new_domain" --file="$install_dir/config.php"
 	else
-		ynh_replace_string "://$old_domain$old_path" "://$new_domain" "$install_dir/config.php"
+		ynh_replace --match="://$old_domain$old_path" --replace="://$new_domain" --file="$install_dir/config.php"
 	fi
 else
         if [ $old_path = "/" ]; then
-                ynh_replace_string "://$old_domain" "://$new_domain$new_path" "$install_dir/config.php"
+                ynh_replace --match="://$old_domain" --replace="://$new_domain$new_path" --file"$install_dir/config.php"
         else
-                ynh_replace_string "://$old_domain$old_path" "://$new_domain$new_path" "$install_dir/config.php"
+                ynh_replace --match="://$old_domain$old_path" --replace="://$new_domain$new_path" --file="$install_dir/config.php"
         fi
 fi
 
@@ -119,7 +119,7 @@ fi
 #=================================================
 ynh_script_progression "Reloading NGINX web server..."
 
-ynh_systemd_action --service_name=nginx --action=reload
+ynh_systemctl --service=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
