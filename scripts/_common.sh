@@ -21,8 +21,7 @@ ldap_version="*"
 # $short_extension is the extension name written in database, how it is shortened is still a mystery
 activate_flarum_extension() {
 	# Declare an array to define the options of this helper.
-	local legacy_args=ds
-	declare -Ar args_array=( [d]=database= [s]=short_extension )
+	declare -Ar args_array=( [d]=database= [s]=short_extension= )
 	local database
 	local short_extension
 	# Manage arguments with getopts
