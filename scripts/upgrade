@@ -48,7 +48,7 @@ fi
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ] && ynh_app_upgrading_from_version_before 1.0~ynh1
+if ynh_app_upstream_version_changed && ynh_app_upgrading_from_version_before 1.0~ynh1
 then
 	ynh_script_progression "Upgrading source files..."
 
@@ -107,7 +107,7 @@ fi
 # COMPOSER AND FLARUM UPGRADE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
+if ynh_app_upstream_version_changed
 then
  	ynh_script_progression "Installing composer dependencies..."
 
