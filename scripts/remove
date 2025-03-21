@@ -14,7 +14,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEMD SERVICE 
 #=================================================
-ynh_script_progression --message="Removing system configurations related to $app..." --weight=1
+ynh_script_progression "Removing system configurations related to $app..."
 
 ynh_config_remove_nginx
 
@@ -26,4 +26,4 @@ ynh_config_remove_logrotate
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Removal of $app completed" --last
+ynh_script_progression "Removal of $app completed" --last
