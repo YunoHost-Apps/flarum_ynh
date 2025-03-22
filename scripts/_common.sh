@@ -5,7 +5,7 @@
 swap_needed=1024
 
 # PHP
-composer_version="2.0.13"
+composer_version="2.8.6"
 
 # Version numbers
 project_version="1.8.0"
