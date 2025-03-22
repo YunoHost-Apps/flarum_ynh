@@ -25,10 +25,6 @@ ynh_app_setting_set --key=core_version --value="$core_version"
 ynh_app_setting_set --key=ldap_version --value="$ldap_version"
 
 #=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression "Setting up source files..."
