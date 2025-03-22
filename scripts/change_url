@@ -43,13 +43,6 @@ else
 fi
 
 #=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression "Starting $app's systemd service..."
-
-ynh_systemctl --service="$app" --action="start"
-
-#=================================================
 # END OF SCRIPT
 #=================================================
 

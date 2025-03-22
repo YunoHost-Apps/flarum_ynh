@@ -9,7 +9,6 @@ composer_version="2.0.13"
 
 # Version numbers
 project_version="1.8.0"
-#core_version is now retrieved from the manifest
 ldap_version="*"
 
 #=================================================
@@ -17,7 +16,7 @@ ldap_version="*"
 #=================================================
 
 # Activate extension in Flarum's database
-# usage: activate_flarum_extension $db_name $extension $short_extension
+# usage: activate_flarum_extension -d $db_name -s $extension
 # $short_extension is the extension name written in database, how it is shortened is still a mystery
 activate_flarum_extension() {
 	# Declare an array to define the options of this helper.
