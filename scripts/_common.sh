@@ -46,7 +46,7 @@ activate_flarum_extension() {
 }
 
 #=================================================
-# IGNORE CHATTR FUNCTION DURING YNH_ADD_SWAP IF NON-BTRFS DETECTED
+# WORKAROUND FOR FOR COMPATIBILITY ON BTRFS AND NON-BTRFS INSTANCES
 #=================================================
 chattr() {
   if findmnt -n -o FSTYPE / | grep -q btrfs; then
