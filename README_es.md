@@ -20,7 +20,7 @@ No se debe editar a mano.
 
 Flarum is a simple discussion platform for your website. It's fast and easy to use, with all the features you need to run a successful community.
 
-**Versión actual:** 1.8.10~ynh1
+**Versión actual:** 1.8.10~ynh2
 
 **Demo:** <https://discuss.flarum.org/d/21101-demos-come-to-flarum>
 
