@@ -46,7 +46,7 @@ activate_flarum_extension() {
 }
 
 #=================================================
-# EXPERIMENTAL HELPERS
+# WORKAROUND FOR FOR COMPATIBILITY ON BTRFS AND NON-BTRFS INSTANCES
 #=================================================
 chattr() {
   if findmnt -n -o FSTYPE / | grep -q btrfs; then
@@ -56,5 +56,3 @@ chattr() {
     echo "Skipping chattr $* (not Btrfs)"
   fi
 }
-
-# See ynh_* scripts
