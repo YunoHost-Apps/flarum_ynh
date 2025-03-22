@@ -106,7 +106,7 @@ if ynh_app_upgrading_from_version_before 1.1.0~ynh1
 		# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
 		# ... except for flarum/core, but that's handled in the next block.
 		jq '.require | .[] = "*"' $install_dir/composer.json
-	fi
+fi
 
 	# Perform migrations and clear cache
 	pushd $install_dir
