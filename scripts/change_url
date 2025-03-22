@@ -1,20 +1,11 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC STARTING
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
 source _common.sh
 source /usr/share/yunohost/helpers
-
-#=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression "Stopping $app's systemd service..."
-
-ynh_systemctl --service="$app" --action="stop"
 
 #=================================================
 # MODIFY URL IN NGINX CONF
@@ -26,8 +17,7 @@ ynh_config_change_url_nginx
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-# ...
-#=================================================
+
 if [ $new_path = "/" ]; then
 	if [ $old_path = "/" ]; then
 		ynh_replace --match="://$old_domain" --replace="://$new_domain" --file="$install_dir/config.php"

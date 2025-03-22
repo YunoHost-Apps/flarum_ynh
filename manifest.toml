@@ -20,12 +20,14 @@ cpe = "cpe:2.3:a:flarum:flarum"
 fund = "https://flarum.org/donate/"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.0.9"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
+
 ldap = true
 sso = false
+
 disk = "80M"
 ram.build = "400M"
 ram.runtime = "50M"
@@ -95,7 +97,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server, php8.2-curl, php8.2-dom, php8.2-gd, php8.2-mbstring, php8.2-pdo-mysql, php8.2-tokenizer, php8.2-zip, php8.2-ldap"
+    packages = "mariadb-server, php8.3-curl, php8.3-dom, php8.3-gd, php8.3-mbstring, php8.3-pdo-mysql, php8.3-tokenizer, php8.3-zip, php8.3-ldap"
 
     [resources.database]
     type = "mysql"
