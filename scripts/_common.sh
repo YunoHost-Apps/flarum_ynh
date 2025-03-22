@@ -56,5 +56,3 @@ chattr() {
     echo "Skipping chattr $* (not Btrfs)"
   fi
 }
-
-# See ynh_* scripts
