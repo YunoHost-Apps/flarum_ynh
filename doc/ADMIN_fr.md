@@ -18,7 +18,7 @@ Remplacez `vendor/extension` par les noms adéquats. Référez-vous à la docume
 sudo su
 app=__ID__
 cd /var/www/$app
-sudo -u $app php__PHPVERSION__ composer.phar require vendor/extension
+sudo -u $app php__PHP_VERSION__ composer.phar require vendor/extension
 ```
 
 #### Dépannage
@@ -26,13 +26,13 @@ sudo -u $app php__PHPVERSION__ composer.phar require vendor/extension
 ##### Erreurs de `timeout`
 Quelques utilisateurs rapportent qu'ils font fassent à une page blanche due à une erreur de `timeout` dans un script PHP qui prépare le cache (`Minify.php`, notamment).
 
-Dans `/etc/php/__PHPVERSION__/fpm/pool.d/__ID__.conf`, vous pouvez augmenter les limites `max_execution_time` et `max_input_time` (les deux valeurs sont en secondes si vous ne précisez pas d'unité).
+Dans `/etc/php/__PHP_VERSION__/fpm/pool.d/__ID__.conf`, vous pouvez augmenter les limites `max_execution_time` et `max_input_time` (les deux valeurs sont en secondes si vous ne précisez pas d'unité).
 
-Rechargez PHP-FPM avec `sudo service php__PHPVERSION__-fpm reload`.
+Rechargez PHP-FPM avec `sudo service php__PHP_VERSION__-fpm reload`.
 
 ##### Limite de téléversement
 Si vous avez une erreur lors du chargement de gros fichiers dans le forum, PHP pourrait être en train de limiter les téléversements.
 
-Dans `/etc/php/__PHPVERSION__/fpm/pool.d/__ID__.conf`, vous pouvez décommenter (enlevez `;` au début de la ligne) et augmenter les valeurs de `upload_max_filesize` de `post_max_size` (les deux valeurs sont en octets).
+Dans `/etc/php/__PHP_VERSION__/fpm/pool.d/__ID__.conf`, vous pouvez décommenter (enlevez `;` au début de la ligne) et augmenter les valeurs de `upload_max_filesize` de `post_max_size` (les deux valeurs sont en octets).
 
 Rechargez PHP-FPM avec `sudo service php__PHPVERSION__-fpm reload`.
