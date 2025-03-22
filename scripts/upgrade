@@ -108,15 +108,15 @@ if ynh_app_upgrading_from_version_before 1.1.0~ynh1
 		jq '.require | .[] = "*"' $install_dir/composer.json
 fi
 
-	# Perform migrations and clear cache
-	pushd $install_dir
-		ynh_script_progression "Upgrading Flarum and its extensions..." 
-		ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
-		ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
-		ynh_exec_as_app php$php_version flarum migrate
-		ynh_exec_as_app php$php_version flarum cache:clear
-	popd
-fi
+# Perform migrations and clear cache
+pushd $install_dir
+	ynh_script_progression "Upgrading Flarum and its extensions..." 
+	ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+	ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+	ynh_exec_as_app php$php_version flarum migrate
+	ynh_exec_as_app php$php_version flarum cache:clear
+popd
+
 
 ynh_app_setting_set --key=core_version --value="$core_version"
 
