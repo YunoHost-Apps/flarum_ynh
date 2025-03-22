@@ -36,39 +36,10 @@ fi
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_script_progression "Upgrading source files..."
 
-if ynh_app_upstream_version_changed && ynh_app_upgrading_from_version_before 1.0~ynh1
-then
-	ynh_script_progression "Upgrading source files..."
-
-	# Create a temporary directory
-	tmpdir="$(mktemp -d)"
-	cp -R $install_dir/* $tmpdir
-
-	# Deleting current app directory
- 	ynh_safe_rm "$install_dir"
-
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" 
-
-	# Copy config.php back into Flarum
-	cp -f $tmpdir/config.php $install_dir
-
-	# Copy assets from old app version. Can be either in root folder or in "public" folder
-	if [ -d $tmpdir/assets ]; then
-		cp -Rf $tmpdir/assets $install_dir/public
-	fi
-	if [ -d $tmpdir/public/assets ]; then
-		cp -Rf $tmpdir/public/assets $install_dir/public
-	fi
-
-	# Clean temp directory
-	ynh_safe_rm "$tmpdir"
-fi
-
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php public"
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
