@@ -128,7 +128,7 @@ case $language in
 	activate_flarum_extension -d $db_name -s "kakifrucht-de"
 	sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
 	ynh_mysql_db_shell $db_name <<< "$sql_command;"
-			;;
+	;;
 esac
 
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
