@@ -41,13 +41,12 @@ fi
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-	# Copy assets from old app version. Can be either in root folder or in "public" folder
-	if [ -d $install_dir/assets ]; then
-		ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php assets public"
-	fi
-	if [ ! -d $install_dir/assets ]; then
-		ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php public"
-	fi
+# Copy assets from old app version. Can be either in root folder or in "public" folder
+if [ -d "$install_dir/assets" ]; then
+	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php assets public"
+else
+	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php public"
+fi
 
 #=================================================
 # PHP-FPM CONFIGURATION
