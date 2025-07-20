@@ -55,6 +55,9 @@ ynh_config_add_phpfpm
 # Create a dedicated NGINX config
 ynh_config_add_nginx
 
+# Use logrotate to manage app-specific logfile(s)
+ynh_config_add_logrotate
+
 #=================================================
 # ADD SWAP
 #=================================================
@@ -132,14 +135,6 @@ popd
 chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
-
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression "Upgrading logrotate configuration..."
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_config_add_logrotate
 
 #=================================================
 # END OF SCRIPT

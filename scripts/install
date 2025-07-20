@@ -76,7 +76,7 @@ ynh_hide_warnings ynh_composer_exec update
 #=================================================
 # FLARUM POST-INSTALL
 #=================================================
-ynh_script_progression "Configuring Flarum..."
+ynh_script_progression "Configuring $app..."
 
 # Copy and populate configuration.yml to working directory
 ynh_config_add --template="../conf/configuration.yml" --destination="$install_dir/configuration.yml"
