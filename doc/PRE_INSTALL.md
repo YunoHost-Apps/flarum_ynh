@@ -1,2 +1,0 @@
-- The installation requires at least 1GB of free memory. A swap file of this size will be created if needed.
-- You can select the default language (among English `en` by default, French `fr`, and German `de`). Other languages can be added after installation like any other extension.

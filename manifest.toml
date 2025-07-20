@@ -68,8 +68,8 @@ ram.runtime = "50M"
     ask.fr = "Choisissez la langue de l'application"
     ask.de = "Wählen Sie eine Sprache"
     type = "select"
-    choices = ["fr", "en", "de"]
-    default = "en"
+    choices = ["fr", "en", "de", "it", "pt"]
+    default = "fr"
 
 [resources]
 
@@ -97,7 +97,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server, php8.3-curl, php8.3-dom, php8.3-gd, php8.3-mbstring, php8.3-pdo-mysql, php8.3-tokenizer, php8.3-zip, php8.3-ldap"
+    packages = "mariadb-server, php8.4-curl, php8.4-dom, php8.4-gd, php8.4-mbstring, php8.4-pdo-mysql, php8.4-tokenizer, php8.4-zip, php8.4-ldap"
 
     [resources.database]
     type = "mysql"
