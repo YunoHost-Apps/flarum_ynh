@@ -7,7 +7,6 @@
 #=================================================
 
 source _common.sh
-source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -15,18 +14,16 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEMD SERVICE 
 #=================================================
-ynh_script_progression --message="Removing system configurations related to $app..." --weight=1
+ynh_script_progression "Removing system configurations related to $app..."
 
-ynh_remove_nginx_config
+ynh_config_remove_nginx
 
-ynh_remove_fpm_config
+ynh_config_remove_phpfpm
 
-ynh_remove_logrotate
-
-ynh_del_swap
+ynh_config_remove_logrotate
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Removal of $app completed" --last
+ynh_script_progression "Removal of $app completed" --last
