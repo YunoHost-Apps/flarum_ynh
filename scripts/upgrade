@@ -45,9 +45,9 @@ else
 fi
 
 #=================================================
-# PHP-FPM CONFIGURATION
+# REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Upgrading php-fpm configuration..."
+ynh_script_progression "Upgrading system configurations related to $app..."
 
 # Create a dedicated php-fpm config
 ynh_config_add_phpfpm
@@ -67,8 +67,7 @@ fi
 #=================================================
 # COMPOSER AND FLARUM UPGRADE
 #=================================================
-
- ynh_script_progression "Installing composer dependencies..."
+ynh_script_progression "Installing composer dependencies..."
 
 # Set right permissions
 chown -R $app:www-data $install_dir
