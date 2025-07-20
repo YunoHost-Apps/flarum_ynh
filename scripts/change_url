@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC STARTING
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
@@ -26,8 +24,7 @@ ynh_config_change_url_nginx
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-# ...
-#=================================================
+
 if [ $new_path = "/" ]; then
 	if [ $old_path = "/" ]; then
 		ynh_replace --match="://$old_domain" --replace="://$new_domain" --file="$install_dir/config.php"
@@ -46,4 +43,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression "Change of URL completed for $app" --last
+ynh_script_progression "Change of URL completed for $app"

@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC START
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
@@ -17,8 +15,6 @@ ynh_script_progression "Loading installation settings..."
 old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
 core_version=$(ynh_app_upstream_version)
 
-#=================================================
-# STANDARD UPGRADE STEPS
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
@@ -60,8 +56,6 @@ ynh_config_add_phpfpm
 ynh_config_add_nginx
 
 #=================================================
-# SPECIFIC UPGRADE
-#=================================================
 # ADD SWAP
 #=================================================
 ynh_script_progression "Adding swap..."
@@ -74,29 +68,26 @@ fi
 # COMPOSER AND FLARUM UPGRADE
 #=================================================
 
-if ynh_app_upstream_version_changed
+ ynh_script_progression "Installing composer dependencies..."
+
+# Set right permissions
+chown -R $app:www-data $install_dir
+
+if ynh_app_upgrading_from_version_before 1.1.0~ynh1
 then
- 	ynh_script_progression "Installing composer dependencies..."
-
-	# Set right permissions
-	chown -R $app:www-data $install_dir
-
-	if ynh_app_upgrading_from_version_before 1.1.0~ynh1
-	then
-		# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
-		# ... except for flarum/core, but that's handled in the next block.
-		jq '.require | .[] = "*"' $install_dir/composer.json
-	fi
-
-	# Perform migrations and clear cache
-	pushd $install_dir
-		ynh_script_progression "Upgrading Flarum and its extensions..." 
-		ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
-		ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
-		ynh_exec_as_app php$php_version flarum migrate
-		ynh_exec_as_app php$php_version flarum cache:clear
-	popd
+	# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
+	# ... except for flarum/core, but that's handled in the next block.
+	jq '.require | .[] = "*"' $install_dir/composer.json
 fi
+
+# Perform migrations and clear cache
+pushd $install_dir
+	ynh_script_progression "Upgrading Flarum and its extensions..." 
+	ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+	ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+	ynh_exec_as_app php$php_version flarum migrate
+	ynh_exec_as_app php$php_version flarum cache:clear
+popd
 
 ynh_app_setting_set --key=core_version --value="$core_version"
 
@@ -144,8 +135,6 @@ chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
 # SETUP LOGROTATE
 #=================================================
 ynh_script_progression "Upgrading logrotate configuration..."
@@ -157,4 +146,4 @@ ynh_config_add_logrotate
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression "Upgrade of $app completed" --last
+ynh_script_progression "Upgrade of $app completed"

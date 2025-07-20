@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC START
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
@@ -24,10 +22,6 @@ ynh_app_setting_set --key=language --value="$language"
 ynh_app_setting_set --key=project_version --value="$project_version"
 ynh_app_setting_set --key=core_version --value="$core_version"
 ynh_app_setting_set --key=ldap_version --value="$ldap_version"
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -54,8 +48,6 @@ ynh_config_add_nginx
 # Use logrotate to manage application logfile(s)
 ynh_config_add_logrotate
 
-#=================================================
-# SPECIFIC SETUP
 #=================================================
 # ADD SWAP
 #=================================================
