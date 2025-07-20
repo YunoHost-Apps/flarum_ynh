@@ -43,11 +43,9 @@ if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
 fi
 
 #=================================================
-# GENERIC FINALIZATION
+# RELOAD NGINX AND PHP-FPM OR THE APP SERVICE
 #=================================================
-# RELOAD NGINX AND PHP-FPM
-#=================================================
-ynh_script_progression "Reloading NGINX web server and PHP-FPM..."
+ynh_script_progression "Reloading NGINX web server and $app's service..."
 
 ynh_systemctl --service=php$php_version-fpm --action=reload
 
@@ -57,4 +55,4 @@ ynh_systemctl --service=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression "Restoration completed for $app" --last
+ynh_script_progression "Restoration completed for $app"
