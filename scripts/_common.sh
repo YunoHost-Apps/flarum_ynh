@@ -5,10 +5,10 @@
 swap_needed=1024
 
 # PHP
-composer_version="2.8.6"
+composer_version="2.8.10"
 
 # Version numbers
-project_version="1.8.0"
+project_version="1.8.10"
 ldap_version="*"
 
 #=================================================

@@ -36,4 +36,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression "Change of URL completed for $app" --last
+ynh_script_progression "Change of URL completed for $app"
