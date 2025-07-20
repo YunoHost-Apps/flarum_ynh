@@ -98,12 +98,14 @@ ynh_mysql_db_shell $db_name < ../conf/ldap.sql
 
 # Install, activate and set language extensions
 case $language in
-  fr)
+    fr)
     ynh_script_progression "Installing French extension..."
     ynh_hide_warnings ynh_composer_exec "require qiaeru/lang-french:*"
     activate_flarum_extension -d $db_name -s "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
+    ;;
+    de)
     ynh_script_progression "Installing German extension..."
     ynh_hide_warnings ynh_composer_exec "require kakifrucht/flarum-de:*"
     activate_flarum_extension -d $db_name -s "kakifrucht-de"
