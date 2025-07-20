@@ -25,7 +25,7 @@ Next-generation forum made simple
 
 🛠️ Upstream Flarum repository: <https://github.com/flarum/framework>
 
-**Shipped version:** 1.8.10~ynh2
+Pull request are welcome and should target the [`testing` branch](https://github.com/YunoHost-Apps/flarum_ynh/tree/testing).
 
 The `testing` branch can be tested using:
 ```
