@@ -71,7 +71,7 @@ fi
 #=================================================
 ynh_script_progression --message="Installing composer dependencies..." --weight=5
 
-ynh_exec_warn_less ynh_install_composer --phpversion="$phpversion" --workdir="$install_dir"
+#REMOVEME? ynh_exec_warn_less #REMOVEME? ynh_install_composer --phpversion="$phpversion" --workdir="$install_dir"
 
 # Set Flarum version
 ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require flarum/core:$core_version --prefer-lowest --no-update"
