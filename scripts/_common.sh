@@ -5,11 +5,10 @@
 swap_needed=1024
 
 # PHP
-YNH_COMPOSER_VERSION="2.0.13"
+composer_version="2.8.10"
 
 # Version numbers
-project_version="1.8.0"
-#core_version is now retrieved from the manifest
+project_version="1.8.10"
 ldap_version="*"
 
 #=================================================
@@ -17,12 +16,11 @@ ldap_version="*"
 #=================================================
 
 # Activate extension in Flarum's database
-# usage: activate_flarum_extension $db_name $extension $short_extension
+# usage: activate_flarum_extension -d $db_name -s $extension
 # $short_extension is the extension name written in database, how it is shortened is still a mystery
 activate_flarum_extension() {
 	# Declare an array to define the options of this helper.
-	local legacy_args=ds
-	declare -Ar args_array=( [d]=database= [s]=short_extension )
+	declare -Ar args_array=( [d]=database= [s]=short_extension= )
 	local database
 	local short_extension
 	# Manage arguments with getopts
@@ -36,7 +34,7 @@ activate_flarum_extension() {
 
 	# Retrieve current extensions
 	sql_command="SELECT \`value\` FROM settings WHERE \`key\` = 'extensions_enabled'"
-	old_extensions_enabled=$(ynh_mysql_execute_as_root "$sql_command" $database | tail -1)
+	old_extensions_enabled=$(ynh_mysql_db_shell $database <<< "$sql_command" | tail -1)
 
 	# Use jq to test presence of the extension in the list of enabled extensions
 	# if not, then add it.
@@ -44,11 +42,17 @@ activate_flarum_extension() {
 
 	# Update activated extensions list
 	sql_command="UPDATE \`settings\` SET \`value\`='$new_extensions_enabled' WHERE \`key\`='extensions_enabled';"
-	ynh_mysql_execute_as_root "$sql_command" $database
+	ynh_mysql_db_shell $database <<< "$sql_command"
 }
 
 #=================================================
-# EXPERIMENTAL HELPERS
+# WORKAROUND FOR FOR COMPATIBILITY ON BTRFS AND NON-BTRFS INSTANCES
 #=================================================
-
-# See ynh_* scripts
+chattr() {
+  if findmnt -n -o FSTYPE / | grep -q btrfs; then
+    echo "Running chattr $* (Btrfs detected)"
+    command chattr "$@"
+  else
+    echo "Skipping chattr $* (not Btrfs)"
+  fi
+}

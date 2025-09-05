@@ -1,36 +1,24 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC START
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
 source _common.sh
-source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=1
+ynh_script_progression "Loading installation settings..."
 
 old_core_version=$(ynh_app_setting_get --app=$app --key=core_version)
 core_version=$(ynh_app_upstream_version)
 
 #=================================================
-# CHECK VERSION
-#=================================================
-ynh_script_progression --message="Checking version..."
-
-upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+ynh_script_progression "Ensuring downward compatibility..."
 
 # Remove bazaar_extension if it exists
 bazaar_extension=$(ynh_app_setting_get --app=$app --key=bazaar_extension)
@@ -41,7 +29,7 @@ fi
 # Remove SSOwat extension if it exists
 ssowat_extension=$(ynh_app_setting_get --app=$app --key=ssowat_extension)
 if [ ! -z "$ssowat_extension" ]; then
-	ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="remove tituspijean/flarum-ext-auth-ssowat"
+	ynh_hide_warnings ynh_composer_exec "remove tituspijean/flarum-ext-auth-ssowat"
 	ynh_app_setting_delete --app=$app --key=ssowat_extension
 fi
 
@@ -49,127 +37,98 @@ fi
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ] && ynh_compare_current_package_version --comparison lt --version 1.0~ynh1
-then
-	ynh_script_progression --message="Upgrading source files..."
-
-	# Create a temporary directory
-	tmpdir="$(mktemp -d)"
-	cp -R $install_dir/* $tmpdir
-
-	# Deleting current app directory
- 	ynh_secure_remove --file="$install_dir"
-
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
-
-	# Copy config.php back into Flarum
-	cp -f $tmpdir/config.php $install_dir
-
-	# Copy assets from old app version. Can be either in root folder or in "public" folder
-	if [ -d $tmpdir/assets ]; then
-		cp -Rf $tmpdir/assets $install_dir/public
-	fi
-	if [ -d $tmpdir/public/assets ]; then
-		cp -Rf $tmpdir/public/assets $install_dir/public
-	fi
-
-	# Clean temp directory
-	ynh_secure_remove --file="$tmpdir"
+# Copy assets from old app version. Can be either in root folder or in "public" folder
+if [ -d "$install_dir/assets" ]; then
+	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php assets public"
+else
+	ynh_setup_source --dest_dir="$install_dir" --source_id="flarum" --keep="config.php public"
 fi
 
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
-
 #=================================================
-# PHP-FPM CONFIGURATION
+# REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=1
+ynh_script_progression "Upgrading system configurations related to $app..."
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_config_add_phpfpm
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
-#=================================================
-# SPECIFIC UPGRADE
+# Use logrotate to manage app-specific logfile(s)
+ynh_config_add_logrotate
+
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_script_progression --message="Adding swap..."
+ynh_script_progression "Adding swap..."
 
 if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
-  ynh_add_swap --size=$swap_needed
+	ynh_add_swap --size=$swap_needed
 fi
 
 #=================================================
 # COMPOSER AND FLARUM UPGRADE
 #=================================================
+ynh_script_progression "Installing composer dependencies..."
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
+# Set right permissions
+chown -R $app:www-data $install_dir
+
+if ynh_app_upgrading_from_version_before 1.1.0~ynh1
 then
- 	ynh_script_progression --message="Installing composer dependencies..." --weight=5
-
-	# Set right permissions
-	chown -R $app:www-data $install_dir
-
-	if ynh_compare_current_package_version --comparison lt --version 1.1.0~ynh1
-	then
-		# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
-		# ... except for flarum/core, but that's handled in the next block.
-		jq '.require | .[] = "*"' $install_dir/composer.json
-	fi
-
-	# Perform migrations and clear cache
-	pushd $install_dir
-		ynh_script_progression --message="Upgrading Flarum and its extensions..." --weight=1
-		ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
-		ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
-		ynh_exec_as $app php$phpversion flarum migrate
-		ynh_exec_as $app php$phpversion flarum cache:clear
-	popd
+	# Starting 1.0 (implemented for 1.1 in the package), version requirement is "*" for extensions
+	# ... except for flarum/core, but that's handled in the next block.
+	jq '.require | .[] = "*"' $install_dir/composer.json
 fi
 
-ynh_app_setting_set $app core_version "$core_version"
+# Perform migrations and clear cache
+pushd $install_dir
+	ynh_script_progression "Upgrading Flarum and its extensions..." 
+	ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+	ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies"
+	ynh_exec_as_app php$php_version flarum migrate
+	ynh_exec_as_app php$php_version flarum cache:clear
+popd
+
+ynh_app_setting_set --key=core_version --value="$core_version"
 
 #=================================================
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! ynh_exec_as $app php$phpversion flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
+if ! ynh_exec_as_app php$php_version flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
 then
 	# Install and activate the LDAP auth extension
-	activate_flarum_extension $db_name "tituspijean-auth-ldap"
+	activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
 	# Configure LDAP auth extension
-	ynh_add_config --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-	ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../conf/ldap.sql
+	ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
+	ynh_mysql_db_shell $db_name < ../conf/ldap.sql
 fi
 
 # Install, activate and set language extensions
 case $language in
-  fr)
-    ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require qiaeru/lang-french:*"
-    activate_flarum_extension $db_name "qiaeru-lang-french"
-    sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
-    ;;
-  de)
-    ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require kakifrucht/flarum-de:*"
-    activate_flarum_extension $db_name "kakifrucht-de"
-    sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
-    ;;
+	fr)
+	ynh_script_progression "Installing French extension..."
+	ynh_hide_warnings ynh_composer_exec "require qiaeru/lang-french:*"
+	activate_flarum_extension -d $db_name -s "qiaeru-lang-french"
+	sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
+	ynh_mysql_db_shell $db_name <<< "$sql_command;"
+	;;
+	de)
+	ynh_script_progression "Installing German extension..."
+	ynh_hide_warnings ynh_composer_exec "require kakifrucht/flarum-de:*"
+	activate_flarum_extension -d $db_name -s "kakifrucht-de"
+	sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
+	ynh_mysql_db_shell $db_name <<< "$sql_command;"
+	;;
 esac
 
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
 
 # Clear cache
 pushd $install_dir
-	ynh_exec_as $app php$phpversion flarum cache:clear
+	ynh_exec_as_app php$php_version flarum cache:clear
 popd
 
 # Set files and directories permissions
@@ -178,17 +137,7 @@ chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..." --weight=1
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
-
-#=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --last
+ynh_script_progression "Upgrade of $app completed"
