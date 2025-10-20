@@ -98,11 +98,11 @@ ynh_add_nginx_config
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_script_progression --message="Adding swap..."
+#ynh_script_progression --message="Adding swap..."
 
-if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
-  ynh_add_swap --size=$swap_needed
-fi
+#if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
+#  ynh_add_swap --size=$swap_needed
+#fi
 
 #=================================================
 # COMPOSER AND FLARUM UPGRADE
