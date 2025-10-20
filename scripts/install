@@ -60,11 +60,11 @@ ynh_use_logrotate
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_print_info --message="Adding swap..."
+#ynh_print_info --message="Adding swap..."
 
-if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
-  ynh_add_swap --size=$swap_needed
-fi
+#if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
+#  ynh_add_swap --size=$swap_needed
+#fi
 
 #=================================================
 # INSTALL COMPOSER DEPENDENCIES
