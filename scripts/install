@@ -65,10 +65,10 @@ ynh_script_progression "Installing composer dependencies..."
 ynh_hide_warnings ynh_composer_install
 
 # Set Flarum version
-ynh_hide_warnings ynh_composer_exec "require flarum/core:$core_version --prefer-lowest --no-update"
+ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-lowest --no-update
 
 # Require LDAP extension
-ynh_hide_warnings ynh_composer_exec "require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
 
 # Update and download dependencies
 ynh_hide_warnings ynh_composer_exec update
@@ -102,14 +102,14 @@ ynh_mysql_db_shell $db_name < ../conf/ldap.sql
 case $language in
     fr)
     ynh_script_progression "Installing French extension..."
-    ynh_hide_warnings ynh_composer_exec "require qiaeru/lang-french:*"
+    ynh_hide_warnings ynh_composer_exec require qiaeru/lang-french:*
     activate_flarum_extension -d $db_name -s "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
     ;;
     de)
     ynh_script_progression "Installing German extension..."
-    ynh_hide_warnings ynh_composer_exec "require kakifrucht/flarum-de:*"
+    ynh_hide_warnings ynh_composer_exec require kakifrucht/flarum-de:*
     activate_flarum_extension -d $db_name -s "kakifrucht-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
     ynh_mysql_db_shell $db_name <<< "$sql_command;"
