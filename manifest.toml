@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.8.10~ynh1"
+version = "1.8.11~ynh1"
 
 maintainers = ["tituspijean"]
 
@@ -20,11 +20,14 @@ cpe = "cpe:2.3:a:flarum:flarum"
 fund = "https://flarum.org/donate/"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.0.9"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
+
 ldap = true
 sso = false
+
 disk = "80M"
 ram.build = "400M"
 ram.runtime = "50M"
@@ -66,15 +69,15 @@ ram.runtime = "50M"
     ask.de = "Wählen Sie eine Sprache"
     type = "select"
     choices = ["fr", "en", "de"]
-    default = "en"
+    default = "fr"
 
 [resources]
 
         # The main source is only used to auto-update the package
         [resources.sources.main]
         prefetch = false
-        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.10.tar.gz"
-        sha256 = "3163169071a0cb710af219adc012cd91da5ce4336fcb287e69de661099ecb99e"
+        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.11.tar.gz"
+        sha256 = "197bbd0c8c0651344cc9707ffebfaaa3c23b82e2deb9b0421f44d81e76335d23"
         autoupdate.upstream = "https://github.com/flarum/framework"
         autoupdate.strategy = "latest_github_tag"
 
@@ -88,12 +91,13 @@ ram.runtime = "50M"
     [resources.system_user]
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.permissions]
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server, php8.2-curl, php8.2-dom, php8.2-gd, php8.2-mbstring, php8.2-pdo-mysql, php8.2-tokenizer, php8.2-zip, php8.2-ldap"
+    packages = "mariadb-server, php8.4-curl, php8.4-dom, php8.4-gd, php8.4-mbstring, php8.4-pdo-mysql, php8.4-tokenizer, php8.4-zip, php8.4-ldap"
 
     [resources.database]
     type = "mysql"

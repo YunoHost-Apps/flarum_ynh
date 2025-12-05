@@ -1,13 +1,10 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC START
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
 source _common.sh
-source experimental_helpers/ynh_add_swap
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -21,19 +18,15 @@ admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_app_setting_set --app=$app --key=language --value="$language"
-ynh_app_setting_set --app=$app --key=project_version --value="$project_version"
-ynh_app_setting_set --app=$app --key=core_version --value="$core_version"
-ynh_app_setting_set --app=$app --key=ldap_version --value="$ldap_version"
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
+ynh_app_setting_set --key=language --value="$language"
+ynh_app_setting_set --key=project_version --value="$project_version"
+ynh_app_setting_set --key=core_version --value="$core_version"
+ynh_app_setting_set --key=ldap_version --value="$ldap_version"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --weight=3
+ynh_script_progression "Setting up source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
@@ -44,84 +37,82 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Adding system configurations related to $app..." --weight=1
+ynh_script_progression "Adding system configurations related to $app..."
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config
+ynh_config_add_phpfpm
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate
+ynh_config_add_logrotate
 
-#=================================================
-# SPECIFIC SETUP
 #=================================================
 # ADD SWAP
 #=================================================
-ynh_print_info --message="Adding swap..."
+ynh_print_info "Adding swap..."
 
 if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
-  ynh_add_swap --size=$swap_needed
+    ynh_add_swap --size=$swap_needed
 fi
 
 #=================================================
 # INSTALL COMPOSER DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing composer dependencies..." --weight=5
+ynh_script_progression "Installing composer dependencies..."
 
-ynh_exec_warn_less ynh_install_composer --phpversion="$phpversion" --workdir="$install_dir"
+ynh_hide_warnings ynh_composer_install
 
 # Set Flarum version
-ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require flarum/core:$core_version --prefer-lowest --no-update"
+ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-lowest --no-update
 
 # Require LDAP extension
-ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update"
+ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
 
 # Update and download dependencies
-ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="update"
+ynh_hide_warnings ynh_composer_exec update
 
 #=================================================
 # FLARUM POST-INSTALL
 #=================================================
-ynh_script_progression --message="Configuring Flarum..." --weight=2
+ynh_script_progression "Configuring $app..."
 
 # Copy and populate configuration.yml to working directory
-ynh_add_config --template="../conf/configuration.yml" --destination="$install_dir/configuration.yml"
+ynh_config_add --template="../conf/configuration.yml" --destination="$install_dir/configuration.yml"
 
 # Execute post-installation
 pushd $install_dir
-  ynh_exec_as $app php$phpversion -d $install_dir -d memory_limit=-1 flarum install -f configuration.yml
+  ynh_exec_as_app php$php_version -d $install_dir -d memory_limit=-1 flarum install -f configuration.yml
   # Delete configuration.yml as it contains sensitive data
-  ynh_secure_remove --file="$install_dir/configuration.yml"
+  ynh_safe_rm --file="$install_dir/configuration.yml"
 popd
 
 # Email setup
-ynh_add_config --template="../conf/mail.sql.template" --destination="../conf/mail.sql"
-ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../conf/mail.sql
+ynh_config_add --template="../conf/mail.sql.template" --destination="../conf/mail.sql"
+ynh_mysql_db_shell $db_name < ../conf/mail.sql
 
 # Enable and set up the LDAP auth extension
-ynh_script_progression --message="Enabling and configuring LDAP extension..." --weight=2
-activate_flarum_extension $db_name "tituspijean-auth-ldap"
-ynh_add_config --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-ynh_mysql_connect_as --user=$app --password="$db_pwd" --database=$db_name < ../conf/ldap.sql
+ynh_script_progression "Enabling and configuring LDAP extension..."
+activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
+ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
+ynh_mysql_db_shell $db_name < ../conf/ldap.sql
 
 # Install, activate and set language extensions
 case $language in
-  fr)
-    ynh_script_progression --message="Installing French extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require qiaeru/lang-french:*"
-    activate_flarum_extension $db_name "qiaeru-lang-french"
+    fr)
+    ynh_script_progression "Installing French extension..."
+    ynh_hide_warnings ynh_composer_exec require qiaeru/lang-french:*
+    activate_flarum_extension -d $db_name -s "qiaeru-lang-french"
     sql_command="UPDATE \`settings\` SET \`value\` = 'fr' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
+    ynh_mysql_db_shell $db_name <<< "$sql_command;"
     ;;
-  de)
-    ynh_script_progression --message="Installing German extension..." --weight=2
-    ynh_exec_warn_less ynh_composer_exec --phpversion=$phpversion --workdir=$install_dir --commands="require kakifrucht/flarum-de:*"
-    activate_flarum_extension $db_name "kakifrucht-de"
+    de)
+    ynh_script_progression "Installing German extension..."
+    ynh_hide_warnings ynh_composer_exec require kakifrucht/flarum-de:*
+    activate_flarum_extension -d $db_name -s "kakifrucht-de"
     sql_command="UPDATE \`settings\` SET \`value\` = 'de' WHERE \`settings\`.\`key\` = 'default_locale'"
-    ynh_mysql_execute_as_root --sql="$sql_command" --database=$db_name
+    ynh_mysql_db_shell $db_name <<< "$sql_command;"
     ;;
 esac
 
@@ -134,4 +125,4 @@ chown -R $app:www-data "$install_dir"
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed"
+ynh_script_progression "Installation of $app completed"
