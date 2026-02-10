@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.8.12~ynh1"
+version = "1.8.13~ynh1"
 
 maintainers = ["tituspijean"]
 
@@ -20,7 +20,7 @@ cpe = "cpe:2.3:a:flarum:flarum"
 fund = "https://flarum.org/donate/"
 
 [integration]
-yunohost = ">= 12.0.9"
+yunohost = ">= 12.1.38"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
@@ -76,8 +76,8 @@ ram.runtime = "50M"
         # The main source is only used to auto-update the package
         [resources.sources.main]
         prefetch = false
-        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.12.tar.gz"
-        sha256 = "d06d1dad6c56f0570252b83367189760f80e4d3f2a986e6d64738c96503b22b6"
+        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.13.tar.gz"
+        sha256 = "7393f8bc791120d81f2b389ed72c77faab1521c5adbef1bae831e9a86f369fa9"
         autoupdate.upstream = "https://github.com/flarum/framework"
         autoupdate.strategy = "latest_github_tag"
 
