@@ -124,6 +124,10 @@ case $language in
 	;;
 esac
 
+# Remove deprecated translation plugins
+ynh_hide_warnings ynh_composer_exec remove qiaeru/lang-french:*
+ynh_hide_warnings ynh_composer_exec remove kakifrucht/flarum-de:*
+
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
 
 # Clear cache
