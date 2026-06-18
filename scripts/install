@@ -18,6 +18,7 @@ admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+
 ynh_app_setting_set --key=language --value="$language"
 ynh_app_setting_set --key=project_version --value="$project_version"
 ynh_app_setting_set --key=core_version --value="$core_version"
@@ -30,9 +31,6 @@ ynh_script_progression "Setting up source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
-
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
 
 #=================================================
 # SYSTEM CONFIGURATION
