@@ -5,7 +5,7 @@
 swap_needed=1024
 
 # Version numbers
-project_version="1.8.10"
+project_version="1.8.17"
 ldap_version="*"
 
 #=================================================
