@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.8.19~ynh1"
+version = "1.8.19~ynh2"
 
 maintainers = ["tituspijean"]
 
@@ -83,8 +83,8 @@ ram.runtime = "50M"
 
         # The flarum source is the one actually being installed
         [resources.sources.flarum]
-        url = "https://github.com/flarum/flarum/archive/refs/tags/v1.8.1.tar.gz"
-        sha256 = "25ab0e3f44944ab478dd1076d4ada60a4f1a6255cb291423011d35b341f32570"
+        url = "https://github.com/flarum/flarum/archive/refs/tags/v1.8.19.tar.gz"
+        sha256 = "c2349a81088983340b0d84964e4ea21deb3a22222ffa16d02750e831b117afba"
         autoupdate.upstream = "https://github.com/flarum/flarum"
         autoupdate.strategy = "latest_github_tag"
 
