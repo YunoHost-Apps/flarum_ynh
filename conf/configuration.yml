@@ -1,5 +1,6 @@
 baseUrl : "https://__DOMAIN____PATH__"
 databaseConfiguration :
+    driver: "mariadb"
     host : "localhost"
     database : "__DB_NAME__"
     username : "__DB_USER__"
