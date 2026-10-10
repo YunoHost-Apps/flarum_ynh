@@ -33,6 +33,12 @@ if [ ! -z "$ssowat_extension" ]; then
 	ynh_app_setting_delete --app=$app --key=ssowat_extension
 fi
 
+# Remove tituspijean's LDAP extension if it exists
+old_ldap_extension=$(ynh_hide_warnings ynh_composer_exec show tituspijean/flarum-ext-auth-ldap -N)
+if [ ! -z "$old_ldap_extension" ]; then
+	ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap
+fi
+
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
@@ -85,7 +91,7 @@ fi
 # Perform migrations and clear cache
 pushd $install_dir
 	ynh_script_progression "Upgrading Flarum and its extensions..."
-	ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
+	ynh_hide_warnings ynh_composer_exec require yippy/flarum-ext-auth-ldap:$ldap_version --no-update
 	ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies
 	ynh_exec_as_app php$php_version flarum migrate
 	ynh_exec_as_app php$php_version flarum cache:clear
@@ -97,10 +103,10 @@ ynh_app_setting_set --key=core_version --value="$core_version"
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! ynh_exec_as_app php$php_version flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
+if ! ynh_exec_as_app php$php_version flarum info | grep -q "yippy-auth-ldap" | grep -q $ldap_version;
 then
 	# Install and activate the LDAP auth extension
-	activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
+	activate_flarum_extension -d $db_name -s "yippy-auth-ldap"
 	# Configure LDAP auth extension
 	ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
 	ynh_mysql_db_shell $db_name < ../conf/ldap.sql
