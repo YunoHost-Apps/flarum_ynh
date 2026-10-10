@@ -39,7 +39,7 @@ if [ ! -z "$old_ldap_extension" ]; then
     ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap
 fi
 
-if [ ! -z "$project_version" ];
+if [ ! -z "$project_version" ]; then
     ynh_app_setting_delete --key=project_version
 fi
 
