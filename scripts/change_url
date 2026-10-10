@@ -19,17 +19,17 @@ ynh_config_change_url_nginx
 #=================================================
 
 if [ $new_path = "/" ]; then
-	if [ $old_path = "/" ]; then
-		ynh_replace --match="://$old_domain" --replace="://$new_domain" --file="$install_dir/config.php"
-	else
-		ynh_replace --match="://$old_domain$old_path" --replace="://$new_domain" --file="$install_dir/config.php"
-	fi
+    if [ $old_path = "/" ]; then
+        ynh_replace --match="://$old_domain" --replace="://$new_domain" --file="$install_dir/config.php"
+    else
+        ynh_replace --match="://$old_domain$old_path" --replace="://$new_domain" --file="$install_dir/config.php"
+    fi
 else
-        if [ $old_path = "/" ]; then
-                ynh_replace --match="://$old_domain" --replace="://$new_domain$new_path" --file="$install_dir/config.php"
-        else
-                ynh_replace --match="://$old_domain$old_path" --replace="://$new_domain$new_path" --file="$install_dir/config.php"
-        fi
+    if [ $old_path = "/" ]; then
+        ynh_replace --match="://$old_domain" --replace="://$new_domain$new_path" --file="$install_dir/config.php"
+    else
+        ynh_replace --match="://$old_domain$old_path" --replace="://$new_domain$new_path" --file="$install_dir/config.php"
+    fi
 fi
 
 #=================================================
