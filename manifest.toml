@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.8.20~ynh1"
+version = "2.0.2~ynh1"
 
 maintainers = ["tituspijean"]
 
@@ -76,15 +76,15 @@ ram.runtime = "50M"
         # The main source is only used to auto-update the package
         [resources.sources.main]
         prefetch = false
-        url = "https://github.com/flarum/framework/archive/refs/tags/v1.8.20.tar.gz"
-        sha256 = "23985a8dd2726dafc299ba555bbd3332b4b3a46462387014fc3e3403121606e3"
+        url = "https://github.com/flarum/framework/archive/refs/tags/v2.0.2.tar.gz"
+        sha256 = "254b94d8165b5a91cb364fd61e5d0c40e74bbe2d3a8ab0dc93c0aca001fa6d82"
         autoupdate.upstream = "https://github.com/flarum/framework"
         autoupdate.strategy = "latest_github_tag"
 
         # The flarum source is the one actually being installed
         [resources.sources.flarum]
-        url = "https://github.com/flarum/flarum/archive/refs/tags/v1.8.19.tar.gz"
-        sha256 = "c2349a81088983340b0d84964e4ea21deb3a22222ffa16d02750e831b117afba"
+        url = "https://github.com/flarum/flarum/archive/refs/tags/v2.0.0.tar.gz"
+        sha256 = "ff03b1a8861df6f8f4047944225e587096c02384d7909922e31a6fa23e689ed6"
         autoupdate.upstream = "https://github.com/flarum/flarum"
         autoupdate.strategy = "latest_github_tag"
 
