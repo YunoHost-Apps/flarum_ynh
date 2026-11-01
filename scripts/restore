@@ -39,7 +39,7 @@ ynh_restore "/etc/logrotate.d/$app"
 ynh_script_progression "Adding swap..."
 
 if [ ${PACKAGE_CHECK_EXEC:-0} -eq 0 ]; then
-  ynh_add_swap --size=$swap_needed
+    ynh_add_swap --size=$swap_needed
 fi
 
 #=================================================
