@@ -108,6 +108,8 @@ pushd $install_dir
 	fi
 	ynh_exec_as_app php$php_version flarum migrate
 	ynh_exec_as_app php$php_version flarum cache:clear
+	# yippy-auth-ldap references /assets/extensions/... urls that only exist after this
+	ynh_exec_as_app php$php_version flarum assets:publish
 popd
 
 ynh_app_setting_set --key=core_version --value="$core_version"
