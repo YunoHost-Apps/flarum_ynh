@@ -108,8 +108,6 @@ pushd $install_dir
 	fi
 	ynh_exec_as_app php$php_version flarum migrate
 	ynh_exec_as_app php$php_version flarum cache:clear
-	# yippy-auth-ldap references /assets/extensions/... urls that only exist after this
-	ynh_exec_as_app php$php_version flarum assets:publish
 popd
 
 ynh_app_setting_set --key=core_version --value="$core_version"
@@ -147,9 +145,12 @@ ynh_hide_warnings ynh_composer_exec remove kakifrucht/flarum-de:*
 
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
 
-# Clear cache
+# Clear cache, then publish extension assets
+# yippy-auth-ldap references /assets/extensions/... urls; assets:publish copies
+# vendor assets there but ONLY for enabled extensions, so it must follow activation
 pushd $install_dir
 	ynh_exec_as_app php$php_version flarum cache:clear
+	ynh_exec_as_app php$php_version flarum assets:publish
 popd
 
 # Set files and directories permissions
