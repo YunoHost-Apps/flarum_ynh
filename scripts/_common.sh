@@ -1,20 +1,11 @@
-#=================================================
-# COMMON VARIABLES
-#=================================================
-
 swap_needed=1024
 
 # Version numbers
 project_version="1.8.17"
 ldap_version="*"
 
-#=================================================
-# PERSONAL HELPERS
-#=================================================
 
-# Activate extension in Flarum's database
-# usage: activate_flarum_extension -d $db_name -s $extension
-# $short_extension is the extension name written in database, how it is shortened is still a mystery
+# activate_flarum_extension -d $db_name -s $extension ; $short_extension = DB-side name
 activate_flarum_extension() {
 	# Declare an array to define the options of this helper.
 	declare -Ar args_array=( [d]=database= [s]=short_extension= )
@@ -42,9 +33,7 @@ activate_flarum_extension() {
 	ynh_mysql_db_shell $database <<< "$sql_command"
 }
 
-#=================================================
-# WORKAROUND FOR FOR COMPATIBILITY ON BTRFS AND NON-BTRFS INSTANCES
-#=================================================
+# chattr is a no-op off Btrfs (CI containers hit it on overlayfs)
 chattr() {
   if findmnt -n -o FSTYPE / | grep -q btrfs; then
     echo "Running chattr $* (Btrfs detected)"
