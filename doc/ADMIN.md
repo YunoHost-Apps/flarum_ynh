@@ -1,6 +1,6 @@
 ## Login
 
-This app allows your YunoHost users to log in with another app, Dex.
+This app allows your YunoHost users to log in with another app, Dex. Dex requires to use properly signed certificates. You might encouter errors if using self-signed certificates. If you find a trick around that, you are most welcome to share it with the YunoHost packagers.
 
 You may tweak the wording, icon, and colors of the Log In button in the OIDC extension settings.
 
