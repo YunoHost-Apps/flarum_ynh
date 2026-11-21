@@ -39,6 +39,10 @@ if [ ! -z "$old_ldap_extension" ]; then
     ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap
 fi
 
+if [ ! -z "${ldap_version:-}" ]; then
+    ynh_app_setting_delete --key=ldap_version
+fi
+
 if [ ! -z "${project_version:-}" ]; then
     ynh_app_setting_delete --key=project_version
 fi
@@ -67,6 +71,13 @@ ynh_config_add_nginx
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_config_add_logrotate
+
+#=================================================
+# CONFIGURE DEX APP FOR OAUTH2 / OIDC
+#=================================================
+ynh_script_progression "Configuring dex..."
+
+setup_dex
 
 #=================================================
 # ADD SWAP
@@ -113,13 +124,13 @@ ynh_app_setting_set --key=core_version --value="$core_version"
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! ynh_exec_as_app php$php_version flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
+if ! ynh_exec_as_app php$php_version flarum info | grep -q "floxum-oidc";
 then
     # Install and activate the LDAP auth extension
-    activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
+    activate_flarum_extension -d $db_name -s "floxum-oidc"
     # Configure LDAP auth extension
-    ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-    ynh_mysql_db_shell $db_name < ../conf/ldap.sql
+#    ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
+#    ynh_mysql_db_shell $db_name < ../conf/oidc.sql
 fi
 
 # Install, activate and set language extensions

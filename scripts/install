@@ -21,7 +21,6 @@ admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 
 ynh_app_setting_set --key=language --value="$language"
 ynh_app_setting_set --key=core_version --value="$core_version"
-ynh_app_setting_set --key=ldap_version --value="$ldap_version"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -46,6 +45,13 @@ ynh_config_add_nginx
 ynh_config_add_logrotate
 
 #=================================================
+# CONFIGURE DEX APP FOR OAUTH2 / OIDC
+#=================================================
+ynh_script_progression "Configuring dex..."
+
+setup_dex
+
+#=================================================
 # ADD SWAP
 #=================================================
 ynh_print_info "Adding swap..."
@@ -66,8 +72,8 @@ ynh_hide_warnings ynh_composer_exec --json config "policy.advisories.ignore-id" 
 # Set Flarum version
 ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-lowest --no-update
 
-# Require LDAP extension
-ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
+# Require OIDC extension
+ynh_hide_warnings ynh_composer_exec require floxum/flarum-ext-oidc --no-update
 
 # Update and download dependencies
 ynh_hide_warnings ynh_composer_exec update
@@ -91,11 +97,11 @@ popd
 ynh_config_add --template="../conf/mail.sql.template" --destination="../conf/mail.sql"
 ynh_mysql_db_shell $db_name < ../conf/mail.sql
 
-# Enable and set up the LDAP auth extension
-ynh_script_progression "Enabling and configuring LDAP extension..."
-activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
-ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-ynh_mysql_db_shell $db_name < ../conf/ldap.sql
+# Enable and set up the OIDC extension
+ynh_script_progression "Enabling and configuring OIDC extension..."
+#activate_flarum_extension -d $db_name -s "flowum-oidc"
+#ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
+#ynh_mysql_db_shell $db_name < ../conf/oidc.sql
 
 # Install, activate and set language extensions
 case $language in
