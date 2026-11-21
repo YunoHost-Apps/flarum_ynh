@@ -2,7 +2,7 @@
 
 Cette app permet à vos utilisateurs enregistrés dans YunoHost de se connecter en passant par une autre app, Dex.
 
-Pour permettre à des utilisateurs non-YunoHost de se connecter, référez-vous au menu de configuration de l'extension OpenID Connect dans le panneau d'administration de Flarum.
+Vous pouvez modifier le texte, l'îcone, et les couleurs du bouton de connextion dans les paramètres de l'extension OIDC.
 
 ### Mise à jour
 

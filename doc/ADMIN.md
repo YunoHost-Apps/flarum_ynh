@@ -2,7 +2,7 @@
 
 This app allows your YunoHost users to log in with another app, Dex.
 
-To allow non-YunoHost users to log in, tune the OpenID Connect extension setting in Flarum's admin panel.
+You may tweak the wording, icon, and colors of the Log In button in the OIDC extension settings.
 
 ### Upgrading
 
