@@ -2,6 +2,19 @@ test_format = 1.0
 
 [default]
 
+
+    preinstall = """
+    sudo yunohost tools update apps
+    sudo yunohost domain add dex.domain.tld
+    sudo yunohost app install https://github.com/YunoHost-Apps/dex_ynh/tree/testing -f -a "domain=dex.domain.tld&path=/&oidc_name=&oidc_secret=&oidc_callback"
+    """
+
+    preupgrade = """
+    sudo yunohost app remove dex__2 || true
+    sudo yunohost app upgrade dex -u https://github.com/YunoHost-Apps/dex_ynh/tree/testing -F
+    """
+
+    args.dex = "dex"
     args.password = "Passw0rd!"
     args.language = "fr"
 
