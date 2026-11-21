@@ -35,7 +35,7 @@ fi
 
 # Remove tituspijean's LDAP extension if it exists
 if [ ! -z "${ldap_version:-}" ]; then
-    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap
+    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap --no-update
     ynh_app_setting_delete --key=ldap_version
 fi
 
