@@ -16,10 +16,8 @@ Flarum ne permet pas encore d'installer des extensions depuis son interface d'ad
 Remplacez `vendor/extension` par les noms adéquats. Référez-vous à la documentation de l'extension pour vérifier qu'elle ne nécessite pas de configuration supplémentaire.
 
 ```bash
-sudo su
-app=__ID__
-cd /var/www/$app
-sudo -u $app php__PHP_VERSION__ composer.phar require vendor/extension
+sudo yunohost app shell __APP__
+php composer.phar require vendor/extension
 ```
 
 #### Dépannage
@@ -36,4 +34,4 @@ Si vous avez une erreur lors du chargement de gros fichiers dans le forum, PHP p
 
 Dans `/etc/php/__PHP_VERSION__/fpm/pool.d/__ID__.conf`, vous pouvez décommenter (enlevez `;` au début de la ligne) et augmenter les valeurs de `upload_max_filesize` de `post_max_size` (les deux valeurs sont en octets).
 
-Rechargez PHP-FPM avec `sudo service php__PHPVERSION__-fpm reload`.
+Rechargez PHP-FPM avec `sudo service php__PHP_VERSION__-fpm reload`.

@@ -16,10 +16,8 @@ Flarum does not offer to install extensions from its admin panel yet, so you nee
 Replace `vendor/extension` with the appropriate names. Read the extension documentation if it requires additional steps.
 
 ```bash
-sudo su
-app=__ID__
-cd /var/www/$app
-sudo -u $app php__PHP_VERSION__ composer.phar require vendor/extension
+sudo yunohost app shell __APP__
+php composer.phar require vendor/extension
 ```
 
 #### Troubleshooting
