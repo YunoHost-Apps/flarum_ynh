@@ -29,7 +29,7 @@ fi
 # Remove SSOwat extension if it exists
 ssowat_extension=$(ynh_app_setting_get --app=$app --key=ssowat_extension)
 if [ ! -z "$ssowat_extension" ]; then
-    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ssowat
+    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ssowat --no-update
     ynh_app_setting_delete --app=$app --key=ssowat_extension
 fi
 
