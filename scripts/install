@@ -99,9 +99,9 @@ ynh_mysql_db_shell $db_name < ../conf/mail.sql
 
 # Enable and set up the OIDC extension
 ynh_script_progression "Enabling and configuring OIDC extension..."
-#activate_flarum_extension -d $db_name -s "flowum-oidc"
-#ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
-#ynh_mysql_db_shell $db_name < ../conf/oidc.sql
+activate_flarum_extension -d $db_name -s "floxum-oidc"
+ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
+ynh_mysql_db_shell $db_name < ../conf/oidc.sql
 
 # Install, activate and set language extensions
 case $language in

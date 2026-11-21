@@ -129,8 +129,8 @@ then
     # Install and activate the LDAP auth extension
     activate_flarum_extension -d $db_name -s "floxum-oidc"
     # Configure LDAP auth extension
-#    ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
-#    ynh_mysql_db_shell $db_name < ../conf/oidc.sql
+    ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
+    ynh_mysql_db_shell $db_name < ../conf/oidc.sql
 fi
 
 # Install, activate and set language extensions

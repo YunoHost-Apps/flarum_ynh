@@ -1,0 +1,4 @@
+INSERT INTO `settings` (`key`, `value`) VALUES
+('floxum-oidc.providers', '{"__DEX__":{"key":"__DEX__","issuer":"https://__DEX_DOMAIN____DEX_PATH__","client_id":"__APP__","client_secret":"__OIDC_SECRET__","button_title":"YunoHost","icon":"fas fa-id-card","btn_bg":"#258bba","btn_text":"#ffffff","alg":"RS256","scope":"openid profile email","claim_email":"email","claim_username":"name","claim_avatar":"picture","trust_unverified_email":true}}')
+ON DUPLICATE KEY UPDATE
+  `value` = VALUES(`value`);
