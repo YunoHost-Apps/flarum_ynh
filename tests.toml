@@ -11,7 +11,11 @@ test_format = 1.0
 
     preupgrade = """
     sudo yunohost app remove dex__2 || true
-    sudo yunohost app upgrade dex -u https://github.com/YunoHost-Apps/dex_ynh/tree/testing -F
+    if [ $(lsb_release -rs) -eq 13 ]; then
+        sudo yunohost app upgrade dex -u https://github.com/YunoHost-Apps/dex_ynh/tree/testing -f
+    else
+        sudo yunohost app upgrade dex -u https://github.com/YunoHost-Apps/dex_ynh/tree/testing -F
+    fi
     """
 
     args.dex = "dex"
