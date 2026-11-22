@@ -70,10 +70,10 @@ ynh_script_progression "Installing composer dependencies..."
 ynh_hide_warnings ynh_composer_exec --json config "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
 
 # Set Flarum version
-ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-lowest --no-update
+ynh_hide_warnings ynh_composer_exec require "flarum/core:$core_version" --prefer-lowest --no-update
 
-# Require OIDC extension
-ynh_hide_warnings ynh_composer_exec require floxum/flarum-ext-oidc --no-update
+# Require OIDC extension and Extension Manager
+ynh_hide_warnings ynh_composer_exec require "floxum/flarum-ext-oidc:*" "flarum/extension-manager:*" --no-update
 
 # Update and download dependencies
 ynh_hide_warnings ynh_composer_exec update
@@ -102,6 +102,10 @@ ynh_script_progression "Enabling and configuring OIDC extension..."
 activate_flarum_extension -d $db_name -s "floxum-oidc"
 ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
 ynh_mysql_db_shell $db_name < ../conf/oidc.sql
+
+# Enable the extension manager
+ynh_script_progression "Enabling Extension Manager..."
+activate_flarum_extension -d $db_name -s "flarum-extension-manager"
 
 # Install, activate and set language extensions
 case $language in
