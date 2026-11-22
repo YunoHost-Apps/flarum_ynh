@@ -1,7 +1,8 @@
 ### Connexion
 
-Cette app permet à vos utilisateurs enregistrés dans YunoHost de se connecter avec une [extension LDAP dédiée](https://github.com/tituspijean/flarum-ext-auth-ldap). Par défaut, la méthode de connexion standard est cachée.
-Pour permettre à des utilisateurs non-YunoHost de se connecter, référez-vous au menu de configuration de l'extension LDAP dans le panneau d'administration de Flarum.
+Cette app permet à vos utilisateurs enregistrés dans YunoHost de se connecter en passant par une autre app, Dex. Dex requiert d'utiliser des certificats correctement signés. Si vous utilisez des certificats auto-signés, vous pourriez rencontrer des erreurs. Si vous trouvez une solution pour contourner cela, vous êtes plus qu'invités à la partager avec les packagers de YunoHost.
+
+Vous pouvez modifier le texte, l'îcone, et les couleurs du bouton de connexion dans les paramètres de l'extension OIDC.
 
 ### Mise à jour
 
@@ -15,10 +16,8 @@ Flarum ne permet pas encore d'installer des extensions depuis son interface d'ad
 Remplacez `vendor/extension` par les noms adéquats. Référez-vous à la documentation de l'extension pour vérifier qu'elle ne nécessite pas de configuration supplémentaire.
 
 ```bash
-sudo su
-app=__ID__
-cd /var/www/$app
-sudo -u $app php__PHP_VERSION__ composer.phar require vendor/extension
+sudo yunohost app shell __APP__
+php composer.phar require vendor/extension
 ```
 
 #### Dépannage
@@ -35,4 +34,4 @@ Si vous avez une erreur lors du chargement de gros fichiers dans le forum, PHP p
 
 Dans `/etc/php/__PHP_VERSION__/fpm/pool.d/__ID__.conf`, vous pouvez décommenter (enlevez `;` au début de la ligne) et augmenter les valeurs de `upload_max_filesize` de `post_max_size` (les deux valeurs sont en octets).
 
-Rechargez PHP-FPM avec `sudo service php__PHPVERSION__-fpm reload`.
+Rechargez PHP-FPM avec `sudo service php__PHP_VERSION__-fpm reload`.

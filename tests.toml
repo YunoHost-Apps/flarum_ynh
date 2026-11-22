@@ -2,7 +2,24 @@ test_format = 1.0
 
 [default]
 
+
+    preinstall = """
+    sudo yunohost tools update apps
+    sudo yunohost domain add dex.domain.tld
+    sudo yunohost app install https://github.com/YunoHost-Apps/dex_ynh/tree/testing -f -a "domain=dex.domain.tld&path=/&oidc_name=&oidc_secret=&oidc_callback"
+    """
+
+    preupgrade = """
+    sudo yunohost app remove dex__2 --quiet || true
+    if [ $(lsb_release -rs) -eq 13 ]; then
+        sudo yunohost app upgrade dex -u https://github.com/YunoHost-Apps/dex_ynh/tree/testing -f
+    else
+        sudo yunohost app upgrade dex -u https://github.com/YunoHost-Apps/dex_ynh/tree/testing -F
+    fi
+    """
+
+    args.dex = "dex"
     args.password = "Passw0rd!"
     args.language = "fr"
 
-    test_upgrade_from.a10de288c1846116fa18d3261be39e089175eceb.name = "Upgrade from 1.8.1~ynh1"
+    test_upgrade_from.961ca9bedbf9b3d53e998b7f0b7546a27bb1335c.name = "Upgrade from 1.8.20~ynh2"
