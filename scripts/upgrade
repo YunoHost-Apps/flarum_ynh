@@ -112,6 +112,7 @@ pushd $install_dir
         ynh_replace --match="blomstra/flarum-redis" --replace="fof/redis" --file=composer.json
         ynh_replace --match="blomstra/horizon" --replace="fof/horizon" --file=composer.json
         ynh_replace --match="flarum/package-manager" --replace="flarum/extension-manager" --file=composer.json
+        ynh_replace --match="mysql" --replace="mariadb" --file=config.php
     fi
 
     ynh_script_progression "Upgrading Flarum and its extensions..."
