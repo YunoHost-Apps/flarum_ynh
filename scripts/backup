@@ -27,6 +27,8 @@ ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_backup "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
+ynh_backup "/etc/cron.d/$app"
+
 #=================================================
 # BACKUP VARIOUS FILES
 #=================================================

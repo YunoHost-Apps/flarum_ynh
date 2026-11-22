@@ -20,9 +20,7 @@ admin_mail=$(ynh_user_get_info --username=$admin --key=mail)
 #=================================================
 
 ynh_app_setting_set --key=language --value="$language"
-ynh_app_setting_set --key=project_version --value="$project_version"
 ynh_app_setting_set --key=core_version --value="$core_version"
-ynh_app_setting_set --key=ldap_version --value="$ldap_version"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -33,18 +31,11 @@ ynh_script_progression "Setting up source files..."
 ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
 
 #=================================================
-# SYSTEM CONFIGURATION
+# CONFIGURE DEX APP FOR OAUTH2 / OIDC
 #=================================================
-ynh_script_progression "Adding system configurations related to $app..."
+ynh_script_progression "Configuring dex..."
 
-# Create a dedicated PHP-FPM config
-ynh_config_add_phpfpm
-
-# Create a dedicated NGINX config
-ynh_config_add_nginx
-
-# Use logrotate to manage application logfile(s)
-ynh_config_add_logrotate
+setup_dex
 
 #=================================================
 # ADD SWAP
@@ -65,10 +56,10 @@ ynh_script_progression "Installing composer dependencies..."
 ynh_hide_warnings ynh_composer_exec --json config "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
 
 # Set Flarum version
-ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-lowest --no-update
+ynh_hide_warnings ynh_composer_exec require "flarum/core:$core_version" --prefer-lowest --no-update
 
-# Require LDAP extension
-ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
+# Require OIDC extension and Extension Manager
+ynh_hide_warnings ynh_composer_exec require "floxum/flarum-ext-oidc:*" "flarum/extension-manager:*" --no-update
 
 # Update and download dependencies
 ynh_hide_warnings ynh_composer_exec update
@@ -92,11 +83,15 @@ popd
 ynh_config_add --template="../conf/mail.sql.template" --destination="../conf/mail.sql"
 ynh_mysql_db_shell $db_name < ../conf/mail.sql
 
-# Enable and set up the LDAP auth extension
-ynh_script_progression "Enabling and configuring LDAP extension..."
-activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
-ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-ynh_mysql_db_shell $db_name < ../conf/ldap.sql
+# Enable and set up the OIDC extension
+ynh_script_progression "Enabling and configuring OIDC extension..."
+activate_flarum_extension -d $db_name -s "floxum-oidc"
+ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
+ynh_mysql_db_shell $db_name < ../conf/oidc.sql
+
+# Enable the extension manager
+ynh_script_progression "Enabling Extension Manager..."
+activate_flarum_extension -d $db_name -s "flarum-extension-manager"
 
 # Install, activate and set language extensions
 case $language in
@@ -120,6 +115,23 @@ esac
 chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
+
+#=================================================
+# SYSTEM CONFIGURATION
+#=================================================
+ynh_script_progression "Adding system configurations related to $app..."
+
+# Create a dedicated PHP-FPM config
+ynh_config_add_phpfpm
+
+# Create a dedicated NGINX config
+ynh_config_add_nginx
+
+# Use logrotate to manage application logfile(s)
+ynh_config_add_logrotate
+
+# Cronjob
+ynh_config_add --template="cron" --destination="/etc/cron.d/$app"
 
 #=================================================
 # END OF SCRIPT
