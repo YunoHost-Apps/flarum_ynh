@@ -1,8 +1,8 @@
 ### Connexion
 
-Cette app permet à vos utilisateurs enregistrés dans YunoHost de se connecter en passant par une autre app, Dex. Dex requiert d'utiliser des certificats correctement signés. Si vous utiliser des certificats auto-signés, vous pourriez rencontrer des erreurs. Si vous trouvez une solution pour contourner cela, vous êtes plus qu'invités à la partager avec les packagers de YunoHost.
+Cette app permet à vos utilisateurs enregistrés dans YunoHost de se connecter en passant par une autre app, Dex. Dex requiert d'utiliser des certificats correctement signés. Si vous utilisez des certificats auto-signés, vous pourriez rencontrer des erreurs. Si vous trouvez une solution pour contourner cela, vous êtes plus qu'invités à la partager avec les packagers de YunoHost.
 
-Vous pouvez modifier le texte, l'îcone, et les couleurs du bouton de connextion dans les paramètres de l'extension OIDC.
+Vous pouvez modifier le texte, l'îcone, et les couleurs du bouton de connexion dans les paramètres de l'extension OIDC.
 
 ### Mise à jour
 
