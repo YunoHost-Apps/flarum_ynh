@@ -82,13 +82,19 @@ then
 	jq '.require | .[] = "*"' $install_dir/composer.json
 fi
 
-# Perform migrations and clear cache
 pushd $install_dir
-	ynh_script_progression "Upgrading Flarum and its extensions..."
-	ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
-	ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies
-	ynh_exec_as_app php$php_version flarum migrate
-	ynh_exec_as_app php$php_version flarum cache:clear
+
+    # Disable policy advisories for 1.8.x
+    # This is suggested by upstream documentation: https://docs.flarum.org/update/#before-you-begin
+    ynh_hide_warnings ynh_composer_exec config "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
+
+    # Perform migrations and clear cache
+    	ynh_script_progression "Upgrading Flarum and its extensions..."
+    	ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
+    	ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies
+    	ynh_exec_as_app php$php_version flarum migrate
+    	ynh_exec_as_app php$php_version flarum cache:clear
+
 popd
 
 ynh_app_setting_set --key=core_version --value="$core_version"
