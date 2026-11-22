@@ -1,7 +1,8 @@
 ## Login
 
-This app allows your YunoHost users to log in with a [dedicated LDAP extension](https://github.com/tituspijean/flarum-ext-auth-ldap). By default, the standard logging method is hidden.
-To allow non-YunoHost users to log in, tune the LDAP extension setting in Flarum's admin panel.
+This app allows your YunoHost users to log in with another app, Dex. Dex requires to use properly signed certificates. You might encouter errors if using self-signed certificates. If you find a trick around that, you are most welcome to share it with the YunoHost packagers.
+
+You may tweak the wording, icon, and colors of the Log In button in the OIDC extension settings.
 
 ### Upgrading
 
@@ -15,10 +16,8 @@ Flarum does not offer to install extensions from its admin panel yet, so you nee
 Replace `vendor/extension` with the appropriate names. Read the extension documentation if it requires additional steps.
 
 ```bash
-sudo su
-app=__ID__
-cd /var/www/$app
-sudo -u $app php__PHP_VERSION__ composer.phar require vendor/extension
+sudo yunohost app shell __APP__
+php composer.phar require vendor/extension
 ```
 
 #### Troubleshooting

@@ -29,14 +29,14 @@ fi
 # Remove SSOwat extension if it exists
 ssowat_extension=$(ynh_app_setting_get --app=$app --key=ssowat_extension)
 if [ ! -z "$ssowat_extension" ]; then
-    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ssowat
+    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ssowat --no-update
     ynh_app_setting_delete --app=$app --key=ssowat_extension
 fi
 
 # Remove tituspijean's LDAP extension if it exists
-old_ldap_extension=$(ynh_hide_warnings ynh_composer_exec show tituspijean/flarum-ext-auth-ldap -N)
-if [ ! -z "$old_ldap_extension" ]; then
-    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap
+if [ ! -z "${ldap_version:-}" ]; then
+    ynh_hide_warnings ynh_composer_exec remove tituspijean/flarum-ext-auth-ldap --no-update
+    ynh_app_setting_delete --key=ldap_version
 fi
 
 if [ ! -z "${project_version:-}" ]; then
@@ -69,6 +69,13 @@ ynh_config_add_nginx
 ynh_config_add_logrotate
 
 #=================================================
+# CONFIGURE DEX APP FOR OAUTH2 / OIDC
+#=================================================
+ynh_script_progression "Configuring dex..."
+
+setup_dex
+
+#=================================================
 # ADD SWAP
 #=================================================
 ynh_script_progression "Adding swap..."
@@ -98,12 +105,20 @@ pushd $install_dir
     # This is suggested by upstream documentation: https://docs.flarum.org/update/#before-you-begin
     ynh_hide_warnings ynh_composer_exec config --json "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
 
-    # Perform migrations and clear cache
-        ynh_script_progression "Upgrading Flarum and its extensions..."
-        ynh_hide_warnings ynh_composer_exec require tituspijean/flarum-ext-auth-ldap:$ldap_version --no-update
-        ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies
-        ynh_exec_as_app php$php_version flarum migrate
-        ynh_exec_as_app php$php_version flarum cache:clear
+    # Remove and migrate extensions for v2.x
+    if ynh_app_upgrading_from_version_before 2.0.0~ynh1
+    then
+        ynh_hide_warnings ynh_composer_exec remove blomstra/database-queue blomstra/fontawesome --no-update
+        ynh_replace --match="blomstra/flarum-redis" --replace="fof/redis" --file=composer.json
+        ynh_replace --match="blomstra/horizon" --replace="fof/horizon" --file=composer.json
+        ynh_replace --match="flarum/package-manager" --replace="flarum/extension-manager" --file=composer.json
+    fi
+
+    ynh_script_progression "Upgrading Flarum and its extensions..."
+    ynh_hide_warnings ynh_composer_exec require "flarum/core:$core_version" "floxum/flarum-ext-oidc:*" "flarum/extension-manager:*" --no-update
+    ynh_hide_warnings ynh_composer_exec update --prefer-dist --no-plugins --no-dev -a --with-all-dependencies
+    ynh_exec_as_app php$php_version flarum migrate
+    ynh_exec_as_app php$php_version flarum cache:clear
 
 popd
 
@@ -113,13 +128,13 @@ ynh_app_setting_set --key=core_version --value="$core_version"
 # FLARUM EXTENSIONS
 #=================================================
 
-if ! ynh_exec_as_app php$php_version flarum info | grep -q "tituspijean-auth-ldap" | grep -q $ldap_version;
+if ! ynh_exec_as_app php$php_version $install_dir/flarum info | grep -q "floxum-oidc";
 then
     # Install and activate the LDAP auth extension
-    activate_flarum_extension -d $db_name -s "tituspijean-auth-ldap"
+    activate_flarum_extension -d $db_name -s "floxum-oidc"
     # Configure LDAP auth extension
-    ynh_config_add --template="../conf/ldap.sql.template" --destination="../conf/ldap.sql"
-    ynh_mysql_db_shell $db_name < ../conf/ldap.sql
+    ynh_config_add --template="../conf/oidc.sql.template" --destination="../conf/oidc.sql"
+    ynh_mysql_db_shell $db_name < ../conf/oidc.sql
 fi
 
 # Install, activate and set language extensions
@@ -145,11 +160,6 @@ ynh_hide_warnings ynh_composer_exec remove qiaeru/lang-french:*
 ynh_hide_warnings ynh_composer_exec remove kakifrucht/flarum-de:*
 
 ynh_print_info "You may need to manually enable your language extension in Flarum's admin panel."
-
-# Clear cache
-pushd $install_dir
-    ynh_exec_as_app php$php_version flarum cache:clear
-popd
 
 # Set files and directories permissions
 chmod 750 "$install_dir"
