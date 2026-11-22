@@ -6,7 +6,7 @@ description.en = "Next-generation forum made simple"
 description.fr = "Forum de nouvelle génération, simplement"
 description.de = "Forum der nächsten Generation leicht gemacht"
 
-version = "1.8.20~ynh1"
+version = "1.8.20~ynh2"
 
 maintainers = ["tituspijean"]
 
@@ -103,4 +103,4 @@ ram.runtime = "50M"
     type = "mysql"
 
     [resources.composer]
-    version = "2.10.2"
+    version = "2.10.3"
