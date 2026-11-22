@@ -62,7 +62,7 @@ ynh_script_progression "Installing composer dependencies..."
 
 # Disable policy advisories for 1.8.x
 # This is suggested by upstream documentation: https://docs.flarum.org/update/#before-you-begin
-ynh_hide_warnings ynh_composer_exec config "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
+ynh_hide_warnings ynh_composer_exec --json config "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
 
 # Set Flarum version
 ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-lowest --no-update
