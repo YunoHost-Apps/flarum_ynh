@@ -31,20 +31,6 @@ ynh_script_progression "Setting up source files..."
 ynh_setup_source --dest_dir="$install_dir" --source_id="flarum"
 
 #=================================================
-# SYSTEM CONFIGURATION
-#=================================================
-ynh_script_progression "Adding system configurations related to $app..."
-
-# Create a dedicated PHP-FPM config
-ynh_config_add_phpfpm
-
-# Create a dedicated NGINX config
-ynh_config_add_nginx
-
-# Use logrotate to manage application logfile(s)
-ynh_config_add_logrotate
-
-#=================================================
 # CONFIGURE DEX APP FOR OAUTH2 / OIDC
 #=================================================
 ynh_script_progression "Configuring dex..."
@@ -129,6 +115,23 @@ esac
 chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
+
+#=================================================
+# SYSTEM CONFIGURATION
+#=================================================
+ynh_script_progression "Adding system configurations related to $app..."
+
+# Create a dedicated PHP-FPM config
+ynh_config_add_phpfpm
+
+# Create a dedicated NGINX config
+ynh_config_add_nginx
+
+# Use logrotate to manage application logfile(s)
+ynh_config_add_logrotate
+
+# Cronjob
+ynh_config_add --template="cron" --destination="/etc/cron.d/$app"
 
 #=================================================
 # END OF SCRIPT

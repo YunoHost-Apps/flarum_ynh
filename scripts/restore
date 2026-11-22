@@ -33,6 +33,8 @@ ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore "/etc/logrotate.d/$app"
 
+ynh_restore "/etc/cron.d/$app"
+
 #=================================================
 # CONFIGURE DEX APP FOR OAUTH2 / OIDC
 #=================================================

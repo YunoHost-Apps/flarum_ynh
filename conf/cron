@@ -1,0 +1,1 @@
+* * * * * __APP__ cd __INSTALL_DIR__ && php__PHP_VERSION__ flarum schedule:run >> /dev/null 2>&1
