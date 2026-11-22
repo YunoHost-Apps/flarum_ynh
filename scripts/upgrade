@@ -105,6 +105,15 @@ pushd $install_dir
     # This is suggested by upstream documentation: https://docs.flarum.org/update/#before-you-begin
     ynh_hide_warnings ynh_composer_exec config --json "policy.advisories.ignore-id" '["PKSA-w9tt-7782-78jx", "PKSA-pwh8-d4fr-nywn"]'
 
+    # Remove and migrate extensions for v2.x
+    if ynh_app_upgrading_from_version_before 2.0.0~ynh1
+    then
+        ynh_hide_warnings ynh_composer_exec remove blomstra/database-queue blomstra/fontawesome --no-update
+        ynh_replace --match="blomstra/flarum-redis" --replace="fof/redis" --file=composer.json
+        ynh_replace --match="blomstra/horizon" --replace="fof/horizon" --file=composer.json
+        ynh_replace --match="flarum/package-manager" --replace="flarum/extension-manager" --file=composer.json
+    fi
+
     ynh_script_progression "Upgrading Flarum and its extensions..."
     ynh_hide_warnings ynh_composer_exec require flarum/core:$core_version --prefer-dist --update-no-dev -a --update-with-all-dependencies
     ynh_hide_warnings ynh_composer_exec require floxum/flarum-ext-oidc
