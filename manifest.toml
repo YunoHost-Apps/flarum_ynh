@@ -36,8 +36,8 @@ ram.runtime = "50M"
     [install.dex]
     type = "app"
     filter = "match(id, '^(dex)(__[0-9+])?$')"
-    ask.en = "Select the Dex app that will handle authentication for Headscale."
-    ask.fr = "Sélectionnez l'app Dex qui gérera l'authentification pour Headscale."
+    ask.en = "Select the Dex app that will handle YunoHost user authentication."
+    ask.fr = "Sélectionnez l'app Dex qui gérera l'authentification des utilisateurs YunoHost."
     help.en = "You need to have at least one instance of Dex installed beforehand on your server."
     help.fr = "Vous devez avoir au moins une instance de Dex préalablement installée sur votre serveur."
 
