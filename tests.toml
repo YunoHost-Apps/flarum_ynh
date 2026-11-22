@@ -22,4 +22,4 @@ test_format = 1.0
     args.password = "Passw0rd!"
     args.language = "fr"
 
-    test_upgrade_from.d2233cfcb82b927482b8e4b8ab74880650b26d9d.name = "Upgrade from 1.8.20~ynh1"
+    test_upgrade_from.961ca9bedbf9b3d53e998b7f0b7546a27bb1335c.name = "Upgrade from 1.8.20~ynh2"
